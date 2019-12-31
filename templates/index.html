@@ -1,7 +1,17 @@
 {% extends 'base.html' %}
 
 {% block nav_bar %}{% include "nav_bar.html" %}{% endblock %}
-{% block top_bar %}{% include "top_bar.html" %}{% endblock %}
+{% block top_bar %}
+<!-- Topbar -->
+<nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+	<!-- Sidebar Toggle (Topbar) -->
+	<button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+		<i class="fa fa-bars"></i>
+	</button>
+	{% block breadcrumb %}{% endblock %}
+	{% include "top_bar.html" %}
+</nav>
+{% endblock %}
 
 {% block base_container %}
 <!-- Begin Page Content -->
@@ -115,10 +125,47 @@
     </div>
   </div>
 
-  <!-- Content Row -->
-  <div class="row">
-  </div>
-
 </div>
 <!-- /.container-fluid -->
 {% endblock %}
+
+
+{% block javascript %}
+  {% load static %}
+  <!-- Page level plugins -->
+  <script src="{% static "vendor/chart.js/Chart.min.js" %}"></script>
+
+  <!-- Page level custom scripts -->
+  <script src="{% static "js/chart/bar.js" %}"></script>
+  <script src="{% static "js/chart/area.js" %}"></script>
+  <script>
+    // Shorthand for $( document ).ready()
+    $(function() {
+      // Loading earn data
+      $.ajax({
+          url: "/get_earn_data",
+          type: 'GET',
+          dataType: 'json',
+          success: function(res) {
+            data = res['data'];
+            labels = res['labels'];
+            max_value = res['max_value'];
+            load_bar_chart(labels, data, max_value);
+          }
+      });
+
+      // Loading client data
+      $.ajax({
+          url: "/get_top_client",
+          type: 'GET',
+          dataType: 'json',
+          success: function(res) {
+            data = res['data'];
+            labels = res['labels'];
+            load_line_chart(labels, data);
+          }
+      });
+    });
+  </script>
+{% endblock %}
+

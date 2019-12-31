@@ -28,11 +28,16 @@ class Item(models.Model):
     def __unicode__(self):
         return self.name
 
+def validate_file_ext(value):
+    if value.name.endswith('.png') or value.name.endswith('.jpg'):
+        return
+    raise ValidationError(u'Can upload only .png, .jpg files')
+
 class Shop(UpdatedInfo):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=200)
     address = models.CharField(max_length=264, blank=True, null=True)
-    logo = models.ImageField(upload_to ='uploads/', blank=True, null=True)
+    logo = models.ImageField(upload_to ='uploads/', validators=[validate_file_ext], blank=True, null=True)
 
     def __str__(self):
         return self.name

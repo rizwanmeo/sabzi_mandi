@@ -1,0 +1,93 @@
+{% extends 'index.html' %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Shops</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block base_container %}
+<div class="row">
+  <div class="col-lg-12">
+    <div class="p-3">
+      <!-- DataTales -->
+      <div class="card shadow mb-4">
+        <div class="card-header">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="text-left">
+                <h4 class="font-weight-bold text-primary">Shops list</h4>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="text-right">
+                  <a href="/shops/create" class="btn btn-success btn-icon-split">
+                    <span class="icon text-white-50">
+                      <i class="fa fa-plus"></i>
+                    </span>
+                    <span class="text">Add New Shop</span>
+                  </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+              <thead>
+                <tr>
+                  <th>Shop Name</th>
+                  <th>Address</th>
+                  <th>Logo</th>
+                  <th style="width: 120px">Action</th>
+                </tr>
+              </thead>
+              <tfoot>
+                <tr>
+                  <th>Shop Name</th>
+                  <th>Address</th>
+                  <th>Logo</th>
+                  <th style="width: 120px">Action</th>
+                </tr>
+              </tfoot>
+              <tbody>
+                {% for obj in object_list %}
+                <tr>
+                  <td>{{ obj.name }}</td>
+                  <td>{% if obj.address %}{{ obj.address }}{% endif %}</td>
+                  <td>{% if obj.logo %}{{ obj.logo }}{% endif %}</td>
+                  <td>
+                    <a href="/shops/{{obj.id}}/delete" class="btn btn-danger">
+                      <i class="fas fa-trash"></i>
+                    </a>
+                    <a href="/shops/{{obj.id}}/update" class="btn btn-primary">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+  {% load static %}
+  <!-- Page level plugins -->
+  <script src="{% static "vendor/datatables/jquery.dataTables.js" %}"></script>
+  <script src="{% static "vendor/datatables/dataTables.bootstrap4.min.js" %}"></script>
+  <script>
+    $(function() {
+      $('#dataTable').DataTable();
+    })
+  </script>
+{% endblock %}
+

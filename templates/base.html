@@ -16,26 +16,26 @@
   <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 
   <!-- Custom styles for this template-->
-  <link href="{% static "css/sb-admin-2.min.css" %}" rel="stylesheet">
+  <link href="{% static "css/sb-admin-2.css" %}" rel="stylesheet">
 </head>
 
 <body id="page-top">
-	{% block body_bar %}
+  {% block body_bar %}
   <!-- Page Wrapper -->
   <div id="wrapper">
-	{% block nav_bar %}{% endblock %}
+  {% block nav_bar %}{% endblock %}
 
     <!-- Content Wrapper -->
     <div id="content-wrapper" class="d-flex flex-column">
 
       <!-- Main Content -->
       <div id="content">
-				{% block top_bar %}{% endblock %}
-				{% block base_container %}{% endblock %}
+        {% block top_bar %}{% endblock %}
+        {% block base_container %}{% endblock %}
       </div>
       <!-- End of Main Content -->
 
-	  {% block footer %}{% include "footer.html" %}{% endblock %}
+    {% block footer %}{% include "footer.html" %}{% endblock %}
 
     </div>
     <!-- End of Content Wrapper -->
@@ -66,7 +66,7 @@
       </div>
     </div>
   </div>
-	{% endblock %}
+  {% endblock %}
 
   <!-- Bootstrap core JavaScript-->
   <script src="{% static "vendor/jquery/jquery.min.js" %}"></script>
@@ -78,42 +78,8 @@
   <!-- Custom scripts for all pages-->
   <script src="{% static "js/sb-admin-2.min.js" %}"></script>
 
-  <!-- Page level plugins -->
-  <script src="{% static "vendor/chart.js/Chart.min.js" %}"></script>
+	{% block javascript %}{% endblock %}
 
-  <!-- Page level custom scripts -->
-  <script src="{% static "js/chart/bar.js" %}"></script>
-  <script src="{% static "js/chart/area.js" %}"></script>
-
-  <script>
-		// Shorthand for $( document ).ready()
-		$(function() {
-			// Loading earn data
-			$.ajax({
-					url: "/get_earn_data",
-					type: 'GET',
-					dataType: 'json',
-					success: function(res) {
-						data = res['data'];
-						labels = res['labels'];
-						max_value = res['max_value'];
-						load_bar_chart(labels, data, max_value);
-					}
-			});
-
-			// Loading client data
-			$.ajax({
-					url: "/get_top_client",
-					type: 'GET',
-					dataType: 'json',
-					success: function(res) {
-						data = res['data'];
-						labels = res['labels'];
-						load_line_chart(labels, data);
-					}
-			});
-		});
-  </script>
 </body>
 
 </html>

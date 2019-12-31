@@ -1,7 +1,10 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.views.generic import ListView, CreateView, UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
+from dukan.models import *
 
 @login_required(login_url='/login/')
 def index(request):
@@ -38,3 +41,28 @@ def get_suppliers(request):
 def get_clients(request):
     context = {}
     return render(request, 'client.html', context)
+
+
+class CustomLoginRequiredMixin(LoginRequiredMixin):
+    login_url = "/login"
+
+class ShopListView(CustomLoginRequiredMixin, ListView):
+    model = Shop
+    template_name = "shops/list.html"
+
+class ShopCreateView(CustomLoginRequiredMixin, CreateView):
+    model = Shop
+    success_url = "/shops"
+    template_name = "shops/form.html"
+    fields = ["name", "address", "logo"]
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        super(ShopCreateView, self).form_valid(form)
+        return HttpResponseRedirect(self.get_success_url())
+
+class ShopUpdateView(CustomLoginRequiredMixin, UpdateView):
+    model = Shop
+    success_url = "/shops"
+    template_name = "shops/form.html"
+    fields = ["name", "address", "logo"]
