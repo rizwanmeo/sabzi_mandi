@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, re_path
 from django.contrib.auth import views as auth_views
@@ -17,4 +19,6 @@ urlpatterns = [
     re_path(r'^shops/create/$', views.ShopCreateView.as_view(), name='shops_create'),
     re_path(r'^shops/(?P<pk>\d+)/update/$', views.ShopUpdateView.as_view(), name='^shops_update$'),
     #path('admin/', admin.site.urls),
-]
+] 
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

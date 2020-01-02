@@ -58,6 +58,7 @@ class ShopCreateView(CustomLoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
+        form.instance.make_thumbnail()
         super(ShopCreateView, self).form_valid(form)
         return HttpResponseRedirect(self.get_success_url())
 

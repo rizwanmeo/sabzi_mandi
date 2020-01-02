@@ -492,8 +492,8 @@ mark,
   background-color: #fff;
   border: 1px solid #dddfeb;
   border-radius: 0.35rem;
-  max-width: 100%;
-  height: auto;
+  height: 100%;
+  width: 100%;
 }
 
 .figure {
@@ -1700,7 +1700,6 @@ pre code {
 .table-responsive {
   display: block;
   width: 100%;
-  overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 

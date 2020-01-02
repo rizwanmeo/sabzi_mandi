@@ -41,15 +41,15 @@
                 <tr>
                   <th>Shop Name</th>
                   <th>Address</th>
-                  <th>Logo</th>
-                  <th style="width: 120px">Action</th>
+                  <th style="width: 100px;">Logo</th>
+                  <th style="width: 120px;padding-top: 30px;">Action</th>
                 </tr>
               </thead>
               <tfoot>
                 <tr>
                   <th>Shop Name</th>
                   <th>Address</th>
-                  <th>Logo</th>
+                  <th style="width: 100px;">Logo</th>
                   <th style="width: 120px">Action</th>
                 </tr>
               </tfoot>
@@ -58,8 +58,8 @@
                 <tr>
                   <td>{{ obj.name }}</td>
                   <td>{% if obj.address %}{{ obj.address }}{% endif %}</td>
-                  <td>{% if obj.logo %}{{ obj.logo }}{% endif %}</td>
-                  <td>
+                  <td>{% if obj.logo %}<img src="{{ obj.logo.url }}" class="img-thumbnail img-rounded" />{% endif %}</td>
+                  <td style="padding-top: 30px;">
                     <a href="/shops/{{obj.id}}/delete" class="btn btn-danger">
                       <i class="fas fa-trash"></i>
                     </a>
