@@ -56,6 +56,7 @@ class Shop(UpdatedInfo):
     address = models.CharField(max_length=264, blank=True, null=True)
     logo = models.ImageField(upload_to =content_file_name, validators=[validate_file_ext], blank=True, null=True)
     logo_thumbnail = models.ImageField(upload_to='shops_thumbs/', editable=False)
+    is_default = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -67,15 +68,12 @@ class Shop(UpdatedInfo):
         """
         Create and save the thumbnail for the photo (simple resize with PIL).
         """
-        print("======================1========================", self.logo.name)
         fh = storage.open(self.logo.name, 'rb')
-        print("======================2========================", fh)
         try:
             image = Image.open(fh)
         except Exception as e:
             print("Exception as e: ", e)
             return False
-        print("======================3========================")
 
         image.thumbnail((200, 200), Image.ANTIALIAS)
         fh.close()
@@ -95,19 +93,15 @@ class Shop(UpdatedInfo):
 
         # Save thumbnail to in-memory file as StringIO
         temp_thumb = BytesIO()
-        print("======================4========================")
         image.save(temp_thumb, FTYPE)
-        print("======================5========================")
         temp_thumb.seek(0)
-        print("======================6========================")
 
         # Load a ContentFile into the thumbnail field so it gets saved
         self.logo_thumbnail.save(thumb_filename, ContentFile(temp_thumb.read()), save=True)
-        print("======================7========================")
         temp_thumb.close()
-        print("======================8========================")
 
         return True
+
 class Supplier(BasicInfo):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
 

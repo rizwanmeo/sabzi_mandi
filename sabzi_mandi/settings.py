@@ -48,6 +48,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    #'sabzi_mandi.middleware.SabziMandiMiddleware',
 ]
 
 ROOT_URLCONF = 'sabzi_mandi.urls'
@@ -65,6 +66,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'sabzi_mandi.context_processor.default_shop',
             ],
         },
     },
@@ -72,6 +74,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'sabzi_mandi.wsgi.application'
 
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
@@ -131,3 +134,4 @@ STATICFILES_DIRS = [
 LOGOUT_REDIRECT_URL = '/login'
 LOGIN_REDIRECT_URL = '/'
 
+TIME_ZONE = 'Asia/Karachi'

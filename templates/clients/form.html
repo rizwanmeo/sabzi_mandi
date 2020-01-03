@@ -1,0 +1,32 @@
+{% extends 'index.html' %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+    <li class="breadcrumb-item"><a href="/clients">Clients</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Create Client</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block base_container %}
+<div class="row">
+  <div class="col-lg-9">
+    <div class="p-5">
+      <div class="text-center text-primary">
+        <h1 class="h4 text-primary-900 mb-4 font-weight-bold">Create New Client</h1>
+      </div>
+      <form action="." method="POST" enctype="multipart/form-data">
+        {% include "form_non_field_errors.html" %}
+        {% include "fields.html" with field=form.name field_label="Client Name" %}
+        {% include "fields.html" with field=form.cnic field_label="CNIC Number" %}
+        {% include "fields.html" with field=form.phone field_label="Phone Number" %}
+        {% include "text_fields.html" with field=form.address field_label="Client Address" %}
+        {% include "fields.html" with field=form.opening_balance field_label="Opening Balance" %}
+        {% include "form_buttons.html" with name="Client" %}
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
