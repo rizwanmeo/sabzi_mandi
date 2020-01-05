@@ -24,16 +24,22 @@ urlpatterns = [
     re_path(r'^shops/$', views.ShopListView.as_view(), name='shops_list'),
     re_path(r'^suppliers/$', views.SupplierListView.as_view(), name='suppliers_list'),
     re_path(r'^clients/$', views.ClientListView.as_view(), name='clients_list'),
+    re_path(r'^client-bills/$', views.ClientBillListView.as_view(), name='client_bills'),
 
     # all create view urls
     re_path(r'^shops/create/$', views.ShopCreateView.as_view(), name='shops_create'),
     re_path(r'^suppliers/create/$', views.SupplierCreateView.as_view(), name='suppliers_create'),
     re_path(r'^clients/create/$', views.ClientCreateView.as_view(), name='clients_create'),
+    re_path(r'^client-bills/create/$', views.ClientBillCreateView.as_view(), name='client_bills_create'),
+    re_path(r'^client-bills/(?P<client_id>\d+)/bill-detail/$', views.client_bill_detail, name='client_bill_detail'),
 
     # all update view urls
     re_path(r'^shops/(?P<pk>\d+)/update/$', views.ShopUpdateView.as_view(), name='^shops_update$'),
     re_path(r'^suppliers/(?P<pk>\d+)/update/$', views.SupplierUpdateView.as_view(), name='^suppliers_update$'),
     re_path(r'^clients/(?P<pk>\d+)/update/$', views.ClientUpdateView.as_view(), name='^clients_update$'),
+    re_path(r'^client-bills/(?P<pk>\d+)/update/$', views.ClientBillUpdateView.as_view(), name='^client_bills_update$'),
+    path('admin/', admin.site.urls),
+
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

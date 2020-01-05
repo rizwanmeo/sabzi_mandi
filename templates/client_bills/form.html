@@ -1,0 +1,161 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block css %}
+  <!-- Custom styles for this template-->
+  <link href="{% static "css/fstdropdown.min.css" %}" rel="stylesheet">
+{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+    <li class="breadcrumb-item"><a href="/client-bills">Client Bills</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Create Client Bill</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block base_container %}
+<div class="row">
+  <div class="col-lg-9">
+    <div class="p-5">
+      <div class="text-center text-primary">
+        <h1 class="h4 text-primary-900 mb-4 font-weight-bold">Create New Client Bill</h1>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-1 col-form-label font-weight-bold">Client</label>
+        <div class="col-sm-3" id="id_client_info">
+          {{ form.client }}
+        </div>
+      </div>
+      <div id="id_client_info_error">
+      </div>
+
+      <form action="." id="id_bill_detail" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group row">
+          <div class="col-sm-3" id="id_item_info">
+            {{ detail_form.item }}
+          </div>
+          <div class="col-sm-3" id="id_unit_info">
+            {{ detail_form.unit }}
+          </div>
+          <div class="col-sm-3">
+              <input type="text" class="form-control" id="id_rate" name="rate">
+          </div>
+          <div class="col-sm-3">
+            <a href="#" id="id_submit_detail" class="btn btn-success btn-icon-split">
+              <span class="icon text-white-50">
+                <i class="fa fa-plus"></i>
+              </span>
+              <span class="text">Add</span>
+            </a>
+            <a href="#" data-toggle="modal" data-target="#makeDefaultShop" class="btn btn-danger btn-icon-split">
+              <span class="icon text-white-50">
+                <i class="fa fa-plus"></i>
+              </span>
+              <span class="text">Reset</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <div class="col-sm-3 text-danger">
+            <ul class="errorlist">
+              <li id="id_item_error" hidden></li>
+            </ul>
+          </div>
+
+          <div class="col-sm-3 text-danger">
+            <ul class="errorlist">
+              <li id="id_unit_error" hidden></li>
+            </ul>
+          </div>
+
+          <div class="col-sm-3 text-danger">
+            <ul class="errorlist">
+              <li id="id_rate_error" hidden></li>
+            </ul>
+          </div>
+        </div>
+
+      </form>
+      <form action="." method="POST" enctype="multipart/form-data">
+        {% include "form_non_field_errors.html" %}
+        {% include "form_buttons.html" with name="Client Bill" %}
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+  <!-- Page level plugins -->
+  <script src="{% static "js/fstdropdown.js" %}"></script>
+  <script>
+  $(document).ready(function(){
+    $("#id_client").removeAttr("required");
+    $("#id_item").removeAttr("required");
+    $("#id_unit").removeAttr("required");
+    $("#id_submit_detail").click(function(){
+      var clientId = $("#id_client_info").find(".selected").attr("data-value");
+      if (!clientId) {
+        $("#id_client_info").find(".fstselected").addClass("form-control is-invalid");
+        $("#id_client_info").parent().removeClass("form-group");
+        $("#id_client_info_error").html('<div class="row" style="margin-bottom: 0rem;">'+
+                                          '<div class="col-sm-1"></div>'+
+                                            '<div class="text-danger">'+
+                                              '<p></p><ul class="errorlist"><li>This field is required.</li></ul><p></p>'+
+                                            '</div>'+
+                                        '</div>');
+
+        } else {
+          $("#id_client_info").find(".fstselected").removeClass("form-control is-invalid");
+          $("#id_client_info").parent().addClass("form-group");
+          $("#id_client_info_error").html('');
+
+          $.ajax({
+            url: "/client-bills/"+clientId+"/bill-detail/", 
+            type: 'post',
+            data: $("#id_bill_detail").serialize(),
+            dataType: 'json',
+            success: function ( res ) {
+              if (res["status"] == true) {
+                  console.log(res);
+              } else {
+                if (res["errors"]["item"]){
+                  $("#id_item_error").text(res["errors"]["item"][0]);
+                  $("#id_item_info").find(".fstselected").addClass("form-control is-invalid");
+                  $("#id_item_error").removeAttr("hidden");
+                } else {
+                  $("#id_item_error").attr("hidden");
+                  $("#id_item_error").text('');
+                  $("#id_item_info").find(".fstselected").removeClass("form-control is-invalid");
+                }
+                if (res["errors"]["unit"]){
+                  $("#id_unit_error").text(res["errors"]["unit"][0]);
+                  $("#id_unit_info").find(".fstselected").addClass("form-control is-invalid");
+                  $("#id_unit_error").removeAttr("hidden");
+                } else {
+                  $("#id_unit_error").attr("hidden");
+                  $("#id_unit_error").text('');
+                  $("#id_unit_info").find(".fstselected").removeClass("form-control is-invalid");
+                }
+                if (res["errors"]["rate"]){
+                  $("#id_rate_error").text(res["errors"]["rate"][0]);
+                  $("#id_rate").addClass("is-invalid");
+                  $("#id_rate_error").removeAttr("hidden");
+                } else {
+                  $("#id_rate_error").attr("hidden");
+                  $("#id_rate").removeClass("is-invalid");
+                  $("#id_rate_error").text('');
+                }
+              }
+            },
+          });
+        }
+      });
+    });
+  </script>
+{% endblock %}

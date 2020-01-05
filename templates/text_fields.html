@@ -2,7 +2,7 @@
   <label class="col-sm-3 col-form-label font-weight-bold">{{ field_label }}</label>
   <div class="col-sm-9">
     {% if field.errors %}
-      <textarea type="text" class="form-control is-invalid" id="id_{{field.label}}" name="{{field.label}}">{{ field.value }}</textarea>
+      <textarea type="text" class="form-control is-invalid" id="id_{{field.name}}" name="{{field.name}}">{{ field.value }}</textarea>
       <div class="text-danger">
         <p>{{ field.errors }}</p>
       </div>

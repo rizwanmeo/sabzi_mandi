@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.http import HttpResponseRedirect
 from django.views.generic import ListView, CreateView, UpdateView
+from dukan.forms import BillDetailForm
 
 from dukan.models import *
 
@@ -147,3 +148,75 @@ class ClientUpdateView(CustomLoginRequiredMixin, UpdateView):
         msg = 'Client: [%s] was updated succfully.' % form.instance.name
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())
+
+class ClientBillListView(CustomLoginRequiredMixin, ListView):
+    model = ClientBill
+    template_name = "client_bills/list.html"
+
+class ClientBillCreateView(CustomLoginRequiredMixin, CreateView):
+    model = ClientBill
+    success_url = "/client-bills"
+    template_name = "client_bills/form.html"
+    fields = ["client"]
+
+    def form_valid(self, form):
+        super(ClientBillCreateView, self).form_valid(form)
+        msg = 'Client: [%s] was created succfully.' % form.instance.name
+        messages.add_message(self.request, messages.INFO, msg)
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs):
+        context = super(ClientBillCreateView, self).get_context_data(**kwargs)
+        form = context["form"]
+        choices = [("", "Select a client for bill")]
+        form.fields["client"].widget.attrs["class"] = "fstdropdown-select"
+        form.fields["client"].widget.attrs["required"] = False
+        client_qs = form.fields["client"].queryset.filter(shop__owner=self.request.user)
+        choices += list(client_qs.values_list("id", "name"))
+        form.fields["client"].choices = choices
+        context["detail_form"] = BillDetailForm()
+        return context
+
+
+class ClientBillUpdateView(CustomLoginRequiredMixin, UpdateView):
+    model = ClientBill
+    success_url = "/client-bills"
+    template_name = "client_bills/form.html"
+    fields = ["client"]
+
+    def form_valid(self, form):
+        form.instance.bill_time = datetime.datetime.now()
+        super(ClientUpdateView, self).form_valid(form)
+        msg = 'Client: [%s] was updated succfully.' % form.instance.name
+        messages.add_message(self.request, messages.INFO, msg)
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs):
+        context = super(ClientBillCreateView, self).get_context_data(**kwargs)
+        form = context["form"]
+        choices = [("", "Select a client for bill")]
+        form.fields["client"].widget.attrs["class"] = "form-control fstdropdown-select"
+        client_qs = form.fields["client"].queryset.filter(shop__owner=self.request.user)
+        choices += list(client_qs.values_list("id", "name"))
+        form.fields["client"].choices = choices
+        return context
+
+
+@login_required(login_url='/login/')
+def client_bill_detail(request, client_id):
+    client_obj = Client.objects.get(id=client_id, shop__owner=request.user)
+    if request.method == "POST":
+        form = BillDetailForm(request.POST)
+        if form.is_valid():
+            try:
+                bill_obj = ClientBill.objects.get(client_id=client_id, is_draft=True, billdetail=None)
+            except ClientBill.DoesNotExist:
+                bill_obj = ClientBill(client=client_obj, is_draft=True)
+                bill_obj.save()
+
+            form.instance.bill = bill_obj
+            form.save()
+            return JsonResponse({"status": True})
+        else:
+            return JsonResponse({"status": False, "errors": form.errors})
+    return JsonResponse({"status": False, "description": "Invalid request"})

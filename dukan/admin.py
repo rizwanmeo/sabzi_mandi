@@ -20,15 +20,15 @@ class ClientAdmin(admin.ModelAdmin):
     list_display = ['shop', 'name', 'cnic', 'phone', 'address', 'opening_balance']
     readonly_fields = ['created_time', 'last_modified']
 
-class BillAdmin(admin.ModelAdmin):
-    list_display = ['client', 'item', 'unit', 'rate', 'bill_time']
+class ClientBillAdmin(admin.ModelAdmin):
+    list_display = ['client', 'is_draft', 'bill_time']
 
-class PaymentAdmin(admin.ModelAdmin):
+class ClientPaymentAdmin(admin.ModelAdmin):
     list_display = ['client', 'amount', 'payment_time']
 
 admin.site.register(Shop, ShopAdmin)
 admin.site.register(Supplier, SupplierAdmin)
 admin.site.register(Client, ClientAdmin)
 admin.site.register(Item)
-admin.site.register(Bill, BillAdmin)
-admin.site.register(Payment, PaymentAdmin)
+admin.site.register(ClientBill, ClientBillAdmin)
+admin.site.register(ClientPayment, ClientPaymentAdmin)

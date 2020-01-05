@@ -121,14 +121,19 @@ class Client(BasicInfo):
     def __unicode__(self):
         return self.name
 
-class Bill(models.Model):
+class ClientBill(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
-    item = models.ForeignKey(Item, on_delete=models.CASCADE)
-    unit = models.IntegerField(choices=[(1, "KG"), (2, "Nag")])
-    rate = models.FloatField(default=0)
+    created_time = models.DateTimeField(default=timezone.now, editable=False)
     bill_time = models.DateTimeField(default=timezone.now, editable=False)
+    is_draft = models.BooleanField(default=False)
 
-class Payment(models.Model):
+class BillDetail(models.Model):
+    bill = models.ForeignKey(ClientBill, on_delete=models.CASCADE)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    unit = models.CharField(max_length=1, choices=[("k", "KG"), ("i", "Item")])
+    rate = models.FloatField(default=0)
+
+class ClientPayment(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     amount = models.FloatField(default=0)
     payment_time = models.DateTimeField(default=timezone.now, editable=False)
