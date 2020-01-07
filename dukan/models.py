@@ -126,12 +126,16 @@ class ClientBill(models.Model):
     created_time = models.DateTimeField(default=timezone.now, editable=False)
     bill_time = models.DateTimeField(default=timezone.now, editable=False)
     is_draft = models.BooleanField(default=False)
+    balance = models.FloatField(default=0)
+
 
 class BillDetail(models.Model):
     bill = models.ForeignKey(ClientBill, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     unit = models.CharField(max_length=1, choices=[("k", "KG"), ("i", "Item")])
-    rate = models.FloatField(default=0)
+    rate = models.FloatField()
+    item_count = models.FloatField()
+
 
 class ClientPayment(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)

@@ -5,7 +5,7 @@ from dukan.models import *
 class BillDetailForm(ModelForm):
     class Meta:
         model = BillDetail
-        fields = ['item', 'unit', 'rate']
+        fields = ['item', 'unit', 'rate', 'item_count']
 
     def __init__(self, *args, **kwargs):
         super(BillDetailForm, self).__init__(*args, **kwargs)

@@ -31,7 +31,7 @@ urlpatterns = [
     re_path(r'^suppliers/create/$', views.SupplierCreateView.as_view(), name='suppliers_create'),
     re_path(r'^clients/create/$', views.ClientCreateView.as_view(), name='clients_create'),
     re_path(r'^client-bills/create/$', views.ClientBillCreateView.as_view(), name='client_bills_create'),
-    re_path(r'^client-bills/(?P<client_id>\d+)/bill-detail/$', views.client_bill_detail, name='client_bill_detail'),
+    re_path(r'^client-bills/(?P<client_id>\d+)/(?P<bill_id>\d+)/bill-detail/$', views.client_bill_detail, name='client_bill_detail'),
 
     # all update view urls
     re_path(r'^shops/(?P<pk>\d+)/update/$', views.ShopUpdateView.as_view(), name='^shops_update$'),

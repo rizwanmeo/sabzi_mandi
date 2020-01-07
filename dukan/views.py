@@ -1,3 +1,4 @@
+from django.db.models import Sum, Count
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
@@ -5,9 +6,9 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.http import HttpResponseRedirect
 from django.views.generic import ListView, CreateView, UpdateView
-from dukan.forms import BillDetailForm
 
 from dukan.models import *
+from dukan.forms import BillDetailForm
 
 @login_required(login_url='/login/')
 def index(request):
@@ -153,6 +154,15 @@ class ClientBillListView(CustomLoginRequiredMixin, ListView):
     model = ClientBill
     template_name = "client_bills/list.html"
 
+    def get_context_data(self):
+        context = super(ClientBillListView, self).get_context_data()
+        object_list = context["object_list"]
+        object_list = object_list.filter(client__shop=self.request.shop)
+        object_list = object_list.annotate(amount=Sum('billdetail__rate'), items=Count('billdetail__item'))
+        context["object_list"] = object_list
+        return context
+
+
 class ClientBillCreateView(CustomLoginRequiredMixin, CreateView):
     model = ClientBill
     success_url = "/client-bills"
@@ -192,31 +202,48 @@ class ClientBillUpdateView(CustomLoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
     def get_context_data(self, **kwargs):
-        context = super(ClientBillCreateView, self).get_context_data(**kwargs)
+        context = super(ClientBillUpdateView, self).get_context_data(**kwargs)
         form = context["form"]
         choices = [("", "Select a client for bill")]
-        form.fields["client"].widget.attrs["class"] = "form-control fstdropdown-select"
+        form.fields["client"].widget.attrs["class"] = "fstdropdown-select"
+        form.fields["client"].widget.attrs["required"] = False
         client_qs = form.fields["client"].queryset.filter(shop__owner=self.request.user)
         choices += list(client_qs.values_list("id", "name"))
         form.fields["client"].choices = choices
+        context["detail_list"] = self.object.billdetail_set.all()
+        context["detail_form"] = BillDetailForm()
         return context
 
-
 @login_required(login_url='/login/')
-def client_bill_detail(request, client_id):
-    client_obj = Client.objects.get(id=client_id, shop__owner=request.user)
+def client_bill_detail(request, client_id, bill_id=0):
+    client_obj = Client.objects.get(id=client_id, shop=request.shop)
     if request.method == "POST":
         form = BillDetailForm(request.POST)
         if form.is_valid():
             try:
-                bill_obj = ClientBill.objects.get(client_id=client_id, is_draft=True, billdetail=None)
+                if int(bill_id) > 0:
+                    bill_obj = ClientBill.objects.get(id=bill_id, client_id=client_id)
+                else:
+                    bill_obj = ClientBill.objects.annotate(item_count=Count('billdetail')).get(client_id=client_id, is_draft=True, item_count=0)
             except ClientBill.DoesNotExist:
                 bill_obj = ClientBill(client=client_obj, is_draft=True)
                 bill_obj.save()
 
             form.instance.bill = bill_obj
             form.save()
-            return JsonResponse({"status": True})
+            data = {"id": form.instance.id, "unit": form.instance.get_unit_display(),
+                    "rate": form.instance.rate, "item": form.instance.item.name,
+                    "item_count": form.instance.item_count}
+            return JsonResponse({"status": True, "data": data})
         else:
             return JsonResponse({"status": False, "errors": form.errors})
     return JsonResponse({"status": False, "description": "Invalid request"})
+
+@login_required(login_url='/login/')
+def get_drafted_bill(request, client_id):
+    client_qs = ClientBill.objects.filter(
+        client_id=client_id, client__shop=request.shop, is_draft=True)
+    client_qs = client_qs.order_by("-created_time")
+    client_qs = client_qs.annotate(amount=Sum('billdetail__rate'), items=Count('billdetail__item'))
+    data = list(client_qs.values())[:10]
+    return JsonResponse({"status": True, "data": data})

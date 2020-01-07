@@ -16,5 +16,4 @@ def default_shop(request):
                     context['shop'] = shop_qs[0]
         else:
             context['shop'] = request.user.shop_set.get(id=int(shop_id))
-
     return context

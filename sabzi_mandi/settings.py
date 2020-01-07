@@ -48,7 +48,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    #'sabzi_mandi.middleware.SabziMandiMiddleware',
+    'sabzi_mandi.middleware.SabziMandiMiddleware',
 ]
 
 ROOT_URLCONF = 'sabzi_mandi.urls'

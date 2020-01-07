@@ -41,38 +41,32 @@
               <thead>
                 <tr>
                   <th>Client Name</th>
-                  <th>CNIC</th>
-                  <th>Phone</th>
-                  <th>Address</th>
-                  <th>Opening Balance</th>
-                  <th>Created On</th>
-                  <th>Last Update</th>
+                  <th>Bill Time</th>
+                  <th>Items #</th>
+                  <th>Amount</th>
+                  <th>Balance</th>
                   <th style="width: 120px;padding-top: 30px;">Action</th>
                 </tr>
               </thead>
               <tfoot>
                 <tr>
                   <th>Client Name</th>
-                  <th>CNIC</th>
-                  <th>Phone</th>
-                  <th>Address</th>
-                  <th>Opening Balance</th>
-                  <th>Created On</th>
-                  <th>Last Update</th>
+                  <th>Bill Time</th>
+                  <th>Items #</th>
+                  <th>Amount</th>
+                  <th>Balance</th>
                   <th style="width: 120px">Action</th>
                 </tr>
               </tfoot>
               <tbody>
                 {% for obj in object_list %}
-                <tr>
-                  <td>{{ obj.name }}</td>
-                  <td>{% if obj.cnic %}{{ obj.cnic }}{% endif %}</td>
-                  <td>{% if obj.phone %}{{ obj.phone }}{% endif %}</td>
-                  <td>{% if obj.address %}{{ obj.address }}{% endif %}</td>
-                  <td>{% if obj.opening_balance is not None %}{{ obj.opening_balance }}{% endif %}</td>
-                  <td>{{ obj.created_time }}</td>
-                  <td>{{ obj.last_modified }}</td>
-                  <td style="padding-top: 30px;">
+                <tr class="table-danger">
+                  <td>{{ obj.client.name }}</td>
+                  <td>{{ obj.bill_time }}</td>
+                  <td>{{ obj.items }}</td>
+                  <td>{{ obj.amount }}</td>
+                  <td>{{ obj.balance }}</td>
+                  <td>
                     <a href="/client-bills/{{obj.id}}/delete" class="btn btn-danger">
                       <i class="fas fa-trash"></i>
                     </a>
