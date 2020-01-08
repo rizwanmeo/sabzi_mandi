@@ -180,6 +180,7 @@ class ClientBillCreateView(CustomLoginRequiredMixin, CreateView):
         form = context["form"]
         choices = [("", "Select a client for bill")]
         form.fields["client"].widget.attrs["class"] = "fstdropdown-select"
+        form.fields["client"].widget.attrs["onChange"] = "onchangeEvent();"
         form.fields["client"].widget.attrs["required"] = False
         client_qs = form.fields["client"].queryset.filter(shop__owner=self.request.user)
         choices += list(client_qs.values_list("id", "name"))

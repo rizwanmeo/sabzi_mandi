@@ -3,7 +3,7 @@
 
 {% block css %}
   <!-- Custom styles for this template-->
-  <link href="{% static "css/fstdropdown.min.css" %}" rel="stylesheet">
+  <link href="{% static "css/fstdropdown.css" %}" rel="stylesheet">
 {% endblock %}
 
 {% block breadcrumb %}
@@ -24,14 +24,34 @@
         <h1 class="h4 text-primary-900 mb-4 font-weight-bold">Create New Client Bill</h1>
       </div>
       <div class="form-group row">
-        <div class="col-sm-3" id="id_client_info">
+        <div class="col-sm-3">
+          <label for="cleint">Email address:</label>
           {{ form.client }}
+        </div>
+        <div class="col-sm-3">
+          <label for="current_balance">Current Balance:</label>
+          <input type="text" class="form-control" placeholder="Current Balance" id="id_current_balance" name="current_balance" disabled>
+        </div>
+        <div class="col-sm-3">
+          <label for="current_balance">Billed Amount:</label>
+          <input type="text" class="form-control" placeholder="Billed Amount" id="id_billed_amount" name="billed_amount" disabled>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-sm-3" id="id_client_info">
         </div>
       </div>
       <div id="id_client_info_error">
       </div>
 
       <div id="id_item_data">
+        <div class="row">
+          <div class="col-sm-3"><label>Item:</label></div>
+          <div class="col-sm-2"><label>Unit:</label></div>
+          <div class="col-sm-2"><label>Rate:</label></div>
+          <div class="col-sm-2"><label>Item Count:</label></div>
+          <div class="col-sm-2"><label>Amount:</label></div>
+        </div>
         {% for obj in detail_list %}
         <div id="id_item_data_{{ obj.id }}" class="form-group row">
           <div class="col-sm-3">
@@ -72,10 +92,13 @@
             {{ detail_form.unit }}
           </div>
           <div class="col-sm-2">
-              <input type="text" class="form-control" id="id_rate" name="rate" placeholder="Item rate">
+              <input type="text" class="form-control" id="id_rate" name="rate" placeholder="Item rate" oninput="calculate();">
           </div>
           <div class="col-sm-2">
-              <input type="text" class="form-control" id="id_item_count" name="item_count" placeholder="Total items">
+              <input type="text" class="form-control" id="id_item_count" name="item_count" placeholder="Total items" oninput="calculate();">
+          </div>
+          <div class="col-sm-2">
+              <input type="text" class="form-control" id="id_amount" name="amount" placeholder="Amount" disabled>
           </div>
           <div class="col-sm-1">
             <button type="button" id="id_submit_detail" data-bill_id="{{ form.instance.id }}" class="btn btn-success btn-icon-split">
@@ -122,14 +145,32 @@
   <!-- Page level plugins -->
   <script src="{% static "js/fstdropdown.js" %}"></script>
   <script>
+    function calculate() {
+      var rate = Number($("#id_rate").val());
+      var item_count = Number($("#id_item_count").val());
+      var amount = rate * item_count;
+      if (Number.isInteger(amount)) {
+        $("#id_amount").val(amount);
+      }
+    }
+
+  function onchangeEvent() {
+      console.log("==============onchangeEvent============");
+      var selectedItem = $(".fstlist").children(".selected").attr("data-value");
+      console.log("selectedItem: ", selectedItem);
+  }
+
   $(document).ready(function(){
     $("#id_client").removeAttr("required");
     $("#id_item").removeAttr("required");
     $("#id_unit").removeAttr("required");
     $("#id_submit_detail").click(function(){
       var clientId = $("#id_client_info").find(".selected").attr("data-value");
-      var billId = Number($(this).attr("data-bill_id"));
-
+      var val = $(this).attr("data-bill_id");
+      var billId = 0;
+      if (Number.isInteger(val)) {
+        Number(billId);
+      }
       if (!clientId) {
         $("#id_client_info").find(".fstselected").addClass("form-control is-invalid");
         $("#id_client_info").parent().removeClass("form-group");
@@ -158,6 +199,7 @@
                 var item = res["data"]["item"]
                 var unit = res["data"]["unit"]
                 var itemCount = res["data"]["item_count"]
+                var amount = rate * itemCount
                 html = '<div id="id_item_data_'+objId+'" class="form-group row">'+
                           '<div class="col-sm-3">'+
                             '<input type="text" class="form-control" id="id_item_'+objId+'" name="item_'+objId+'" value="'+item+'" disabled>'+
@@ -170,6 +212,9 @@
                           '</div>'+
                           '<div class="col-sm-2">'+
                             '<input type="text" class="form-control" id="id_item_count_'+objId+'" name="item_count_'+objId+'" value="'+itemCount+'" disabled>'+
+                          '</div>'+
+                          '<div class="col-sm-2">'+
+                            '<input type="text" class="form-control" id="id_amount_'+objId+'" name="amount_'+objId+'" value="'+amount+'" disabled>'+
                           '</div>'+
                           '<div class="col-sm-2">'+
                             '<a href="#" id="id_edit_'+objId+'" data-id="'+objId+'" class="btn btn-primary btn-icon-split">'+
@@ -231,5 +276,10 @@
         }
       });
     });
+
+    $('.fstlist').bind("DOMSubtreeModified",function(){
+      alert('changed');
+    });
+
   </script>
 {% endblock %}
