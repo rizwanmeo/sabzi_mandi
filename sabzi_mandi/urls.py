@@ -33,12 +33,19 @@ urlpatterns = [
     re_path(r'^client-bills/create/$', views.ClientBillCreateView.as_view(), name='client_bills_create'),
     re_path(r'^client-bills/(?P<client_id>\d+)/client-detail/$', views.get_drafted_bill, name='client_bill_detail'),
     re_path(r'^client-bills/(?P<client_id>\d+)/(?P<bill_id>\d+)/bill-detail/$', views.client_bill_detail, name='client_bill_detail'),
+    re_path(r'^client-bills/(?P<client_id>\d+)/(?P<bill_id>\d+)/done/$', views.client_bill_detail, name='client_bill_detail'),
+
+    # all delete view urls
+    re_path(r'^client-bills/(?P<pk>\d+)/delete/$', views.ClientBillDeleteView.as_view(), name='^client_bills_delete$'),
+    re_path(r'^client-bills-detail/(?P<pk>\d+)/delete/$', views.delete_client_bill_detail, name='delete_client_bill_detail'),
 
     # all update view urls
     re_path(r'^shops/(?P<pk>\d+)/update/$', views.ShopUpdateView.as_view(), name='^shops_update$'),
     re_path(r'^suppliers/(?P<pk>\d+)/update/$', views.SupplierUpdateView.as_view(), name='^suppliers_update$'),
     re_path(r'^clients/(?P<pk>\d+)/update/$', views.ClientUpdateView.as_view(), name='^clients_update$'),
     re_path(r'^client-bills/(?P<pk>\d+)/update/$', views.ClientBillUpdateView.as_view(), name='^client_bills_update$'),
+
+    # Admin urls
     path('admin/', admin.site.urls),
 
 ]

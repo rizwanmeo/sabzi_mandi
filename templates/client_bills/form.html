@@ -11,7 +11,7 @@
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
     <li class="breadcrumb-item"><a href="/client-bills">Client Bills</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Create Client Bill</li>
+    <li class="breadcrumb-item active" aria-current="page">{% if form.instance.pk %}Update {% else %}Create {% endif %} Client Bill</li>
   </ol>
 </nav>
 {% endblock %}
@@ -21,8 +21,9 @@
   <div class="col-lg-9">
     <div class="p-5">
       <div class="text-center text-primary">
-        <h1 class="h4 text-primary-900 mb-4 font-weight-bold">Create New Client Bill</h1>
+        <h1 class="h4 text-primary-900 mb-4 font-weight-bold">{% if form.instance.pk %}Update {% else %}Create New {% endif %}Client Bill</h1>
       </div>
+      {% include "form_non_field_errors.html" %}
       <div class="form-group row">
         <div class="col-sm-3">
           <label for="cleint">Client:</label>
@@ -30,11 +31,11 @@
         </div>
         <div class="col-sm-3">
           <label for="current_balance">Current Balance:</label>
-          <input type="text" class="form-control" placeholder="Current Balance" id="id_current_balance" name="current_balance" disabled>
+          <input type="text" class="form-control" placeholder="Current Balance" id="id_current_balance" name="current_balance" value="{{ current_balance }}" disabled>
         </div>
         <div class="col-sm-3">
           <label for="current_balance">Billed Amount:</label>
-          <input type="text" class="form-control" placeholder="Billed Amount" data-amount="0" id="id_billed_amount" name="billed_amount" disabled>
+          <input type="text" class="form-control" placeholder="Billed Amount" data-amount="{{ billed_amount }}" id="id_billed_amount" name="billed_amount" value="{{ billed_amount }}" disabled>
         </div>
       </div>
       <div class="form-group row">
@@ -67,16 +68,14 @@
             <input type="text" class="form-control" id="id_item_count_{{ obj.id }}" name="item_count_{{ obj.id }}" value="{{ obj.item_count }}" disabled>
           </div>
           <div class="col-sm-2">
-            <a href="#" id="id_edit_{{ obj.id }}" data-id="{{ obj.id }}" class="btn btn-primary btn-icon-split">
-              <span class="icon text-white-50">
-                <i class="fa fa-edit"></i>
-              </span>
-            </a>
-            <a href="#" id="id_delete_{{ obj.id }}" data-id="{{ obj.id }}" class="btn btn-primary btn-icon-split">
+            <input type="text" class="form-control" id="id_amount_{{ obj.id }}" name="amount_{{ obj.id }}" value="{% widthratio obj.rate 1 obj.item_count %}" placeholder="Amount" disabled>
+          </div>
+          <div class="col-sm-1">
+            <button type="button" id="id_delete_{{ obj.id }}" data-id="{{ obj.id }}" class="btn btn-danger btn-icon-split">
               <span class="icon text-white-50">
                 <i class="fa fa-trash"></i>
               </span>
-            </a>
+            </button>
           </div>
       </div>
       {% endfor %}
@@ -105,7 +104,6 @@
               <span class="icon text-white-50">
                 <i class="fa fa-plus"></i>
               </span>
-              <span class="text">Add</span>
             </button>
           </div>
         </div>
@@ -133,17 +131,18 @@
           </div>
         </div>
       </form>
-      <form id="id_done_bill" action="." method="POST" enctype="multipart/form-data">
+      <form id="id_done_bill" action="//" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        <input type="hidden" name="id_selected_client" name="selected_client" value="{{ form.instance.pk }}">
+
+
         <div class="form-group row">
           <div class="col-sm-4">
-            <button type="submit" id="id_done_and_close" class="btn btn-primary btn-block">
+            <button type="button" onclick="clientBillDone()" class="btn btn-primary btn-block">
               Done and Close
             </button>
           </div>
           <div class="col-sm-4">
-            <button type="submit" id="id_done_and_print" class="btn btn-success btn-block">
+            <button type="button" onclick="clientBillDone()" class="btn btn-success btn-block">
               Done and Print
             </button>
           </div>
@@ -164,7 +163,7 @@
   <script>
     function calculate() {
       var rate = Number($("#id_rate").val());
-      var billedAmount = $("#id_billed_amount").attr("data-amount");
+      var billedAmount = Number($("#id_billed_amount").attr("data-amount"));
       var item_count = Number($("#id_item_count").val());
       var amount = rate * item_count;
       if (Number.isInteger(amount)) {
@@ -176,6 +175,119 @@
         }
       }
     }
+
+    function clientBillDone() {
+      var selectedClient = $(".fstlist").children(".selected").attr("data-value");
+      var billId = $(this).attr("data-bill_id");
+      if (selectedClient && billId) {
+        $.ajax({
+          url: "/client-bills/"+selectedClient+"/"+billId+"/done/", 
+          type: 'post',
+          dataType: 'json',
+          success: function ( res ) {
+            console.log(res)
+          }
+        });
+      } else {
+        if (!selectedClient) {
+          showClientError();
+        } else {
+          if (!billId) {
+            removeClientError();
+            var errors = {
+              "item": ["This field is required"],
+              "unit": ["This field is required"],
+              "rate": ["This field is required"],
+              "item_count": ["This field is required"],
+              }
+            showBillDetailError({"errors": errors});
+          }
+        }
+      }
+    }
+
+  function showClientError() {
+    $("#id_client_info").find(".fstselected").addClass("form-control is-invalid");
+    $("#id_client_info").parent().removeClass("form-group");
+    $("#id_client_info_error").html('<div class="row" style="margin-top: -20px;">'+
+                                      '<div class="text-danger">'+
+                                        '<p></p><ul class="errorlist"><li>This field is required.</li></ul><p></p>'+
+                                      '</div>'+
+                                    '</div>');
+  }
+
+  function removeClientError() {
+    $("#id_client_info").find(".fstselected").removeClass("form-control is-invalid");
+    $("#id_client_info").parent().addClass("form-group");
+    $("#id_client_info_error").html('');
+  }
+
+  function showItemError(error) {
+    $("#id_item_error").text(error);
+    $("#id_item_info").find(".fstselected").addClass("form-control is-invalid");
+    $("#id_item_error").removeAttr("hidden");
+  }
+  function removeItemError() {
+    $("#id_item_error").attr("hidden", true);
+    $("#id_item_error").text('');
+    $("#id_item_info").find(".fstselected").removeClass("form-control is-invalid");
+  }
+
+  function showUnitError(error) {
+    $("#id_unit_error").text(error);
+    $("#id_unit_info").find(".fstselected").addClass("form-control is-invalid");
+    $("#id_unit_error").removeAttr("hidden");
+  }
+  function removeUnitError() {
+    $("#id_unit_error").attr("hidden", true);
+    $("#id_unit_error").text('');
+    $("#id_unit_info").find(".fstselected").removeClass("form-control is-invalid");
+  }
+
+  function showRateError(error) {
+    $("#id_rate_error").text(error);
+    $("#id_rate").addClass("is-invalid");
+    $("#id_rate_error").removeAttr("hidden");
+  }
+  function removeRateError() {
+    $("#id_rate_error").attr("hidden", true);
+    $("#id_rate").removeClass("is-invalid");
+    $("#id_rate_error").text('');
+  }
+
+  function showItemCountError(error) {
+    $("#id_item_count_error").text(error);
+    $("#id_item_count").addClass("is-invalid");
+    $("#id_item_count_error").removeAttr("hidden");
+  }
+  function removeItemCountError() {
+    $("#id_item_count_error").attr("hidden", true);
+    $("#id_item_count").removeClass("is-invalid");
+    $("#id_item_count_error").text('');
+  }
+
+  function showBillDetailError(res) {
+    if (res["errors"]["item"]){
+      showItemError(res["errors"]["item"][0]);
+    } else {
+      removeItemError();
+    }
+    if (res["errors"]["unit"]){
+      showUnitError(res["errors"]["unit"][0]);
+    } else {
+      removeUnitError();
+    }
+    if (res["errors"]["rate"]){
+      showRateError(res["errors"]["rate"][0]);
+    } else {
+      removeRateError();
+    }
+    if (res["errors"]["item_count"]){
+      showItemCountError(res["errors"]["item_count"][0]);
+    } else {
+      removeItemCountError();
+    }
+  }
 
   function onchangeEvent() {
     var selectedClient = $(".fstlist").children(".selected").attr("data-value");
@@ -200,7 +312,6 @@
               var html = '<div class="text-center text-primary">'+
                             '<h1 class="h4 text-primary-900 mb-4 font-weight-bold">Drafted Bills</h1>'+
                          '</div>';
-              console.log("length: ", res["data"]["draft_bills"]);
               for (var i = 0; i < res["data"]["draft_bills"].length; i++) {
                 var innerHtml = '<div class="text-left">'+
                                   '<ul class="list-unstyled">'+
@@ -228,25 +339,19 @@
     $("#id_unit").removeAttr("required");
     $("#id_submit_detail").click(function(){
       var selectedClient = $(".fstlist").children(".selected").attr("data-value");
-      var val = $(this).attr("data-bill_id");
+      var val = Number($(this).attr("data-bill_id"));
       var billId = 0;
       if (Number.isInteger(val)) {
-        Number(billId);
+        billId = val;
       }
       if (!selectedClient) {
-        $("#id_client_info").find(".fstselected").addClass("form-control is-invalid");
-        $("#id_client_info").parent().removeClass("form-group");
-        $("#id_client_info_error").html('<div class="row" style="margin-top: -20px;">'+
-                                          '<div class="text-danger">'+
-                                            '<p></p><ul class="errorlist"><li>This field is required.</li></ul><p></p>'+
-                                          '</div>'+
-                                        '</div>');
-
+          showClientError();
         } else {
-          $("#id_client_info").find(".fstselected").removeClass("form-control is-invalid");
-          $("#id_client_info").parent().addClass("form-group");
-          $("#id_client_info_error").html('');
-
+          removeClientError();
+          removeItemError();
+          removeUnitError();
+          removeRateError();
+          removeItemCountError();
           $.ajax({
             url: "/client-bills/"+selectedClient+"/"+billId+"/bill-detail/", 
             type: 'post',
@@ -276,22 +381,20 @@
                           '<div class="col-sm-2">'+
                             '<input type="text" class="form-control" id="id_amount_'+objId+'" name="amount_'+objId+'" value="'+amount+'" disabled>'+
                           '</div>'+
-                          '<div class="col-sm-2">'+
-                            '<a href="#" id="id_edit_'+objId+'" data-id="'+objId+'" class="btn btn-primary btn-icon-split">'+
-                              '<span class="icon text-white-50">'+
-                                '<i class="fa fa-edit"></i>'+
-                              '</span>'+
-                            '</a>'+
-                            '<a href="#" id="id_delete_'+objId+'" data-id="'+objId+'" class="btn btn-primary btn-icon-split">'+
+                          '<div class="col-sm-1">'+
+                            '<button type="button" id="id_delete_'+objId+'" data-id="'+objId+'" class="btn btn-danger btn-icon-split">'+
                               '<span class="icon text-white-50">'+
                                 '<i class="fa fa-trash"></i>'+
                               '</span>'+
-                            '</a>'+
+                            '</button>'+
                           '</div>'+
-                      '</div>'
+                      '</div>';
                 $("#id_item_data").append(html);
                 $("#id_done_bill").removeAttr("hidden");
                 $("#id_bill_detail").trigger("reset");
+                $(".fstselected").text("Select an Item");
+                $(".fstlist").find(".selected").removeClass("selected");
+                
                 var billedAmount = $("#id_billed_amount").attr("data-amount");
                 if (Number.isInteger(billedAmount)) {
                   $("#id_billed_amount").attr("value", Number(billedAmount)+amount);
@@ -301,42 +404,7 @@
                   $("#id_billed_amount").attr("data-amount", amount);
                 }
               } else {
-                if (res["errors"]["item"]){
-                  $("#id_item_error").text(res["errors"]["item"][0]);
-                  $("#id_item_info").find(".fstselected").addClass("form-control is-invalid");
-                  $("#id_item_error").removeAttr("hidden");
-                } else {
-                  $("#id_item_error").attr("hidden", true);
-                  $("#id_item_error").text('');
-                  $("#id_item_info").find(".fstselected").removeClass("form-control is-invalid");
-                }
-                if (res["errors"]["unit"]){
-                  $("#id_unit_error").text(res["errors"]["unit"][0]);
-                  $("#id_unit_info").find(".fstselected").addClass("form-control is-invalid");
-                  $("#id_unit_error").removeAttr("hidden");
-                } else {
-                  $("#id_unit_error").attr("hidden", true);
-                  $("#id_unit_error").text('');
-                  $("#id_unit_info").find(".fstselected").removeClass("form-control is-invalid");
-                }
-                if (res["errors"]["rate"]){
-                  $("#id_rate_error").text(res["errors"]["rate"][0]);
-                  $("#id_rate").addClass("is-invalid");
-                  $("#id_rate_error").removeAttr("hidden");
-                } else {
-                  $("#id_rate_error").attr("hidden", true);
-                  $("#id_rate").removeClass("is-invalid");
-                  $("#id_rate_error").text('');
-                }
-                if (res["errors"]["item_count"]){
-                  $("#id_item_count_error").text(res["errors"]["item_count"][0]);
-                  $("#id_item_count").addClass("is-invalid");
-                  $("#id_item_count_error").removeAttr("hidden");
-                } else {
-                  $("#id_item_count_error").attr("hidden", true);
-                  $("#id_item_count").removeClass("is-invalid");
-                  $("#id_item_count_error").text('');
-                }
+                showBillDetailError(res);
               }
             },
           });

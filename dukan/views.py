@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.http import HttpResponseRedirect
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
 from dukan.models import *
 from dukan.forms import BillDetailForm
@@ -189,6 +189,19 @@ class ClientBillCreateView(CustomLoginRequiredMixin, CreateView):
         return context
 
 
+class ClientBillDeleteView(CustomLoginRequiredMixin, DeleteView):
+    model = ClientBill
+    success_url = "/client-bills"
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        super(ClientBillDeleteView, self).delete(request, *args, **kwargs)
+        msg = 'Client: [%s] bill was delete succfully.' % self.object.client.name
+        messages.add_message(self.request, messages.INFO, msg)
+        return HttpResponseRedirect(self.get_success_url())
+
 class ClientBillUpdateView(CustomLoginRequiredMixin, UpdateView):
     model = ClientBill
     success_url = "/client-bills"
@@ -213,6 +226,13 @@ class ClientBillUpdateView(CustomLoginRequiredMixin, UpdateView):
         form.fields["client"].choices = choices
         context["detail_list"] = self.object.billdetail_set.all()
         context["detail_form"] = BillDetailForm()
+        context["current_balance"] = int(self.object.client.current_balance)
+        context["billed_amount"] = 0
+        billdetail_vs = list(self.object.billdetail_set.values("rate", "item_count"))
+        for detail_obj in billdetail_vs:
+            context["billed_amount"] += detail_obj["rate"] * detail_obj["item_count"]
+        context["billed_amount"] = int(context["billed_amount"])
+
         return context
 
 @login_required(login_url='/login/')
@@ -270,9 +290,48 @@ def get_drafted_bill(request, client_id):
             draft_bill["item_count"] = item_count
             draft_bill["created_time"] = obj.created_time.strftime("%d %b, %Y %I:%M%p")
             for detail_obj in billdetail_vs:
-                draft_bill["billed_amount"] += detail_obj["rate"] + detail_obj["item_count"]
+                draft_bill["billed_amount"] += detail_obj["rate"] * detail_obj["item_count"]
             draft_bills.append(draft_bill)
         data["draft_bills"] = draft_bills
         data["balance"] = client.current_balance
 
     return JsonResponse({"status": True, "data": data})
+
+@login_required(login_url='/login/')
+def done_drafted_bill(request, client_id, bill_id):
+    data = {}
+    if request.method == "POST":
+        client = Client.objects.get(id=client_id)
+        kwargs = {
+            "client_id":      client_id,
+            "client__shop":   request.shop,
+            "is_draft":       True}
+        client_qs = ClientBill.objects.filter(**kwargs).order_by("-created_time")
+        for obj in client_qs[:10]:
+            draft_bill = {}
+            billdetail_vs = list(obj.billdetail_set.values("rate", "item_count"))
+            item_count = len(billdetail_vs)
+            if item_count == 0: continue
+            draft_bill["bill_id"] = obj.id
+            draft_bill["billed_amount"] = 0
+            draft_bill["item_count"] = item_count
+            draft_bill["created_time"] = obj.created_time.strftime("%d %b, %Y %I:%M%p")
+            for detail_obj in billdetail_vs:
+                draft_bill["billed_amount"] += detail_obj["rate"] * detail_obj["item_count"]
+            draft_bills.append(draft_bill)
+        data["draft_bills"] = draft_bills
+        data["balance"] = client.current_balance
+
+    return JsonResponse({"status": True, "data": data})
+
+
+@login_required(login_url='/login/')
+def delete_client_bill_detail(request, detail_id):
+    if request.method == "DELETE":
+        try:
+            obj = BillDetail.object.get(id=detail_id)
+            obj.delete()
+            return JsonResponse({"status": True, "description": "Successfully deleted"})
+        except:
+            return JsonResponse({"status": False, "description": "Invalid bill ID"})
+    return JsonResponse({"status": False, "description": "Invalid Request"})
