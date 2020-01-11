@@ -25,7 +25,7 @@
       </div>
       <div class="form-group row">
         <div class="col-sm-3">
-          <label for="cleint">Email address:</label>
+          <label for="cleint">Client:</label>
           {{ form.client }}
         </div>
         <div class="col-sm-3">
@@ -34,7 +34,7 @@
         </div>
         <div class="col-sm-3">
           <label for="current_balance">Billed Amount:</label>
-          <input type="text" class="form-control" placeholder="Billed Amount" id="id_billed_amount" name="billed_amount" disabled>
+          <input type="text" class="form-control" placeholder="Billed Amount" data-amount="0" id="id_billed_amount" name="billed_amount" disabled>
         </div>
       </div>
       <div class="form-group row">
@@ -133,9 +133,26 @@
           </div>
         </div>
       </form>
-      <form action="." method="POST" enctype="multipart/form-data">
-        {% include "form_non_field_errors.html" %}
+      <form id="id_done_bill" action="." method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="id_selected_client" name="selected_client" value="{{ form.instance.pk }}">
+        <div class="form-group row">
+          <div class="col-sm-4">
+            <button type="submit" id="id_done_and_close" class="btn btn-primary btn-block">
+              Done and Close
+            </button>
+          </div>
+          <div class="col-sm-4">
+            <button type="submit" id="id_done_and_print" class="btn btn-success btn-block">
+              Done and Print
+            </button>
+          </div>
+        </div>
       </form>
+    </div>
+  </div>
+  <div class="col-lg-3">
+    <div id="id_drafted_bill" class="pt-5">
     </div>
   </div>
 </div>
@@ -147,17 +164,62 @@
   <script>
     function calculate() {
       var rate = Number($("#id_rate").val());
+      var billedAmount = $("#id_billed_amount").attr("data-amount");
       var item_count = Number($("#id_item_count").val());
       var amount = rate * item_count;
       if (Number.isInteger(amount)) {
         $("#id_amount").val(amount);
+        if (Number.isInteger(billedAmount)) {
+          $("#id_billed_amount").attr("value", Number(billedAmount)+amount);
+        } else {
+          $("#id_billed_amount").attr("value", amount);
+        }
       }
     }
 
   function onchangeEvent() {
-      console.log("==============onchangeEvent============");
-      var selectedItem = $(".fstlist").children(".selected").attr("data-value");
-      console.log("selectedItem: ", selectedItem);
+    var selectedClient = $(".fstlist").children(".selected").attr("data-value");
+    if (!selectedClient) {
+        $("#id_current_balance").attr("value", "");
+        $("#id_billed_amount").attr("value", "");
+        $("#id_drafted_bill").html("");
+    } else {
+      $.ajax({
+        url: "/client-bills/"+selectedClient+"/client-detail/", 
+        type: 'get',
+        dataType: 'json',
+        success: function ( res ) {
+          if (res["status"] == true) {
+            $("#id_current_balance").attr("value", res["data"]["balance"]);
+            if (Number($("#id_billed_amount").val()) <= 0) {
+              $("#id_billed_amount").attr("value", 0);
+            }
+            var html = '';
+            var draftedBillCount = res["data"]["draft_bills"].length;
+            if (draftedBillCount != 0) {
+              var html = '<div class="text-center text-primary">'+
+                            '<h1 class="h4 text-primary-900 mb-4 font-weight-bold">Drafted Bills</h1>'+
+                         '</div>';
+              console.log("length: ", res["data"]["draft_bills"]);
+              for (var i = 0; i < res["data"]["draft_bills"].length; i++) {
+                var innerHtml = '<div class="text-left">'+
+                                  '<ul class="list-unstyled">'+
+                                      '<li><a href="/client-bills/'+res["data"]["draft_bills"][i]["bill_id"]+'/update/">Created on '+res["data"]["draft_bills"][i]["created_time"]+'</a>'+
+                                          '<ul>'+
+                                              '<li>Items: '+res["data"]["draft_bills"][i]["item_count"]+'</li>'+
+                                              '<li>Amount: '+res["data"]["draft_bills"][i]["billed_amount"]+'</li>'+
+                                          '</ul>'+
+                                      '</li>'+
+                                  '</ul>'+
+                               '</div>';
+                html += innerHtml;
+              }
+            }
+            $("#id_drafted_bill").html(html);
+          }
+        }
+      });
+    }
   }
 
   $(document).ready(function(){
@@ -165,20 +227,19 @@
     $("#id_item").removeAttr("required");
     $("#id_unit").removeAttr("required");
     $("#id_submit_detail").click(function(){
-      var clientId = $("#id_client_info").find(".selected").attr("data-value");
+      var selectedClient = $(".fstlist").children(".selected").attr("data-value");
       var val = $(this).attr("data-bill_id");
       var billId = 0;
       if (Number.isInteger(val)) {
         Number(billId);
       }
-      if (!clientId) {
+      if (!selectedClient) {
         $("#id_client_info").find(".fstselected").addClass("form-control is-invalid");
         $("#id_client_info").parent().removeClass("form-group");
-        $("#id_client_info_error").html('<div class="row" style="margin-bottom: 0rem;">'+
-                                          '<div class="col-sm-1"></div>'+
-                                            '<div class="text-danger">'+
-                                              '<p></p><ul class="errorlist"><li>This field is required.</li></ul><p></p>'+
-                                            '</div>'+
+        $("#id_client_info_error").html('<div class="row" style="margin-top: -20px;">'+
+                                          '<div class="text-danger">'+
+                                            '<p></p><ul class="errorlist"><li>This field is required.</li></ul><p></p>'+
+                                          '</div>'+
                                         '</div>');
 
         } else {
@@ -187,13 +248,12 @@
           $("#id_client_info_error").html('');
 
           $.ajax({
-            url: "/client-bills/"+clientId+"/"+billId+"/bill-detail/", 
+            url: "/client-bills/"+selectedClient+"/"+billId+"/bill-detail/", 
             type: 'post',
             data: $("#id_bill_detail").serialize(),
             dataType: 'json',
             success: function ( res ) {
               if (res["status"] == true) {
-                console.log(res)
                 var objId = res["data"]["id"]
                 var rate = res["data"]["rate"]
                 var item = res["data"]["item"]
@@ -221,18 +281,25 @@
                               '<span class="icon text-white-50">'+
                                 '<i class="fa fa-edit"></i>'+
                               '</span>'+
-                              '<span class="text">Edit</span>'+
                             '</a>'+
                             '<a href="#" id="id_delete_'+objId+'" data-id="'+objId+'" class="btn btn-primary btn-icon-split">'+
                               '<span class="icon text-white-50">'+
                                 '<i class="fa fa-trash"></i>'+
                               '</span>'+
-                              '<span class="text">Trash</span>'+
                             '</a>'+
                           '</div>'+
                       '</div>'
                 $("#id_item_data").append(html);
+                $("#id_done_bill").removeAttr("hidden");
                 $("#id_bill_detail").trigger("reset");
+                var billedAmount = $("#id_billed_amount").attr("data-amount");
+                if (Number.isInteger(billedAmount)) {
+                  $("#id_billed_amount").attr("value", Number(billedAmount)+amount);
+                  $("#id_billed_amount").attr("data-amount", Number(billedAmount)+amount);
+                } else {
+                  $("#id_billed_amount").attr("value", amount);
+                  $("#id_billed_amount").attr("data-amount", amount);
+                }
               } else {
                 if (res["errors"]["item"]){
                   $("#id_item_error").text(res["errors"]["item"][0]);

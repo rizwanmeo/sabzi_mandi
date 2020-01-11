@@ -241,10 +241,38 @@ def client_bill_detail(request, client_id, bill_id=0):
     return JsonResponse({"status": False, "description": "Invalid request"})
 
 @login_required(login_url='/login/')
-def get_drafted_bill(request, client_id):
+def get_drafted_bill_temp(request, client_id):
     client_qs = ClientBill.objects.filter(
         client_id=client_id, client__shop=request.shop, is_draft=True)
     client_qs = client_qs.order_by("-created_time")
     client_qs = client_qs.annotate(amount=Sum('billdetail__rate'), items=Count('billdetail__item'))
     data = list(client_qs.values())[:10]
+    return JsonResponse({"status": True, "data": data})
+
+@login_required(login_url='/login/')
+def get_drafted_bill(request, client_id):
+    data = {}
+    draft_bills = []
+    if request.method == "GET":
+        client = Client.objects.get(id=client_id)
+        kwargs = {
+            "client_id":      client_id,
+            "client__shop":   request.shop,
+            "is_draft":       True}
+        client_qs = ClientBill.objects.filter(**kwargs).order_by("-created_time")
+        for obj in client_qs[:10]:
+            draft_bill = {}
+            billdetail_vs = list(obj.billdetail_set.values("rate", "item_count"))
+            item_count = len(billdetail_vs)
+            if item_count == 0: continue
+            draft_bill["bill_id"] = obj.id
+            draft_bill["billed_amount"] = 0
+            draft_bill["item_count"] = item_count
+            draft_bill["created_time"] = obj.created_time.strftime("%d %b, %Y %I:%M%p")
+            for detail_obj in billdetail_vs:
+                draft_bill["billed_amount"] += detail_obj["rate"] + detail_obj["item_count"]
+            draft_bills.append(draft_bill)
+        data["draft_bills"] = draft_bills
+        data["balance"] = client.current_balance
+
     return JsonResponse({"status": True, "data": data})
