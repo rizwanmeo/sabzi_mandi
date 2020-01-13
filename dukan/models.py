@@ -127,6 +127,7 @@ class ClientBill(models.Model):
     bill_time = models.DateTimeField(default=timezone.now, editable=False)
     is_draft = models.BooleanField(default=False)
     balance = models.FloatField(default=0)
+    billed_amount = models.FloatField(default=0)
 
 
 class BillDetail(models.Model):

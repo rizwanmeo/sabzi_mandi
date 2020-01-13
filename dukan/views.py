@@ -1,10 +1,9 @@
 from django.db.models import Sum, Count
+from django.shortcuts import render
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from django.http import JsonResponse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404, JsonResponse
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
 from dukan.models import *
@@ -12,10 +11,19 @@ from dukan.forms import BillDetailForm
 
 @login_required(login_url='/login/')
 def index(request):
+    today = datetime.date.today()
+    month = today.replace(day=1)
+
+    client_bill_qs = ClientBill.objects.filter(is_draft=False, bill_time__gt=today)
+    today_billed_amount = client_bill_qs.aggregate(amount=Sum('billed_amount'))
+
+    client_bill_qs = ClientBill.objects.filter(is_draft=False, bill_time__gt=month)
+    monthly_billed_amount = client_bill_qs.aggregate(amount=Sum('billed_amount'))
+
     context = {
         'name': 'Muhammad Rizwan',
-        'daily_earn': '4,000',
-        'monthly_earn': '74,000',
+        'daily_earn': today_billed_amount.get("amount") or 0,
+        'monthly_earn': monthly_billed_amount.get("amount") or 0,
         'daily_purchase': '3,000',
         'monthly_purchase': '50,000',
     }
@@ -197,6 +205,8 @@ class ClientBillDeleteView(CustomLoginRequiredMixin, DeleteView):
         return self.post(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
+        if not self.get_object().is_draft:
+            raise Http404
         super(ClientBillDeleteView, self).delete(request, *args, **kwargs)
         msg = 'Client: [%s] bill was delete succfully.' % self.object.client.name
         messages.add_message(self.request, messages.INFO, msg)
@@ -299,30 +309,25 @@ def get_drafted_bill(request, client_id):
 
 @login_required(login_url='/login/')
 def done_drafted_bill(request, client_id, bill_id):
-    data = {}
     if request.method == "POST":
-        client = Client.objects.get(id=client_id)
-        kwargs = {
-            "client_id":      client_id,
-            "client__shop":   request.shop,
-            "is_draft":       True}
-        client_qs = ClientBill.objects.filter(**kwargs).order_by("-created_time")
-        for obj in client_qs[:10]:
-            draft_bill = {}
-            billdetail_vs = list(obj.billdetail_set.values("rate", "item_count"))
-            item_count = len(billdetail_vs)
-            if item_count == 0: continue
-            draft_bill["bill_id"] = obj.id
-            draft_bill["billed_amount"] = 0
-            draft_bill["item_count"] = item_count
-            draft_bill["created_time"] = obj.created_time.strftime("%d %b, %Y %I:%M%p")
-            for detail_obj in billdetail_vs:
-                draft_bill["billed_amount"] += detail_obj["rate"] * detail_obj["item_count"]
-            draft_bills.append(draft_bill)
-        data["draft_bills"] = draft_bills
-        data["balance"] = client.current_balance
-
-    return JsonResponse({"status": True, "data": data})
+        billed_amount = 0
+        bill_obj = ClientBill.objects.get(id=int(bill_id), is_draft=True)
+        billdetail_vs = bill_obj.billdetail_set.values("rate", "item_count")
+        for detail_obj in billdetail_vs:
+            billed_amount += detail_obj["rate"] * detail_obj["item_count"]
+        bill_obj.is_draft = False
+        bill_obj.client_id = client_id
+        bill_obj.billed_amount = billed_amount
+        bill_obj.bill_time = datetime.datetime.now()
+        bill_obj.client.current_balance -= billed_amount
+        bill_obj.balance = bill_obj.client.current_balance
+        bill_obj.client.save()
+        bill_obj.save()
+        msg = 'Client: [%s] Bill was done succfully.' % bill_obj.client.name
+        messages.add_message(self.request, messages.INFO, msg)
+        return JsonResponse({"status": True, "description": "Successfully done"})
+    else:
+        return JsonResponse({"status": False, "description": "Invalid request"})
 
 
 @login_required(login_url='/login/')

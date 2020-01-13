@@ -45,6 +45,7 @@
                   <th>Phone</th>
                   <th>Address</th>
                   <th>Opening Balance</th>
+                  <th>Current Balance</th>
                   <th>Created On</th>
                   <th>Last Update</th>
                   <th style="width: 120px;padding-top: 30px;">Action</th>
@@ -57,6 +58,7 @@
                   <th>Phone</th>
                   <th>Address</th>
                   <th>Opening Balance</th>
+                  <th>Current Balance</th>
                   <th>Created On</th>
                   <th>Last Update</th>
                   <th style="width: 120px">Action</th>
@@ -69,7 +71,8 @@
                   <td>{% if obj.cnic %}{{ obj.cnic }}{% endif %}</td>
                   <td>{% if obj.phone %}{{ obj.phone }}{% endif %}</td>
                   <td>{% if obj.address %}{{ obj.address }}{% endif %}</td>
-                  <td>{% if obj.opening_balance is not None %}{{ obj.opening_balance }}{% endif %}</td>
+                  <td>{{ obj.opening_balance }}</td>
+                  <td>{{ obj.current_balance }}</td>
                   <td>{{ obj.created_time }}</td>
                   <td>{{ obj.last_modified }}</td>
                   <td style="padding-top: 30px;">

@@ -17,6 +17,9 @@
 {% endblock %}
 
 {% block base_container %}
+<div id="id_global_error" class="pl-5 pr-5">
+</div>
+
 <div class="row">
   <div class="col-lg-9">
     <div class="p-5">
@@ -137,12 +140,12 @@
 
         <div class="form-group row">
           <div class="col-sm-4">
-            <button type="button" onclick="clientBillDone()" class="btn btn-primary btn-block">
+            <button type="button" onclick="clientBillDone(0)" class="btn btn-primary btn-block">
               Done and Close
             </button>
           </div>
           <div class="col-sm-4">
-            <button type="button" onclick="clientBillDone()" class="btn btn-success btn-block">
+            <button type="button" onclick="clientBillDone(1)" class="btn btn-success btn-block">
               Done and Print
             </button>
           </div>
@@ -176,16 +179,26 @@
       }
     }
 
-    function clientBillDone() {
+    function clientBillDone(op) {
       var selectedClient = $(".fstlist").children(".selected").attr("data-value");
-      var billId = $(this).attr("data-bill_id");
+      var billId = $("#id_submit_detail").attr("data-bill_id");
+      var token = '{{csrf_token}}';
       if (selectedClient && billId) {
         $.ajax({
+          headers: { "X-CSRFToken": token },
           url: "/client-bills/"+selectedClient+"/"+billId+"/done/", 
           type: 'post',
           dataType: 'json',
           success: function ( res ) {
-            console.log(res)
+            if (res["status"] == true) {
+              if (op==0) {
+                window.location.href = "/client-bills/";
+              } else {
+                window.location.href = "/client-bills/"+billId+"/print/";
+              }
+            } else {
+              showGlobalError("Failed to done bill, Error was: "+res["description"]);
+            }
           }
         });
       } else {
@@ -206,6 +219,14 @@
       }
     }
 
+  function showGlobalError(message) {
+    var innerHtml = '<div class="alert alert-danger alert-dismissible">'+
+                      '<button type="button" class="close" data-dismiss="alert">&times;</button>'+
+                      '<strong>Error!</strong> '+message
+                    '</div>';
+    $("#id_global_error").html(innerHtml);
+
+  }
   function showClientError() {
     $("#id_client_info").find(".fstselected").addClass("form-control is-invalid");
     $("#id_client_info").parent().removeClass("form-group");

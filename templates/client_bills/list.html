@@ -60,19 +60,21 @@
               </tfoot>
               <tbody>
                 {% for obj in object_list %}
-                <tr class="table-danger">
+                <tr {% if obj.is_draft %}class="table-danger"{% endif %}>
                   <td>{{ obj.client.name }}</td>
                   <td>{{ obj.bill_time }}</td>
                   <td>{{ obj.items }}</td>
                   <td>{{ obj.amount }}</td>
                   <td>{{ obj.balance }}</td>
                   <td>
+                    {% if obj.is_draft %}
                     <button type="button" onclick="showDeleteConfirmation({{obj.id}})"  class="btn btn-danger">
                       <i class="fas fa-trash"></i>
                     </button>
                     <a href="/client-bills/{{obj.id}}/update" class="btn btn-primary">
                       <i class="fas fa-edit"></i>
                     </a>
+                    {% endif %}
                   </td>
                 </tr>
                 {% endfor %}
