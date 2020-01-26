@@ -379,6 +379,7 @@
             data: $("#id_bill_detail").serialize(),
             dataType: 'json',
             success: function ( res ) {
+              console.log(res)
               if (res["status"] == true) {
                 var objId = res["data"]["id"]
                 var rate = res["data"]["rate"]
@@ -413,17 +414,13 @@
                 $("#id_item_data").append(html);
                 $("#id_done_bill").removeAttr("hidden");
                 $("#id_bill_detail").trigger("reset");
-                $(".fstselected").text("Select an Item");
-                $(".fstlist").find(".selected").removeClass("selected");
-                
+                $("#id_bill_detail").find(".fstselected").text("Select an Item");
+                $("#id_bill_detail").find(".selected").removeClass("selected");
+
                 var billedAmount = $("#id_billed_amount").attr("data-amount");
-                if (Number.isInteger(billedAmount)) {
-                  $("#id_billed_amount").attr("value", Number(billedAmount)+amount);
-                  $("#id_billed_amount").attr("data-amount", Number(billedAmount)+amount);
-                } else {
-                  $("#id_billed_amount").attr("value", amount);
-                  $("#id_billed_amount").attr("data-amount", amount);
-                }
+                $("#id_billed_amount").attr("value", Number(billedAmount)+amount);
+                $("#id_billed_amount").attr("data-amount", Number(billedAmount)+amount);
+                $("#id_submit_detail").attr("data-bill_id", res["bill_id"]);
               } else {
                 showBillDetailError(res);
               }

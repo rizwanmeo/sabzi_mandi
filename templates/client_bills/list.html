@@ -40,20 +40,24 @@
             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
               <thead>
                 <tr>
+                  <th>ID</th>
                   <th>Client Name</th>
                   <th>Bill Time</th>
                   <th>Items #</th>
                   <th>Amount</th>
+                  <th>Previous Amount</th>
                   <th>Balance</th>
                   <th style="width: 120px;padding-top: 30px;">Action</th>
                 </tr>
               </thead>
               <tfoot>
                 <tr>
+                  <th>ID</th>
                   <th>Client Name</th>
                   <th>Bill Time</th>
                   <th>Items #</th>
                   <th>Amount</th>
+                  <th>Previous Amount</th>
                   <th>Balance</th>
                   <th style="width: 120px">Action</th>
                 </tr>
@@ -61,10 +65,12 @@
               <tbody>
                 {% for obj in object_list %}
                 <tr {% if obj.is_draft %}class="table-danger"{% endif %}>
+                  <td>{{ obj.id }}</td>
                   <td>{{ obj.client.name }}</td>
                   <td>{{ obj.bill_time }}</td>
                   <td>{{ obj.items }}</td>
-                  <td>{{ obj.amount }}</td>
+                  <td>{{ obj.billed_amount }}</td>
+                  <td>{{ obj.billed_amount|add:obj.balance }}</td>
                   <td>{{ obj.balance }}</td>
                   <td>
                     {% if obj.is_draft %}

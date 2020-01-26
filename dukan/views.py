@@ -102,6 +102,13 @@ class SupplierListView(CustomLoginRequiredMixin, ListView):
     model = Supplier
     template_name = "suppliers/list.html"
 
+    def get_context_data(self):
+        context = super(SupplierListView, self).get_context_data()
+        object_list = context["object_list"]
+        object_list = object_list.filter(shop=self.request.shop)
+        context["object_list"] = object_list
+        return context
+
 class SupplierCreateView(CustomLoginRequiredMixin, CreateView):
     model = Supplier
     success_url = "/suppliers"
@@ -132,6 +139,13 @@ class ClientListView(CustomLoginRequiredMixin, ListView):
     model = Client
     template_name = "clients/list.html"
 
+    def get_context_data(self):
+        context = super(ClientListView, self).get_context_data()
+        object_list = context["object_list"]
+        object_list = object_list.filter(shop=self.request.shop)
+        context["object_list"] = object_list
+        return context
+
 class ClientCreateView(CustomLoginRequiredMixin, CreateView):
     model = Client
     success_url = "/clients"
@@ -140,6 +154,7 @@ class ClientCreateView(CustomLoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.shop_id = 1
+        form.instance.current_balance = form.instance.opening_balance
         super(ClientCreateView, self).form_valid(form)
         msg = 'Client: [%s] was created succfully.' % form.instance.name
         messages.add_message(self.request, messages.INFO, msg)
@@ -166,7 +181,7 @@ class ClientBillListView(CustomLoginRequiredMixin, ListView):
         context = super(ClientBillListView, self).get_context_data()
         object_list = context["object_list"]
         object_list = object_list.filter(client__shop=self.request.shop)
-        object_list = object_list.annotate(amount=Sum('billdetail__rate'), items=Count('billdetail__item'))
+        object_list = object_list.annotate(items=Count('billdetail__item'))
         context["object_list"] = object_list
         return context
 
@@ -190,7 +205,7 @@ class ClientBillCreateView(CustomLoginRequiredMixin, CreateView):
         form.fields["client"].widget.attrs["class"] = "fstdropdown-select"
         form.fields["client"].widget.attrs["onChange"] = "onchangeEvent();"
         form.fields["client"].widget.attrs["required"] = False
-        client_qs = form.fields["client"].queryset.filter(shop__owner=self.request.user)
+        client_qs = form.fields["client"].queryset.filter(shop=self.request.shop)
         choices += list(client_qs.values_list("id", "name"))
         form.fields["client"].choices = choices
         context["detail_form"] = BillDetailForm()
@@ -256,28 +271,21 @@ def client_bill_detail(request, client_id, bill_id=0):
                     bill_obj = ClientBill.objects.get(id=bill_id, client_id=client_id)
                 else:
                     bill_obj = ClientBill.objects.annotate(item_count=Count('billdetail')).get(client_id=client_id, is_draft=True, item_count=0)
+                    bill_id = bill_obj.id
             except ClientBill.DoesNotExist:
                 bill_obj = ClientBill(client=client_obj, is_draft=True)
                 bill_obj.save()
+                bill_id = bill_obj.id
 
             form.instance.bill = bill_obj
             form.save()
             data = {"id": form.instance.id, "unit": form.instance.get_unit_display(),
                     "rate": form.instance.rate, "item": form.instance.item.name,
                     "item_count": form.instance.item_count}
-            return JsonResponse({"status": True, "data": data})
+            return JsonResponse({"status": True, "data": data, "bill_id": bill_id})
         else:
             return JsonResponse({"status": False, "errors": form.errors})
     return JsonResponse({"status": False, "description": "Invalid request"})
-
-@login_required(login_url='/login/')
-def get_drafted_bill_temp(request, client_id):
-    client_qs = ClientBill.objects.filter(
-        client_id=client_id, client__shop=request.shop, is_draft=True)
-    client_qs = client_qs.order_by("-created_time")
-    client_qs = client_qs.annotate(amount=Sum('billdetail__rate'), items=Count('billdetail__item'))
-    data = list(client_qs.values())[:10]
-    return JsonResponse({"status": True, "data": data})
 
 @login_required(login_url='/login/')
 def get_drafted_bill(request, client_id):
@@ -324,11 +332,10 @@ def done_drafted_bill(request, client_id, bill_id):
         bill_obj.client.save()
         bill_obj.save()
         msg = 'Client: [%s] Bill was done succfully.' % bill_obj.client.name
-        messages.add_message(self.request, messages.INFO, msg)
+        messages.add_message(request, messages.INFO, msg)
         return JsonResponse({"status": True, "description": "Successfully done"})
     else:
         return JsonResponse({"status": False, "description": "Invalid request"})
-
 
 @login_required(login_url='/login/')
 def delete_client_bill_detail(request, detail_id):
@@ -340,3 +347,41 @@ def delete_client_bill_detail(request, detail_id):
         except:
             return JsonResponse({"status": False, "description": "Invalid bill ID"})
     return JsonResponse({"status": False, "description": "Invalid Request"})
+
+@login_required(login_url='/login/')
+def ledger_view(request):
+    context = {}
+    if request.method == "GET":
+        today = datetime.date.today()
+        filter_kwargs = {
+            "client__shop": request.shop,
+            "is_draft": False,
+            "bill_time__gt": today,
+        }
+
+        data = {}
+        client_bill_qs = ClientBill.objects.filter(**filter_kwargs)
+        columns = ['client__name', 'client__id', 'client__current_balance', 'billed_amount']
+        client_bill_vs = client_bill_qs.values(*columns)
+        for obj in client_bill_vs:
+            pk = obj["client__id"]
+            name = obj["client__name"]
+            amount = obj["billed_amount"]
+            balance = obj["client__current_balance"]
+            try:
+                data[pk]["amount"] += amount
+                data[pk]["balance"] = data[pk]["balance"]+amount
+            except:
+                data[pk] = {"id": pk, 
+                            "name": name, 
+                            "amount": amount, 
+                            "balance": balance+amount,
+                            "total": balance}
+        vs = list(data.values())
+        
+        print(vs[:2])
+        ledger_list1, ledger_list2 = vs[:int(len(vs)/2)], vs[int(len(vs)/2):]
+        context["ledger_list1"] = ledger_list1
+        context["ledger_list2"] = ledger_list2
+
+    return render(request, 'ledger/list.html', context)

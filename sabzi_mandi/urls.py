@@ -25,14 +25,15 @@ urlpatterns = [
     re_path(r'^suppliers/$', views.SupplierListView.as_view(), name='suppliers_list'),
     re_path(r'^clients/$', views.ClientListView.as_view(), name='clients_list'),
     re_path(r'^client-bills/$', views.ClientBillListView.as_view(), name='client_bills'),
+    re_path(r'^ledger/$', views.ledger_view, name='ledger'),
 
     # all create view urls
     re_path(r'^shops/create/$', views.ShopCreateView.as_view(), name='shops_create'),
     re_path(r'^suppliers/create/$', views.SupplierCreateView.as_view(), name='suppliers_create'),
     re_path(r'^clients/create/$', views.ClientCreateView.as_view(), name='clients_create'),
     re_path(r'^client-bills/create/$', views.ClientBillCreateView.as_view(), name='client_bills_create'),
-    re_path(r'^client-bills/(?P<client_id>\d+)/client-detail/$', views.get_drafted_bill, name='client_bill_detail'),
-    re_path(r'^client-bills/(?P<bill_id>\d+)/print/$', views.get_drafted_bill, name='client_bill_detail'),
+    re_path(r'^client-bills/(?P<client_id>\d+)/client-detail/$', views.get_drafted_bill, name='get_drafted_bill'),
+    re_path(r'^client-bills/(?P<bill_id>\d+)/print/$', views.get_drafted_bill, name='print_drafted_bill'),
     re_path(r'^client-bills/(?P<client_id>\d+)/(?P<bill_id>\d+)/bill-detail/$', views.client_bill_detail, name='client_bill_detail'),
     re_path(r'^client-bills/(?P<client_id>\d+)/(?P<bill_id>\d+)/done/$', views.done_drafted_bill, name='client_bill_detail_done'),
 

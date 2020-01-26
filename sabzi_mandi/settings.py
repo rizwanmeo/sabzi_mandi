@@ -10,6 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
+# To add multiple language in web App
+#https://stackoverflow.com/questions/47940607/how-to-integrate-multi-languages-support-by-creating-language-files-in-django-2
+
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)

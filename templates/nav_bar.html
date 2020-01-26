@@ -20,7 +20,7 @@
 
   <!-- Nav Item - Dashboard -->
   <li class="nav-item active">
-    <a class="nav-link" href="/">
+    <a class="nav-link" href="/?{{ request.GET.urlencode }}">
       <i class="fas fa-fw fa-tachometer-alt"></i>
       <span>Dashboard</span>
     </a>
@@ -31,7 +31,7 @@
 
   <!-- Nav Item - Pages Collapse Menu -->
   <li class="nav-item">
-    <a class="nav-link" href="/shops">
+    <a class="nav-link" href="/shops/?{{ request.GET.urlencode }}">
       <i class="fas fa-fw fa-cog"></i>
       <span>Shops</span>
     </a>
@@ -39,7 +39,7 @@
 
   <!-- Nav Item - Pages Collapse Menu -->
   <li class="nav-item">
-    <a class="nav-link" href="/suppliers">
+    <a class="nav-link" href="/suppliers/?{{ request.GET.urlencode }}">
       <i class="fas fa-fw fa-cog"></i>
       <span>Supplier</span>
     </a>
@@ -47,7 +47,7 @@
 
   <!-- Nav Item - Utilities Collapse Menu -->
   <li class="nav-item">
-    <a class="nav-link" href="/clients">
+    <a class="nav-link" href="/clients/?{{ request.GET.urlencode }}">
       <i class="fas fa-fw fa-wrench"></i>
       <span>Clients</span>
     </a>
@@ -58,7 +58,7 @@
 
   <!-- Nav Item - Pages Collapse Menu -->
   <li class="nav-item">
-    <a class="nav-link" href="/client-bills">
+    <a class="nav-link" href="/client-bills/?{{ request.GET.urlencode }}">
       <i class="fas fa-file-invoice"></i>
       <span>Bill To Client</span>
     </a>
@@ -66,7 +66,7 @@
 
   <!-- Nav Item - Tables -->
   <li class="nav-item">
-    <a class="nav-link" href="/ladger">
+    <a class="nav-link" href="/ledger/?{{ request.GET.urlencode }}">
       <i class="fas fa-fw fa-table"></i>
       <span>Ladger</span>
     </a>
