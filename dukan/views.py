@@ -343,6 +343,7 @@ def print_bill(request, bill_id):
     if request.method == "GET":
         obj = ClientBill.objects.get(id=int(bill_id), is_draft=False)
         context["obj"] = obj
+        context["bill_detail_list"] = obj.billdetail_set.all()
 
     return render(request, 'client_bills/print.html', context)
 

@@ -14,6 +14,10 @@
     <!-- Set page size here: A5, A4 or A3 -->
     <!-- Set also "landscape" if you need -->
     <style>@page { size: A4 }</style>
+    <style>
+        .table th {padding: 0.30rem;}
+        .table td {padding: 0.30rem;}
+    </style>
   </head>
 
   <!-- Set "A5", "A4" or "A3" for class name -->
@@ -21,11 +25,66 @@
   <body>
     <div class="book">
       <div class="page">
-        <table border="0" cellspacing="0" cellpadding="0">
-         <tr style="width: 100%">
-            <img src="/static/img/index.jpeg" width="100%">
-         </tr>
-        </table>
+        <div class="row">
+          <div class="col-lg-3" style="width: 25%"></div>
+          <div class="col-lg-6" style="width: 50%">
+            <table class="table" border="0" cellspacing="0" cellpadding="0">
+              <tr colspan=5>
+                <img src="/static/img/index.jpeg" width="100%">
+              </tr>
+              <tr>
+                <th colspan=2>{{ obj.bill_time.date }}</th>
+                <th colspan=2>{{ obj.client.name }}</th>
+                <th>Code: {{ obj.client.id }}</th>
+              </tr>
+              <tr>
+                <th>Amount</th>
+                <th>Weight(KG)</th>
+                <th>Rate</th>
+                <th>Items</th>
+                <th>Item Name</th>
+              </tr>
+              {% for bill_obj in bill_detail_list %}
+              <tr>
+                <td>{% widthratio bill_obj.rate 1 bill_obj.item_count %}</td>
+                <td>{% if bill_obj.unit == 'k' %}{{ bill_obj.item_count }}{% endif %}</td>
+                <td>{{ bill_obj.rate }}</td>
+                <td>{% if bill_obj.unit == 'i' %}{{ bill_obj.item_count }}{% endif %}</td>
+                <td>{{ bill_obj.item.name }}</td>
+              </tr>
+              {% endfor %}
+              <tr>
+                <td>{{ obj.billed_amount }}</td>
+                <td colspan=2>Billed Amount</td>
+                <td>Total Items: 20</td>
+                <td>Total Weight: 50KG</td>
+              </tr>
+              <tr>
+                <td>{{ obj.balance }}</td>
+                <td colspan=4>Previous Amount</td>
+              </tr>
+              <tr>
+                <td>{{ obj.balance }}</td>
+                <td>Total Amount</td>
+                <td colspan=3 rowspan=0>
+                    Develop By</br>
+                    Ahmed Faraz Arain</br>
+                    0346-2073561
+                </th>
+              </tr>
+              <tr>
+                <td>{{ obj.balance }}</td>
+                <td>Paid Amount</td>
+              </tr>
+              <tr>
+                <td>{{ obj.balance }}</td>
+                <td>Total</td>
+              </tr>
+            </table>
+          </div>
+          <div class="col-lg-3" style="width: 25%"></div>
+
+        </div>
       </div>
     </div>
     <script src="{% static "vendor/datatables/jquery.dataTables.js" %}"></script>
