@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>L</title>
+  {% load static %}
+
+  <!-- Custom styles for this template-->
+  <link href="{% static "css/sb-admin-2.css" %}" rel="stylesheet">
+
+  <!-- Load paper.css for happy printing -->
+  <link rel="stylesheet" href="{% static "css/print.css" %}">
+
+  <!-- Set page size here: A5, A4 or A3 -->
+  <!-- Set also "landscape" if you need -->
+  <style>@page { size: A4 }</style>
+</head>
+
+<!-- Set "A5", "A4" or "A3" for class name -->
+<!-- Set also "landscape" if you need -->
+<body>
+  <div class="book">
+    <div class="page">
+      <table border="0" cellspacing="0" cellpadding="0">
+       <tr style="width: 100%">
+          <img src="/static/img/index.jpeg" width="100%">
+       </tr>
+       <tr style="font-size: 13px;">
+         <td>
+          Sunday, 2 February 2020
+         </td>
+       </tr>
+       <tr>
+         <td>
+            <table class="table" style="border-right: 1px solid #e3e6f0">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Previous</th>
+                  <th>New</th>
+                  <th>Total</th>
+                  <th>Payment</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for obj in ledger_list1 %}
+                <tr>
+                  <td>{{ obj.id }}</td>
+                  <td>{{ obj.name }}</td>
+                  <td>{{ obj.balance }}</td>
+                  <td>{{ obj.amount }}</td>
+                  <td>{{ obj.total }}</td>
+                  <td>{{ obj.payment }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+         </td>
+         <td>
+            <table class="table" style="border-left: 1px solid #e3e6f0">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Previous</th>
+                  <th>New</th>
+                  <th>Total</th>
+                  <th>Payment</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for obj in ledger_list2 %}
+                <tr>
+                  <td>{{ obj.id }}</td>
+                  <td>{{ obj.name }}</td>
+                  <td>{{ obj.balance }}</td>
+                  <td>{{ obj.amount }}</td>
+                  <td>{{ obj.total }}</td>
+                  <td>{{ obj.payment }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+         </td>
+       </tr>
+      </table>
+    </div>
+  </div>
+  <script src="{% static "vendor/datatables/jquery.dataTables.js" %}"></script>
+  <script src="{% static "vendor/datatables/dataTables.bootstrap4.min.js" %}"></script>
+
+</body>
+
+</html>

@@ -1,8 +1,8 @@
 {% extends 'index.html' %}
 
 {% block breadcrumb %}
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
+<nav aria-label="breadcrumb" class="p-3">
+  <ol class="breadcrumb" class="justify-content-center">
     <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
     <li class="breadcrumb-item active" aria-current="page">Client Bills</li>
   </ol>
@@ -25,96 +25,58 @@
             </div>
             <div class="col-lg-6">
               <div class="text-right">
-                  <a href="/client-payment/create" class="btn btn-success btn-icon-split">
+                  <a href="/ledger/create" class="btn btn-success btn-icon-split">
                     <span class="icon text-white-50">
                       <i class="fa fa-plus"></i>
                     </span>
                     <span class="text">Add Payment</span>
+                  </a>
+                  <a href="/ledger/ledger-print" class="btn btn-primary btn-icon-split">
+                    <span class="icon text-white-50">
+                      <i class="fa fa-print"></i>
+                    </span>
+                    <span class="text">Print Ladger</span>
                   </a>
               </div>
             </div>
           </div>
         </div>
         <div class="card-body">
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="table-responsive">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Client Name</th>
-                      <th>Previous</th>
-                      <th>New</th>
-                      <th>Total</th>
-                      <th>Payment</th>
-                    </tr>
-                  </thead>
-                  <tfoot>
-                    <tr>
-                      <th>ID</th>
-                      <th>Client Name</th>
-                      <th>Previous</th>
-                      <th>New</th>
-                      <th>Total</th>
-                      <th>Payment</th>
-                    </tr>
-                  </tfoot>
-                  <tbody>
-                    {% for obj in ledger_list1 %}
-                    <tr>
-                      <td>{{ obj.id }}</td>
-                      <td>{{ obj.name }}</td>
-                      <td>{{ obj.balance }}</td>
-                      <td>{{ obj.amount }}</td>
-                      <td>{{ obj.total }}</td>
-                      <td>{{ obj.payment }}</td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <div class="col-lg-6">
-              <div class="table-responsive">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Client Name</th>
-                      <th>Previous</th>
-                      <th>New</th>
-                      <th>Total</th>
-                      <th>Payment</th>
-                    </tr>
-                  </thead>
-                  <tfoot>
-                    <tr>
-                      <th>ID</th>
-                      <th>Client Name</th>
-                      <th>Previous</th>
-                      <th>New</th>
-                      <th>Total</th>
-                      <th>Payment</th>
-                    </tr>
-                  </tfoot>
-                  <tbody>
-                    {% for obj in ledger_list2 %}
-                    <tr>
-                      <td>{{ obj.id }}</td>
-                      <td>{{ obj.name }}</td>
-                      <td>{{ obj.balance }}</td>
-                      <td>{{ obj.amount }}</td>
-                      <td>{{ obj.total }}</td>
-                      <td>{{ obj.payment }}</td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
+          <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Client Name</th>
+                  <th>Previous</th>
+                  <th>New</th>
+                  <th>Total</th>
+                  <th>Payment</th>
+                </tr>
+              </thead>
+              <tfoot>
+                <tr>
+                  <th>ID</th>
+                  <th>Client Name</th>
+                  <th>Previous</th>
+                  <th>New</th>
+                  <th>Total</th>
+                  <th>Payment</th>
+                </tr>
+              </tfoot>
+              <tbody>
+                {% for obj in ledger_list %}
+                <tr>
+                  <td>{{ obj.id }}</td>
+                  <td>{{ obj.name }}</td>
+                  <td>{{ obj.balance }}</td>
+                  <td>{{ obj.amount }}</td>
+                  <td>{{ obj.total }}</td>
+                  <td>{{ obj.payment }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -128,4 +90,15 @@
   <!-- Page level plugins -->
   <script src="{% static "vendor/datatables/jquery.dataTables.js" %}"></script>
   <script src="{% static "vendor/datatables/dataTables.bootstrap4.min.js" %}"></script>
+  <script>
+    $(function() {
+      $('#dataTable').DataTable();
+      $(".alert-success").fadeTo(2000, 500).slideUp(500, function(){
+          $(".alert-success").slideUp(500);
+      });
+      $(".alert-danger").fadeTo(2000, 500).slideUp(500, function(){
+          $(".alert-success").slideUp(500);
+      });
+    })
+  </script>
 {% endblock %}

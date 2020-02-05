@@ -28,8 +28,8 @@ def index(request):
         'monthly_purchase': '50,000',
     }
 
-    shops = list(request.user.shop_set.values("id", "name"))
-    context["shops_list"] = shops
+    #shops = list(request.user.shop_set.values("id", "name"))
+    #context["shops_list"] = shops
     return render(request, 'index.html', context)
 
 @login_required(login_url='/login/')
@@ -338,6 +338,15 @@ def done_drafted_bill(request, client_id, bill_id):
         return JsonResponse({"status": False, "description": "Invalid request"})
 
 @login_required(login_url='/login/')
+def print_bill(request, bill_id):
+    context = {}
+    if request.method == "GET":
+        obj = ClientBill.objects.get(id=int(bill_id), is_draft=False)
+        context["obj"] = obj
+
+    return render(request, 'client_bills/print.html', context)
+
+@login_required(login_url='/login/')
 def delete_client_bill_detail(request, detail_id):
     if request.method == "DELETE":
         try:
@@ -349,14 +358,14 @@ def delete_client_bill_detail(request, detail_id):
     return JsonResponse({"status": False, "description": "Invalid Request"})
 
 @login_required(login_url='/login/')
-def ledger_view(request):
+def ledger_print(request):
     context = {}
     if request.method == "GET":
         today = datetime.date.today()
         filter_kwargs = {
             "client__shop": request.shop,
             "is_draft": False,
-            "bill_time__gt": today,
+            #"bill_time__gt": today,
         }
 
         data = {}
@@ -378,10 +387,43 @@ def ledger_view(request):
                             "balance": balance+amount,
                             "total": balance}
         vs = list(data.values())
-        
-        print(vs[:2])
         ledger_list1, ledger_list2 = vs[:int(len(vs)/2)], vs[int(len(vs)/2):]
         context["ledger_list1"] = ledger_list1
-        context["ledger_list2"] = ledger_list2
+        context["ledger_list2"] = ledger_list2[:-1]
+
+    return render(request, 'ledger/print.html', context)
+
+@login_required(login_url='/login/')
+def ledger_view(request):
+    context = {}
+    if request.method == "GET":
+        today = datetime.date.today()
+        filter_kwargs = {
+            "client__shop": request.shop,
+            "is_draft": False,
+            #"bill_time__gt": today,
+        }
+
+        data = {}
+        client_bill_qs = ClientBill.objects.filter(**filter_kwargs)
+        columns = ['client__name', 'client__id', 'client__current_balance', 'billed_amount']
+        client_bill_vs = client_bill_qs.values(*columns)
+        for obj in client_bill_vs:
+            pk = obj["client__id"]
+            name = obj["client__name"]
+            amount = obj["billed_amount"]
+            balance = obj["client__current_balance"]
+            try:
+                data[pk]["amount"] += amount
+                data[pk]["balance"] = data[pk]["balance"]+amount
+            except:
+                data[pk] = {"id": pk, 
+                            "name": name, 
+                            "amount": amount, 
+                            "balance": balance+amount,
+                            "total": balance}
+        vs = list(data.values())
+        context["ledger_list"] = vs
 
     return render(request, 'ledger/list.html', context)
+

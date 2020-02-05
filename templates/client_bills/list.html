@@ -1,7 +1,7 @@
 {% extends 'index.html' %}
 
 {% block breadcrumb %}
-<nav aria-label="breadcrumb">
+<nav aria-label="breadcrumb" class="p-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
     <li class="breadcrumb-item active" aria-current="page">Client Bills</li>
@@ -47,21 +47,10 @@
                   <th>Amount</th>
                   <th>Previous Amount</th>
                   <th>Balance</th>
-                  <th style="width: 120px;padding-top: 30px;">Action</th>
+                  <!-- <th style="width: 120px;padding-top: 30px;">Action</th> -->
+                  <th>Action</th>
                 </tr>
               </thead>
-              <tfoot>
-                <tr>
-                  <th>ID</th>
-                  <th>Client Name</th>
-                  <th>Bill Time</th>
-                  <th>Items #</th>
-                  <th>Amount</th>
-                  <th>Previous Amount</th>
-                  <th>Balance</th>
-                  <th style="width: 120px">Action</th>
-                </tr>
-              </tfoot>
               <tbody>
                 {% for obj in object_list %}
                 <tr {% if obj.is_draft %}class="table-danger"{% endif %}>
@@ -74,12 +63,16 @@
                   <td>{{ obj.balance }}</td>
                   <td>
                     {% if obj.is_draft %}
-                    <button type="button" onclick="showDeleteConfirmation({{obj.id}})"  class="btn btn-danger">
-                      <i class="fas fa-trash"></i>
-                    </button>
-                    <a href="/client-bills/{{obj.id}}/update" class="btn btn-primary">
-                      <i class="fas fa-edit"></i>
-                    </a>
+                      <button type="button" onclick="showDeleteConfirmation({{obj.id}})"  class="btn btn-danger">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                      <a href="/client-bills/{{obj.id}}/update" class="btn btn-primary">
+                        <i class="fas fa-edit"></i>
+                      </a>
+                    {% else %}
+                      <a href="/client-bills/{{obj.id}}/print" class="btn btn-primary">
+                        <i class="fas fa-print"></i>
+                      </a>
                     {% endif %}
                   </td>
                 </tr>

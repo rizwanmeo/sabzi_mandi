@@ -21,7 +21,7 @@ class BasicInfo(UpdatedInfo):
     cnic = models.CharField(max_length=16, blank=True, null=True)
     phone = models.CharField(max_length=16, blank=True, null=True)
     address = models.CharField(max_length=264, blank=True, null=True)
-    opening_balance = models.FloatField(default=0)
+    opening_balance = models.IntegerField(default=0)
 
     class Meta:
         abstract = True
@@ -36,7 +36,8 @@ class Item(models.Model):
         return self.name
 
 def validate_file_ext(value):
-    if value.name.endswith('.png') or value.name.endswith('.jpg'):
+    ext = value.name.split(".")[-1]
+    if ext not in ['.png', '.jpg', '.jpeg']:
         limit = 1024 * 1024
         if value.size > limit:
             raise ValidationError('File too large. Size should not exceed 1 MB.')
@@ -113,7 +114,7 @@ class Supplier(BasicInfo):
 
 class Client(BasicInfo):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
-    current_balance = models.FloatField(default=0)
+    current_balance = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name
@@ -126,19 +127,19 @@ class ClientBill(models.Model):
     created_time = models.DateTimeField(default=timezone.now, editable=False)
     bill_time = models.DateTimeField(default=timezone.now, editable=False)
     is_draft = models.BooleanField(default=False)
-    balance = models.FloatField(default=0)
-    billed_amount = models.FloatField(default=0)
+    balance = models.IntegerField(default=0)
+    billed_amount = models.IntegerField(default=0)
 
 
 class BillDetail(models.Model):
     bill = models.ForeignKey(ClientBill, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     unit = models.CharField(max_length=1, choices=[("k", "KG"), ("i", "Item")])
-    rate = models.FloatField()
-    item_count = models.FloatField()
+    rate = models.IntegerField()
+    item_count = models.IntegerField()
 
 
 class ClientPayment(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
-    amount = models.FloatField(default=0)
+    amount = models.IntegerField(default=0)
     payment_time = models.DateTimeField(default=timezone.now, editable=False)

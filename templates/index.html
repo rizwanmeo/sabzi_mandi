@@ -8,26 +8,31 @@
     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
         <i class="fa fa-bars"></i>
     </button>
-    {% block breadcrumb %}
-        <ul class="navbar-nav">
-          <!-- Nav Item - User Information -->
-          <li class="nav-item dropdown no-arrow">
-            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <h4 class="pt-3 font-weight-bold text-primary">{{ shop.name }}</h4>
-            </a>
-            <!-- Dropdown - User Information -->
-            <div class="dropdown-menu dropdown-menu-left shadow animated--grow-in" aria-labelledby="userDropdown">
-              {% for obj in shops_list %}
-                  <a class="dropdown-item" href="/?shop_id={{ obj.id }}">{{ obj.name }}</a>
-                  {% if not forloop.last %}
-                      <div class="dropdown-divider"></div>
-                  {% endif %}
-              {% endfor %}
-            </div>
-          </li>
-        </ul>
-    {% endblock %}
-    {% include "top_bar.html" %}
+
+    <ul class="navbar-nav">
+      <!-- Nav Item - User Information -->
+      <li class="nav-item dropdown no-arrow">
+        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <h4 class="pt-3 font-weight-bold text-primary">{{ shop.name }}</h4>
+        </a>
+        <!-- Dropdown - User Information -->
+        <div class="dropdown-menu dropdown-menu-left shadow animated--grow-in" aria-labelledby="userDropdown">
+          {% for obj in shops_list %}
+              <a class="dropdown-item" href="{{request.path}}?shop_id={{ obj.id }}">{{ obj.name }}</a>
+              {% if not forloop.last %}
+                  <div class="dropdown-divider"></div>
+              {% endif %}
+          {% endfor %}
+        </div>
+      </li>
+    </ul>
+
+    <!-- Topbar Navbar -->
+    <ul class="navbar-nav ml-auto">
+      {% block breadcrumb %}
+      {% endblock %}
+      {% include "top_bar.html" %}
+    </ul>
 </nav>
 {% endblock %}
 
