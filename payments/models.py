@@ -11,3 +11,4 @@ class SupplierPayment(PaymentMixin):
 
 class ClientPayment(PaymentMixin):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
+    description = models.TextField(blank=True, null=True)

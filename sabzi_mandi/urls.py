@@ -10,6 +10,7 @@ from suppliers import urls as supplier_urls
 from clients import urls as client_urls
 from client_bills import urls as client_bill_urls
 from ledger import urls as ledger_urls
+from payments import urls as payment_urls
 
 urlpatterns = [
     # Dashboard urls
@@ -26,6 +27,7 @@ urlpatterns = [
     path('clients/', include(client_urls)),
     path('client-bills/', include(client_bill_urls)),
     path('ledger/', include(ledger_urls)),
+    path('payment/', include(payment_urls)),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
