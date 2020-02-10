@@ -1,6 +1,6 @@
 from django.forms import ModelForm
 
-from dukan.models import *
+from .models import *
 
 class BillDetailForm(ModelForm):
     class Meta:

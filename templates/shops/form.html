@@ -20,6 +20,7 @@
       <form action="." method="POST" enctype="multipart/form-data">
         {% include "form_non_field_errors.html" %}
         {% include "fields.html" with field=form.name field_label="Shop Name" %}
+        {% include "fields.html" with field=form.phone field_label="Phone Number" %}
         {% include "text_fields.html" with field=form.address field_label="Shop Address" %}
         <div class="form-group row">
           <label class="col-sm-3 col-form-label font-weight-bold">Logo</label>

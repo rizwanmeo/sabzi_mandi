@@ -40,7 +40,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'dukan.apps.DukanConfig',
+    'django_filters',
+    'mandi',
+    'shops',
+    'suppliers',
+    'payments',
+    'clients',
+    'client_bills',
+    'ledger',
 ]
 
 MIDDLEWARE = [

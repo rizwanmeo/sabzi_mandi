@@ -1,4 +1,4 @@
-from dukan.models import Shop
+from shops.models import Shop
 
 def default_shop(request):
     """ 

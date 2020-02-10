@@ -2,6 +2,9 @@ from django.contrib import admin
 from django.utils.html import format_html
 
 from dukan.models import *
+from clients.models import Client
+from suppliers.models import Supplier
+from client_bills.models import ClientBill, ClientPayment
 
 class ShopAdmin(admin.ModelAdmin):
     list_display = ['name', 'owner', 'address', 'image_tag']

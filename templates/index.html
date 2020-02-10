@@ -15,15 +15,19 @@
         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <h4 class="pt-3 font-weight-bold text-primary">{{ shop.name }}</h4>
         </a>
-        <!-- Dropdown - User Information -->
-        <div class="dropdown-menu dropdown-menu-left shadow animated--grow-in" aria-labelledby="userDropdown">
-          {% for obj in shops_list %}
-              <a class="dropdown-item" href="{{request.path}}?shop_id={{ obj.id }}">{{ obj.name }}</a>
-              {% if not forloop.last %}
-                  <div class="dropdown-divider"></div>
+        {% if shops_list|length > 1 %}
+          <!-- Dropdown - User Information -->
+          <div class="dropdown-menu dropdown-menu-left shadow animated--grow-in" aria-labelledby="userDropdown">
+            {% for obj in shops_list %}
+              {% if not obj.id == shop.id %}
+                <a class="dropdown-item" href="{{request.path}}?shop_id={{ obj.id }}">{{ obj.name }}</a>
               {% endif %}
-          {% endfor %}
-        </div>
+              {% if not forloop.last and shops_list|length != 2 %}
+                <div class="dropdown-divider"></div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
       </li>
     </ul>
 
