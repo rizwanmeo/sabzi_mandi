@@ -31,12 +31,14 @@
                     </span>
                     <span class="text">Add New Shop</span>
                   </a>
+                  {% if shops_list|length > 1 %}
                   <a href="#" data-toggle="modal" data-target="#makeDefaultShop" class="btn btn-primary btn-icon-split">
                     <span class="icon text-white-50">
                       <i class="fa fa-plus"></i>
                     </span>
                     <span class="text">Make Default Shop</span>
                   </a>
+                  {% endif %}
               </div>
             </div>
           </div>
@@ -85,6 +87,7 @@
   </div>
 </div>
 
+{% if shops_list|length > 1 %}
 <!-- Logout Modal-->
 <div class="modal fade" id="makeDefaultShop" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -101,7 +104,9 @@
           Select shop to make as default.
           <select name="shop_id">
             {% for obj in object_list %}
+              {% if not obj.id == shop.id %}
               <option value="{{ obj.id }}" {% if obj.is_default %}selected{% endif %}>{{ obj.name }}</option>
+              {% endif %}
             {% endfor %}
           </select> 
         </div>
@@ -115,6 +120,7 @@
     </div>
   </div>
 </div>
+{% endif %}
 
 {% endblock %}
 

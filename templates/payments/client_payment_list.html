@@ -4,7 +4,7 @@
 <nav aria-label="breadcrumb" class="p-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Clients</li>
+    <li class="breadcrumb-item active" aria-current="page">Clients Payment list</li>
   </ol>
 </nav>
 {% endblock %}
@@ -20,16 +20,16 @@
           <div class="row">
             <div class="col-lg-6">
               <div class="text-left">
-                <h4 class="font-weight-bold text-primary">Client list</h4>
+                <h4 class="font-weight-bold text-primary">Clients Payment list</h4>
               </div>
             </div>
             <div class="col-lg-6">
               <div class="text-right">
-                  <a href="/clients/create" class="btn btn-success btn-icon-split">
+                  <a href="/payment/clients/create" class="btn btn-success btn-icon-split">
                     <span class="icon text-white-50">
                       <i class="fa fa-plus"></i>
                     </span>
-                    <span class="text">Add New Client</span>
+                    <span class="text">Add New Payment</span>
                   </a>
               </div>
             </div>
@@ -42,44 +42,28 @@
                 <tr>
                   <th>ID</th>
                   <th>Client Name</th>
-                  <th>CNIC</th>
-                  <th>Phone</th>
-                  <th>Address</th>
-                  <th>Opening Balance</th>
-                  <th>Current Balance</th>
-                  <th style="width: 100px;">Action</th>
+                  <th>Amount</th>
+                  <th>Description</th>
+                  <th>payment_time</th>
                 </tr>
               </thead>
               <tfoot>
                 <tr>
                   <th>ID</th>
                   <th>Client Name</th>
-                  <th>CNIC</th>
-                  <th>Phone</th>
-                  <th>Address</th>
-                  <th>Opening Balance</th>
-                  <th>Current Balance</th>
-                  <th style="width: 100px">Action</th>
+                  <th>Amount</th>
+                  <th>Description</th>
+                  <th>payment_time</th>
                 </tr>
               </tfoot>
               <tbody>
                 {% for obj in object_list %}
                 <tr>
                   <td>{{ obj.id }}</td>
-                  <td>{{ obj.name }}</td>
-                  <td>{% if obj.cnic %}{{ obj.cnic }}{% endif %}</td>
-                  <td>{% if obj.phone %}{{ obj.phone }}{% endif %}</td>
-                  <td>{% if obj.address %}{{ obj.address }}{% endif %}</td>
-                  <td>{{ obj.opening_balance }}</td>
-                  <td>{{ obj.current_balance }}</td>
-                  <td>
-                    <a href="/clients/{{obj.id}}/delete" class="btn btn-danger">
-                      <i class="fas fa-trash"></i>
-                    </a>
-                    <a href="/clients/{{obj.id}}/update" class="btn btn-primary">
-                      <i class="fas fa-edit"></i>
-                    </a>
-                  </td>
+                  <td>{{ obj.client.name }}</td>
+                  <td>{{ obj.amount }}</td>
+                  <td>{{ obj.description }}</td>
+                  <td>{{ obj.payment_time }}</td>
                 </tr>
                 {% endfor %}
               </tbody>

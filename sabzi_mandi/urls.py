@@ -5,6 +5,7 @@ from django.urls import include, path, re_path
 from django.contrib.auth import views as auth_views
 
 from mandi import views as mandi_views
+from mandi import urls as mandi_urls
 from shops import urls as shop_urls
 from suppliers import urls as supplier_urls
 from clients import urls as client_urls
@@ -22,6 +23,7 @@ urlpatterns = [
 
     # Admin urls
     #path('admin/', admin.site.urls),
+    path('', include(mandi_urls)),
     path('shops/', include(shop_urls)),
     path('suppliers/', include(supplier_urls)),
     path('clients/', include(client_urls)),

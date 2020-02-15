@@ -12,6 +12,6 @@ urlpatterns = [
     re_path(r'^clients/$', views.ClientPaymentListView.as_view(), name='clients_payment_list'),
     re_path(r'^clients/create/$', views.ClientPaymentCreateView.as_view(), name='clients_payment_create'),
 
-    re_path(r'^suppliers/$', views.SupplierPaymentCreateView.as_view(), name='suppliers_payment_list'),
+    re_path(r'^suppliers/$', views.SupplierPaymentListView.as_view(), name='suppliers_payment_list'),
     re_path(r'^suppliers/create/$', views.SupplierPaymentCreateView.as_view(), name='suppliers_payment_create'),
 ]

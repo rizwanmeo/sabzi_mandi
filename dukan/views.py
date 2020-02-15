@@ -61,38 +61,3 @@ def get_top_client(request):
     labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     max_value = 9000
     return JsonResponse({"status": True, "data": data, "labels": labels, "max_value": max_value})
-
-class ShopListView(CustomLoginRequiredMixin, FilterView):
-    model = Shop
-    template_name = "shops/list.html"
-    filterset_fields = ["name"]
-
-
-class ShopCreateView(CustomLoginRequiredMixin, CreateView):
-    model = Shop
-    success_url = "/shops"
-    template_name = "shops/form.html"
-    fields = ["name", "address", "logo"]
-
-    def form_valid(self, form):
-        form.instance.owner = self.request.user
-        if form.instance.logo:
-            form.instance.make_thumbnail()
-        super(ShopCreateView, self).form_valid(form)
-        msg = 'Shop: [%s] was creates succfully.' % form.instance.name
-        messages.add_message(self.request, messages.INFO, msg)
-        return HttpResponseRedirect(self.get_success_url())
-
-class ShopUpdateView(CustomLoginRequiredMixin, UpdateView):
-    model = Shop
-    success_url = "/shops"
-    template_name = "shops/form.html"
-    fields = ["name", "address", "logo"]
-
-    def form_valid(self, form):
-        form.instance.make_thumbnail()
-        form.instance.last_modified = datetime.datetime.now()
-        super(ClientUpdateView, self).form_valid(form)
-        msg = 'Shop: [%s] was updated succfully.' % form.instance.name
-        messages.add_message(self.request, messages.INFO, msg)
-        return HttpResponseRedirect(self.get_success_url())
