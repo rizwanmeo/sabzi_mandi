@@ -18,6 +18,10 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Datetime formate for models
+DATE_INPUT_FORMATS = ['%d-%m-%Y']
+USE_L10N = False
+USE_TZ = False # if you plan to disable timezone support
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/

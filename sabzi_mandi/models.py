@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 from django.utils import timezone
 
@@ -19,8 +21,8 @@ class BasicInfo(UpdatedInfo):
         abstract = True
 
 class PaymentMixin(models.Model):
-    amount = models.IntegerField(default=0)
-    payment_time = models.DateTimeField(default=timezone.now, editable=False)
+    amount = models.IntegerField()
+    payment_time = models.DateField()
 
     class Meta:
         abstract = True

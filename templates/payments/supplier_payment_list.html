@@ -40,30 +40,21 @@
             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Supplier Name</th>
-                  <th>Amount</th>
+                  <th>Payment Time</th>
                   <th>Description</th>
-                  <th>payment_time</th>
+                  <th>Amount</th>
+                  <th>Supplier Name</th>
+                  <th>ID</th>
                 </tr>
               </thead>
-              <tfoot>
-                <tr>
-                  <th>ID</th>
-                  <th>Supplier Name</th>
-                  <th>Amount</th>
-                  <th>Description</th>
-                  <th>payment_time</th>
-                </tr>
-              </tfoot>
               <tbody>
                 {% for obj in object_list %}
                 <tr>
-                  <td>{{ obj.id }}</td>
-                  <td>{{ obj.supplier.name }}</td>
-                  <td>{{ obj.amount }}</td>
-                  <td>{{ obj.description }}</td>
                   <td>{{ obj.payment_time }}</td>
+                  <td>{{ obj.description }}</td>
+                  <td>{{ obj.amount }}</td>
+                  <td>{{ obj.supplier.name }}</td>
+                  <td>{{ obj.id }}</td>
                 </tr>
                 {% endfor %}
               </tbody>

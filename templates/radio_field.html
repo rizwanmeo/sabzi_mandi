@@ -1,0 +1,17 @@
+<div class="form-group row">
+  <label class="col-sm-3 col-form-label font-weight-bold">{{ field_label }}</label>
+  <div class="col-sm-9">
+    {% for choice in field.field.choices %}
+      {% if not choice.0 == "" %}
+      <div class="custom-control custom-radio custom-control-inline">
+          {% if field.field.initial == choice.0 or field.data == choice.0  %}
+            <input type='radio' class="custom-control-input" name='{{ field.name }}' id='{{ field.auto_id }}_{{ forloop.counter0 }}' value='{{ choice.0 }}' checked='checked' />
+          {% else %}
+            <input type='radio' class="custom-control-input" name='{{ field.name }}' id='{{ field.auto_id }}_{{ forloop.counter0 }}' value='{{ choice.0 }}'/>
+          {% endif %}
+        <label class="custom-control-label" for='{{ field.auto_id }}_{{ forloop.counter0 }}'>{{ choice.1 }}</label>
+      </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>

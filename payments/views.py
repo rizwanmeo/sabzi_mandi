@@ -1,3 +1,6 @@
+import datetime
+
+from django import forms
 from django.db.models import Sum, Count
 from django.shortcuts import render
 from django.contrib import messages
@@ -20,22 +23,25 @@ class ClientPaymentListView(CustomLoginRequiredMixin, FilterView):
 
 class ClientPaymentCreateView(CustomLoginRequiredMixin, CreateView):
     model = ClientPayment
-    success_url = "/payments/clients"
+    success_url = "/payment/clients"
     template_name = "payments/client_payment_form.html"
-    fields = ["client", "amount", "description"]
+    fields = ["client", "amount", "description", 'payment_time']
 
     def get_context_data(self, **kwargs):
         context = super(ClientPaymentCreateView, self).get_context_data(**kwargs)
         form = context["form"]
         choices = [("", "Select a Client")]
         form.fields["client"].widget.attrs["class"] = "fstdropdown-select"
+        form.fields["client"].widget.attrs["required"] = False
         qs = form.fields["client"].queryset.filter(shop=self.request.shop)
         choices += list(qs.values_list("id", "name"))
         form.fields["client"].choices = choices
+        form.fields["payment_time"].initial = datetime.date.today().strftime("%Y-%m-%d")
         return context
 
     def form_valid(self, form):
-        msg = 'Payment: [%s] was creates succefully.' % form.instance.name
+        super(ClientPaymentCreateView, self).form_valid(form)
+        msg = 'Client Payment: [%s] was creates succefully.' % form.instance.client.name
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())
 
@@ -47,9 +53,9 @@ class SupplierPaymentListView(CustomLoginRequiredMixin, FilterView):
 
 class SupplierPaymentCreateView(CustomLoginRequiredMixin, CreateView):
     model = SupplierPayment
-    success_url = "/payments/suppliers"
+    success_url = "/payment/suppliers"
     template_name = "payments/supplier_payment_form.html"
-    fields = ['supplier', 'amount', 'payment_type', 'description']
+    fields = ['supplier', 'amount', 'payment_type', 'description', 'payment_time']
 
     def get_context_data(self, **kwargs):
         context = super(SupplierPaymentCreateView, self).get_context_data(**kwargs)
@@ -59,9 +65,11 @@ class SupplierPaymentCreateView(CustomLoginRequiredMixin, CreateView):
         qs = form.fields["supplier"].queryset.filter(shop=self.request.shop)
         choices += list(qs.values_list("id", "name"))
         form.fields["supplier"].choices = choices
+        form.fields["payment_time"].initial = datetime.date.today().strftime("%Y-%m-%d")
         return context
 
     def form_valid(self, form):
-        msg = 'Payment: [%s] was creates succefully.' % form.instance.name
+        super(SupplierPaymentCreateView, self).form_valid(form)
+        msg = 'Supplier Payment: [%s] was creates succefully.' % form.instance.supplier.name
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())
