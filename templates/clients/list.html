@@ -47,21 +47,9 @@
                   <th>Address</th>
                   <th>Opening Balance</th>
                   <th>Current Balance</th>
-                  <th style="width: 100px;">Action</th>
+                  <th>Action</th>
                 </tr>
               </thead>
-              <tfoot>
-                <tr>
-                  <th>ID</th>
-                  <th>Client Name</th>
-                  <th>CNIC</th>
-                  <th>Phone</th>
-                  <th>Address</th>
-                  <th>Opening Balance</th>
-                  <th>Current Balance</th>
-                  <th style="width: 100px">Action</th>
-                </tr>
-              </tfoot>
               <tbody>
                 {% for obj in object_list %}
                 <tr>
@@ -73,12 +61,14 @@
                   <td>{{ obj.opening_balance }}</td>
                   <td>{{ obj.current_balance }}</td>
                   <td>
-                    <a href="/clients/{{obj.id}}/delete" class="btn btn-danger">
-                      <i class="fas fa-trash"></i>
-                    </a>
-                    <a href="/clients/{{obj.id}}/update" class="btn btn-primary">
-                      <i class="fas fa-edit"></i>
-                    </a>
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                      <a href="/clients/{{obj.id}}/delete" class="btn btn-sm btn-danger">
+                        <i class="fas fa-trash"></i>
+                      </a>
+                      <a href="/clients/{{obj.id}}/update" class="btn btn-sm btn-primary">
+                        <i class="fas fa-edit"></i>
+                      </a>
+                    </div>
                   </td>
                 </tr>
                 {% endfor %}

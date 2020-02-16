@@ -78,21 +78,6 @@ class ClientBillCreateView(CustomLoginRequiredMixin, CreateView):
         form.fields["bill_date"].initial = datetime.date.today().strftime("%Y-%m-%d")
         return context
 
-class ClientBillDeleteView(CustomLoginRequiredMixin, DeleteView):
-    model = ClientBill
-    success_url = "/client-bills"
-
-    def get(self, request, *args, **kwargs):
-        return self.post(request, *args, **kwargs)
-
-    def delete(self, request, *args, **kwargs):
-        if not self.get_object().is_draft:
-            raise Http404
-        super(ClientBillDeleteView, self).delete(request, *args, **kwargs)
-        msg = 'Client: [%s] bill was delete succfully.' % self.object.client.name
-        messages.add_message(self.request, messages.INFO, msg)
-        return HttpResponseRedirect(self.get_success_url())
-
 class ClientBillUpdateView(CustomLoginRequiredMixin, UpdateView):
     model = ClientBill
     success_url = "/client-bills"
@@ -124,6 +109,48 @@ class ClientBillUpdateView(CustomLoginRequiredMixin, UpdateView):
         context["billed_amount"] = int(context["billed_amount"])
 
         return context
+
+class ClientBillDeleteView(CustomLoginRequiredMixin, DeleteView):
+    model = ClientBill
+    success_url = "/client-bills"
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        if not self.get_object().is_draft:
+            raise Http404
+        super(ClientBillDeleteView, self).delete(request, *args, **kwargs)
+        msg = 'Client: [%s] bill was delete succfully.' % self.object.client.name
+        messages.add_message(self.request, messages.INFO, msg)
+        return HttpResponseRedirect(self.get_success_url())
+
+class BillDetailCreateView(CustomLoginRequiredMixin, CreateView):
+    model = BillDetail
+    success_url = "/client-bills"
+    template_name = "client_bills/bill_detail_form.html"
+    fields = ["item", "unit", "rate", "item_count"]
+
+    def form_valid(self, form):
+        form.instance.bill = self.request.bill
+        super(BillDetailCreateView, self).form_valid(form)
+        msg = 'Client: [%s] bill detail was added succfully.'
+        return HttpResponseRedirect(success_url)
+
+    def get_context_data(self, **kwargs):
+        context = super(BillDetailCreateView, self).get_context_data(**kwargs)
+        return context
+
+    def get_bill_obj(self, bill_id):
+        return ClientBill.objects.get(id=bill_id)
+
+    def get(self, request, *args, **kwargs):
+        request.bill = self.get_bill_obj(kwargs.get("bill_id", 0))
+        return super(BillDetailCreateView, self).get(request)
+
+    def post(self, request, *args, **kwargs):
+        request.bill = self.get_bill_obj(kwargs.get("bill_id", 0))
+        return super(BillDetailCreateView, self).post(request)
 
 @login_required(login_url='/login/')
 def client_bill_detail(request, client_id, bill_id=0):

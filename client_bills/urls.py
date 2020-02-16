@@ -8,6 +8,9 @@ urlpatterns = [
 
     # all client-bills related urls
     re_path(r'^create/$', views.ClientBillCreateView.as_view(), name='client_bills_create'),
+    re_path(r'^(?P<bill_id>\d+)/detail-create/$', views.BillDetailCreateView.as_view(), name='client_bills_detail_create'),
+
+
     re_path(r'^(?P<client_id>\d+)/client-detail/$', views.get_drafted_bill, name='get_drafted_bill'),
     re_path(r'^(?P<bill_id>\d+)/print/$', views.print_bill, name='print_bill'),
     re_path(r'^(?P<client_id>\d+)/(?P<bill_id>\d+)/bill-detail/$', views.client_bill_detail, name='client_bill_detail'),

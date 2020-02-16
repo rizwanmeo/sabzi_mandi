@@ -17,10 +17,10 @@ def index(request):
     today = datetime.date.today()
     month = today.replace(day=1)
 
-    client_bill_qs = ClientBill.objects.filter(is_draft=False, bill_time__gt=today)
+    client_bill_qs = ClientBill.objects.filter(is_draft=False, bill_date__gt=today)
     today_billed_amount = client_bill_qs.aggregate(amount=Sum('billed_amount'))
 
-    client_bill_qs = ClientBill.objects.filter(is_draft=False, bill_time__gt=month)
+    client_bill_qs = ClientBill.objects.filter(is_draft=False, bill_date__gt=month)
     monthly_billed_amount = client_bill_qs.aggregate(amount=Sum('billed_amount'))
 
     context = {
