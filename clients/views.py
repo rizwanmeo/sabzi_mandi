@@ -29,7 +29,7 @@ class ClientCreateView(CustomLoginRequiredMixin, CreateView):
     fields = ["name", "address", "cnic", "phone", "opening_balance"]
 
     def form_valid(self, form):
-        form.instance.shop_id = 1
+        form.instance.shop = self.request.shop
         form.instance.current_balance = form.instance.opening_balance
         super(ClientCreateView, self).form_valid(form)
         msg = 'Client: [%s] was created succfully.' % form.instance.name

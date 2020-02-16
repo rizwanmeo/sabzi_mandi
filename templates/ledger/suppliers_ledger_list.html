@@ -1,0 +1,119 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block css %}
+  <!-- Custom styles for this template-->
+  <link href="{% static "css/fstdropdown.css" %}" rel="stylesheet">
+{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="p-3">
+  <ol class="breadcrumb" class="justify-content-center">
+    <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Supplier Ledger</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block base_container %}
+<div class="row">
+  <div class="col-lg-12">
+    <div class="p-3">
+      {% include "alert.html" %}
+      <!-- DataTales -->
+      <div class="card shadow mb-4">
+        <div class="card-header">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="text-left">
+                <h4 class="font-weight-bold text-primary">Supplier Ledger</h4>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="text-right">
+                <div class="row">
+                  <div class="col-lg-5"></div>
+                  <div class="col-lg-4">
+                    <select name="supplier" class="fstdropdown-select" id="id_supplier" onChange="onchangeEvent();">
+                      <option value="" {% if selected_supplier <= 0 %}selected=""{% endif %}>Select a Supplier</option>
+                      {% for obj in supplier_list %}
+                        {% if obj.id == selected_supplier %}
+                          <option value="{{ obj.id }}" selected="">{{ obj.name }}</option>
+                        {% else %}
+                          <option value="{{ obj.id }}">{{ obj.name }}</option>
+                        {% endif %}
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-lg-3">
+                    <a href="/ledger/suppliers/print/?{{ request.GET.urlencode }}" class="btn btn-primary btn-icon-split">
+                      <span class="icon text-white-50">
+                        <i class="fa fa-print"></i>
+                      </span>
+                      <span class="text">Print Ladger</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+              <thead>
+                <tr>
+                  <th>Remaining Amount</th>
+                  <th>Jama</th>
+                  <th>Naam</th>
+                  <th>Description</th>
+                  <th>Date</th>
+                  <th>Name</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for obj in ledger_list %}
+                <tr>
+                  <td>{{ obj.remaining_amount }}</td>
+                  {% if obj.pament_type == i %}
+                    <td>{{ obj.amount }}</td>
+                    <td></td>
+                  {% else %}
+                    <td></td>
+                    <td>{{ obj.amount }}</td>
+                  {% endif %}
+                  <td>{{ obj.description }}</td>
+                  <td>{{ obj.pament_date }}</td>
+                  <td>{{ obj.name }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+  <!-- Page level plugins -->
+  <script src="{% static "vendor/datatables/jquery.dataTables.js" %}"></script>
+  <script src="{% static "vendor/datatables/dataTables.bootstrap4.min.js" %}"></script>
+  <script src="{% static "js/fstdropdown.js" %}"></script>
+  <script>
+    $(function() {
+      $('#dataTable').DataTable();
+    });
+
+    function onchangeEvent() {
+      var selectedClient = $(".fstlist").children(".selected").attr("data-value");
+      if (selectedClient == "") {
+        window.location.href = "/ledger/suppliers/";
+      } else {
+        window.location.href = "/ledger/suppliers/?supplier="+selectedClient;
+      }
+    }
+  </script>
+{% endblock %}

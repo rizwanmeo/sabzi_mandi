@@ -5,7 +5,11 @@
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
     <li class="breadcrumb-item"><a href="/suppliers">Supplier</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Create Supplier</li>
+    {% if form.instance.pk %}
+    <li class="breadcrumb-item active" aria-current="page">Update Supplier</li>
+    {% else %}
+    <li class="breadcrumb-item active" aria-current="page">Create New Supplier</li>
+    {% endif %}
   </ol>
 </nav>
 {% endblock %}
@@ -15,7 +19,11 @@
   <div class="col-lg-8">
     <div class="p-5">
       <div class="text-center text-primary">
+        {% if form.instance.pk %}
+        <h1 class="h4 text-primary-900 mb-4 font-weight-bold">Update Supplier: {{form.instance.name}}</h1>
+        {% else %}
         <h1 class="h4 text-primary-900 mb-4 font-weight-bold">Create New Supplier</h1>
+        {% endif %}
       </div>
       <form action="." method="POST" enctype="multipart/form-data">
         {% include "form_non_field_errors.html" %}
@@ -24,7 +32,7 @@
         {% include "fields.html" with field=form.phone field_label="Phone Number" %}
         {% include "text_fields.html" with field=form.address field_label="Supplier Address" %}
         {% include "fields.html" with field=form.opening_balance field_label="Opening Balance" %}
-        {% include "form_buttons.html" with name="Supplier" %}
+        {% include "form_buttons.html" with name="Supplier" pk=form.instance.pk %}
       </form>
     </div>
   </div>

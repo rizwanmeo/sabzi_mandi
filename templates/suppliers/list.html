@@ -45,21 +45,11 @@
                   <th>CNIC</th>
                   <th>Phone</th>
                   <th>address</th>
-                  <th>opening_balance</th>
-                  <th style="width: 120px;padding-top: 30px;">Action</th>
+                  <th>Opening Balance</th>
+                  <th>Current Balance</th>
+                  <th>Action</th>
                 </tr>
               </thead>
-              <tfoot>
-                <tr>
-                  <th>ID</th>
-                  <th>Supplier Name</th>
-                  <th>CNIC</th>
-                  <th>Phone</th>
-                  <th>Address</th>
-                  <th>Opening Balance</th>
-                  <th style="width: 120px">Action</th>
-                </tr>
-              </tfoot>
               <tbody>
                 {% for obj in object_list %}
                 <tr>
@@ -68,14 +58,17 @@
                   <td>{% if obj.cnic %}{{ obj.cnic }}{% endif %}</td>
                   <td>{% if obj.phone %}{{ obj.phone }}{% endif %}</td>
                   <td>{% if obj.address %}{{ obj.address }}{% endif %}</td>
-                  <td>{% if obj.opening_balance %}{{ obj.opening_balance }}{% endif %}</td>
-                  <td style="padding-top: 30px;">
-                    <a href="/suppliers/{{obj.id}}/delete" class="btn btn-danger">
-                      <i class="fas fa-trash"></i>
-                    </a>
-                    <a href="/suppliers/{{obj.id}}/update" class="btn btn-primary">
-                      <i class="fas fa-edit"></i>
-                    </a>
+                  <td>{{ obj.opening_balance }}</td>
+                  <td>{{ obj.current_balance }}</td>
+                  <td>
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                      <a href="/suppliers/{{obj.id}}/delete" class="btn btn-sm btn-danger">
+                        <i class="fas fa-trash"></i>
+                      </a>
+                      <a href="/suppliers/{{obj.id}}/update" class="btn btn-sm btn-primary">
+                        <i class="fas fa-edit"></i>
+                      </a>
+                    </div>
                   </td>
                 </tr>
                 {% endfor %}

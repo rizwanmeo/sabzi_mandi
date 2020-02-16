@@ -15,7 +15,8 @@ class BasicInfo(UpdatedInfo):
     cnic = models.CharField(max_length=16, blank=True, null=True)
     phone = models.CharField(max_length=16, blank=True, null=True)
     address = models.CharField(max_length=264, blank=True, null=True)
-    opening_balance = models.IntegerField(default=0)
+    opening_balance = models.IntegerField()
+    current_balance = models.IntegerField()
 
     class Meta:
         abstract = True

@@ -64,13 +64,20 @@
     </a>
   </li>
 
-  <!-- Nav Item - Tables -->
+  <!-- Nav Item - Pages Collapse Menu -->
   <li class="nav-item">
-    <a class="nav-link" href="/ledger/?{{ request.GET.urlencode }}">
-      <i class="fas fa-fw fa-table"></i>
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseLadger" aria-expanded="true" aria-controls="collapseLadger">
+      <i class="fas fa-money-check-alt"></i>
       <span>Ladger</span>
     </a>
+    <div id="collapseLadger" class="collapse" aria-labelledby="headingLadger" data-parent="#accordionSidebar">
+      <div class="py-2 collapse-inner rounded">
+        <a class="collapse-item" href="/ledger/suppliers/?{{ request.GET.urlencode }}">Supplier</a>
+        <a class="collapse-item" href="/ledger/clients/?{{ request.GET.urlencode }}">Client</a>
+      </div>
+    </div>
   </li>
+
   <!-- Nav Item - Pages Collapse Menu -->
   <li class="nav-item">
     <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePayment" aria-expanded="true" aria-controls="collapsePayment">

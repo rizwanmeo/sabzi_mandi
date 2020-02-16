@@ -5,4 +5,3 @@ from sabzi_mandi.models import BasicInfo
 
 class Client(BasicInfo):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
-    current_balance = models.IntegerField(default=0)
