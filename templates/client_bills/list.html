@@ -1,4 +1,11 @@
 {% extends 'index.html' %}
+{% load static %}
+
+{% block css %}
+  <!-- Custom styles for this template-->
+  <link href="{% static "css/bootstrap-datepicker.css" %}" rel="stylesheet">
+  <link href="{% static "css/fstdropdown.css" %}" rel="stylesheet">
+{% endblock %}
 
 {% block breadcrumb %}
 <nav aria-label="breadcrumb" class="p-3">
@@ -25,12 +32,37 @@
             </div>
             <div class="col-lg-6">
               <div class="text-right">
-                  <a href="/client-bills/create" class="btn btn-success btn-icon-split">
-                    <span class="icon text-white-50">
-                      <i class="fa fa-plus"></i>
-                    </span>
-                    <span class="text">Add New Client Bill</span>
-                  </a>
+
+                <div class="row">
+                  <div class="col-lg-4">
+                    <div class="input-group mb-3">
+                      <input type="text" class="form-control" id="id_bill_date" name="bill_date" value="{{selected_date}}" readonly="">
+                      <div class="input-group-append">
+                        <span class="input-group-text fa fa-calendar"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-4">
+                    <select name="client" class="fstdropdown-select" id="id_client" onChange="onchangeEvent();">
+                      <option value="" {% if selected_supplier <= 0 %}selected=""{% endif %}>Select a Client</option>
+                      {% for obj in client_list %}
+                        {% if obj.id == selected_client %}
+                          <option value="{{ obj.id }}" selected="">{{ obj.name }}</option>
+                        {% else %}
+                          <option value="{{ obj.id }}">{{ obj.name }}</option>
+                        {% endif %}
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-lg-4">
+                    <a href="/client-bills/create" class="btn btn-success btn-icon-split">
+                      <span class="icon text-white-50">
+                        <i class="fa fa-plus"></i>
+                      </span>
+                      <span class="text">Add New Client Bill</span>
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -113,14 +145,24 @@
 {% endblock %}
 
 {% block javascript %}
-  {% load static %}
   <!-- Page level plugins -->
+  <script src="{% static "js/bootstrap-datepicker.js" %}"></script>
   <script src="{% static "vendor/datatables/jquery.dataTables.js" %}"></script>
   <script src="{% static "vendor/datatables/dataTables.bootstrap4.min.js" %}"></script>
+  <script src="{% static "js/fstdropdown.js" %}"></script>
   <script>
     function showDeleteConfirmation(billId) {
       $("#id_delete_confirmation").modal('show');
       $("#id_delete").attr('href', "/client-bills/"+billId+"/delete/");
+    }
+
+    function onchangeEvent() {
+      var selectedClient = $(".fstlist").children(".selected").attr("data-value");
+      if (selectedClient == "") {
+        window.location.href = "/client-bills/";
+      } else {
+        window.location.href = "/client-bills/?client="+selectedClient;
+      }
     }
 
     $(function() {
@@ -130,6 +172,30 @@
       });
       $(".alert-danger").fadeTo(2000, 500).slideUp(500, function(){
           $(".alert-success").slideUp(500);
+      });
+      $('#id_bill_date').datepicker({
+          format: "yyyy-mm-dd",
+          maxViewMode: 0,
+          todayBtn: "linked",
+          clearBtn: true,
+          autoclose: true,
+          setDate: '2020-02-18',
+          datesDisabled: '{{selected_date}}',
+          orientation: "bottom auto",
+          daysOfWeekHighlighted: "0"
+      }).on('changeDate', function (ev) {
+          $('#id_bill_date').change();
+      });
+
+      $('#id_bill_date').change(function () {
+          var selectedDate = $('#id_bill_date').val();
+          var selectedClient = $(".fstlist").children(".selected").attr("data-value");
+          var url = "/client-bills/?";
+          if (selectedClient != "") {
+            url = url + "client=" + selectedClient;
+          }
+          url = url + "&bill_date=" + selectedDate;
+          window.location.href = url
       });
     });
   </script>

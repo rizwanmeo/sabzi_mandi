@@ -108,11 +108,11 @@
     });
 
     function onchangeEvent() {
-      var selectedClient = $(".fstlist").children(".selected").attr("data-value");
-      if (selectedClient == "") {
+      var selectedSupplier = $(".fstlist").children(".selected").attr("data-value");
+      if (selectedSupplier == "") {
         window.location.href = "/ledger/suppliers/";
       } else {
-        window.location.href = "/ledger/suppliers/?supplier="+selectedClient;
+        window.location.href = "/ledger/suppliers/?supplier="+selectedSupplier;
       }
     }
   </script>

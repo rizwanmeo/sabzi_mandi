@@ -9,8 +9,8 @@ from payments.models import ClientPayment
 class ClientBill(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     created_time = models.DateTimeField(default=timezone.now, editable=False)
-    bill_time = models.DateTimeField(default=timezone.now, editable=False)
     is_draft = models.BooleanField(default=False)
+    bill_date = models.DateField()
     balance = models.IntegerField(default=0)
     billed_amount = models.IntegerField(default=0)
     payment = models.ForeignKey(ClientPayment, blank=True, null=True, on_delete=models.CASCADE)

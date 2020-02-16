@@ -24,10 +24,10 @@ class ClientAdmin(admin.ModelAdmin):
     readonly_fields = ['created_time', 'last_modified']
 
 class ClientBillAdmin(admin.ModelAdmin):
-    list_display = ['client', 'is_draft', 'bill_time']
+    list_display = ['client', 'is_draft', 'bill_date']
 
 class ClientPaymentAdmin(admin.ModelAdmin):
-    list_display = ['client', 'amount', 'payment_time']
+    list_display = ['client', 'amount', 'payment_date']
 
 admin.site.register(Shop, ShopAdmin)
 admin.site.register(Supplier, SupplierAdmin)

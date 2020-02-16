@@ -1,3 +1,5 @@
+import datetime
+
 from django.db.models import Sum, Count
 from django.shortcuts import render
 from django.contrib import messages
@@ -8,13 +10,15 @@ from django.views.generic import CreateView, UpdateView, DeleteView
 
 from .models import *
 from .forms import BillDetailForm
+from clients.models import Client
+
 from django_filters.views import FilterView
 from sabzi_mandi.views import CustomLoginRequiredMixin
 
 class ClientBillListView(CustomLoginRequiredMixin, FilterView):
     model = ClientBill
     template_name = "client_bills/list.html"
-    filterset_fields = ["client__name"]
+    filterset_fields = ["client", "client__name"]
 
     def get_context_data(self, **kwargs):
         context = super(ClientBillListView, self).get_context_data(**kwargs)
@@ -22,6 +26,17 @@ class ClientBillListView(CustomLoginRequiredMixin, FilterView):
         object_list = object_list.filter(client__shop=self.request.shop)
         object_list = object_list.annotate(items=Count('billdetail__item'))
         context["object_list"] = object_list
+        client_id = self.request.GET.get("client", "")
+        client_id=int(client_id) if client_id.isdigit() else 0
+        qs = Client.objects.filter(shop=self.request.shop)
+        context["client_list"] = list(qs.values("id", "name"))
+        context["selected_client"] = client_id
+        client_id = self.request.GET.get("client", "")
+
+        selected_date = self.request.GET.get("bill_date", "")
+        if selected_date == "":
+            selected_date = datetime.date.today().strftime("%Y-%m-%d")
+        context["selected_date"] = selected_date
         return context
 
 class ClientBillCreateView(CustomLoginRequiredMixin, CreateView):
@@ -71,7 +86,6 @@ class ClientBillUpdateView(CustomLoginRequiredMixin, UpdateView):
     fields = ["client"]
 
     def form_valid(self, form):
-        form.instance.bill_time = datetime.datetime.now()
         super(ClientUpdateView, self).form_valid(form)
         msg = 'Client: [%s] was updated succfully.' % form.instance.name
         messages.add_message(self.request, messages.INFO, msg)
@@ -163,7 +177,6 @@ def done_drafted_bill(request, client_id, bill_id):
         bill_obj.is_draft = False
         bill_obj.client_id = client_id
         bill_obj.billed_amount = billed_amount
-        bill_obj.bill_time = datetime.datetime.now()
         bill_obj.client.current_balance -= billed_amount
         bill_obj.balance = bill_obj.client.current_balance
         bill_obj.client.save()
