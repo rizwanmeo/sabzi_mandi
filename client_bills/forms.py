@@ -1,8 +1,16 @@
-from django.forms import ModelForm
+from django import forms
 
 from .models import *
 
-class BillDetailForm(ModelForm):
+class ClientBillForm(forms.ModelForm):
+    payment = forms.IntegerField()
+    
+    class Meta:
+        model = ClientBill
+        fields = ["client", "bill_date"]
+
+
+class BillDetailForm(forms.ModelForm):
     class Meta:
         model = BillDetail
         fields = ['item', 'unit', 'rate', 'item_count']

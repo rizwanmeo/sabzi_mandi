@@ -25,7 +25,7 @@ class ClientPaymentCreateView(CustomLoginRequiredMixin, CreateView):
     model = ClientPayment
     success_url = "/payment/clients"
     template_name = "payments/client_payment_form.html"
-    fields = ["client", "amount", "description", 'payment_time']
+    fields = ["client", "amount", "description", 'payment_date']
 
     def get_context_data(self, **kwargs):
         context = super(ClientPaymentCreateView, self).get_context_data(**kwargs)
@@ -36,7 +36,7 @@ class ClientPaymentCreateView(CustomLoginRequiredMixin, CreateView):
         qs = form.fields["client"].queryset.filter(shop=self.request.shop)
         choices += list(qs.values_list("id", "name"))
         form.fields["client"].choices = choices
-        form.fields["payment_time"].initial = datetime.date.today().strftime("%Y-%m-%d")
+        form.fields["payment_date"].initial = datetime.date.today().strftime("%Y-%m-%d")
         return context
 
     def form_valid(self, form):
@@ -55,7 +55,7 @@ class SupplierPaymentCreateView(CustomLoginRequiredMixin, CreateView):
     model = SupplierPayment
     success_url = "/payment/suppliers"
     template_name = "payments/supplier_payment_form.html"
-    fields = ['supplier', 'amount', 'payment_type', 'description', 'payment_time']
+    fields = ['supplier', 'amount', 'payment_type', 'description', 'payment_date']
 
     def get_context_data(self, **kwargs):
         context = super(SupplierPaymentCreateView, self).get_context_data(**kwargs)
@@ -65,7 +65,7 @@ class SupplierPaymentCreateView(CustomLoginRequiredMixin, CreateView):
         qs = form.fields["supplier"].queryset.filter(shop=self.request.shop)
         choices += list(qs.values_list("id", "name"))
         form.fields["supplier"].choices = choices
-        form.fields["payment_time"].initial = datetime.date.today().strftime("%Y-%m-%d")
+        form.fields["payment_date"].initial = datetime.date.today().strftime("%Y-%m-%d")
         return context
 
     def form_valid(self, form):

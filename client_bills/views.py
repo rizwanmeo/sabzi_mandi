@@ -9,7 +9,7 @@ from django.http import HttpResponseRedirect, Http404, JsonResponse
 from django.views.generic import CreateView, UpdateView, DeleteView
 
 from .models import *
-from .forms import BillDetailForm
+from .forms import *
 from clients.models import Client
 
 from django_filters.views import FilterView
@@ -23,7 +23,7 @@ class ClientBillListView(CustomLoginRequiredMixin, FilterView):
     def get_context_data(self, **kwargs):
         context = super(ClientBillListView, self).get_context_data(**kwargs)
         object_list = context["object_list"]
-        object_list = object_list.filter(client__shop=self.request.shop)
+        object_list = object_list.filter(client__shop=self.request.shop, is_draft=False)
         object_list = object_list.annotate(items=Count('billdetail__item'))
         context["object_list"] = object_list
         client_id = self.request.GET.get("client", "")
@@ -37,31 +37,45 @@ class ClientBillListView(CustomLoginRequiredMixin, FilterView):
         if selected_date == "":
             selected_date = datetime.date.today().strftime("%Y-%m-%d")
         context["selected_date"] = selected_date
+
         return context
 
 class ClientBillCreateView(CustomLoginRequiredMixin, CreateView):
     model = ClientBill
+    form_class = ClientBillForm
     success_url = "/client-bills"
     template_name = "client_bills/form.html"
-    fields = ["client"]
 
     def form_valid(self, form):
+        today = datetime.date.today()
+        form.instance.is_draft = True
+        payment_amount = form.cleaned_data.get("payment", 0)
+        description = "payment received against bill on %s" % today.strftime("%Y-%m-%d")
+        payment_obj = ClientPayment()
+        payment_obj.client = form.instance.client
+        payment_obj.payment_date = today
+        payment_obj.amount = payment_amount
+        payment_obj.description = description
+        payment_obj.save()
+        form.instance.payment = payment_obj
+        ClientBill.objects.filter(client=form.instance.client, is_draft=True).delete()
         super(ClientBillCreateView, self).form_valid(form)
-        msg = 'Client: [%s] was created succfully.' % form.instance.name
+        msg = 'Client: [%s] bill was added succfully. Please add bill detail'
+        msg %= form.instance.client.name
         messages.add_message(self.request, messages.INFO, msg)
-        return HttpResponseRedirect(self.get_success_url())
+        obj = ClientBill.objects.get(client=form.instance.client, is_draft=True)
+        success_url = "/client-bills/%d/detail-create/" % obj.pk
+        return HttpResponseRedirect(success_url)
 
     def get_context_data(self, **kwargs):
         context = super(ClientBillCreateView, self).get_context_data(**kwargs)
         form = context["form"]
         choices = [("", "Select a client for bill")]
         form.fields["client"].widget.attrs["class"] = "fstdropdown-select"
-        form.fields["client"].widget.attrs["onChange"] = "onchangeEvent();"
-        form.fields["client"].widget.attrs["required"] = False
         client_qs = form.fields["client"].queryset.filter(shop=self.request.shop)
         choices += list(client_qs.values_list("id", "name"))
         form.fields["client"].choices = choices
-        context["detail_form"] = BillDetailForm()
+        form.fields["bill_date"].initial = datetime.date.today().strftime("%Y-%m-%d")
         return context
 
 class ClientBillDeleteView(CustomLoginRequiredMixin, DeleteView):

@@ -3,6 +3,7 @@
 
 {% block css %}
   <!-- Custom styles for this template-->
+  <link href="{% static "css/bootstrap-datepicker.css" %}" rel="stylesheet">
   <link href="{% static "css/fstdropdown.css" %}" rel="stylesheet">
 {% endblock %}
 
@@ -17,144 +18,19 @@
 {% endblock %}
 
 {% block base_container %}
-<div id="id_global_error" class="pl-5 pr-5">
-</div>
-
 <div class="row">
   <div class="col-lg-9">
     <div class="p-5">
       <div class="text-center text-primary">
-        <h1 class="h4 text-primary-900 mb-4 font-weight-bold">{% if form.instance.pk %}Update {% else %}Create New {% endif %}Client Bill</h1>
+        <h1 class="h4 text-primary-900 mb-4 font-weight-bold">Create New Client Bill</h1>
       </div>
-      {% include "form_non_field_errors.html" %}
-      <div class="form-group row">
-        <div class="col-sm-3">
-          <label for="cleint">Client:</label>
-          {{ form.client }}
-        </div>
-        <div class="col-sm-3">
-          <label for="current_balance">Current Balance:</label>
-          <input type="text" class="form-control" placeholder="Current Balance" id="id_current_balance" name="current_balance" value="{{ current_balance }}" disabled>
-        </div>
-        <div class="col-sm-3">
-          <label for="current_balance">Billed Amount:</label>
-          <input type="text" class="form-control" placeholder="Billed Amount" data-amount="{{ billed_amount }}" id="id_billed_amount" name="billed_amount" value="{{ billed_amount }}" disabled>
-        </div>
-      </div>
-      <div class="form-group row">
-        <div class="col-sm-3" id="id_client_info">
-        </div>
-      </div>
-      <div id="id_client_info_error">
-      </div>
-
-      <div id="id_item_data">
-        <div class="row">
-          <div class="col-sm-3"><label>Item:</label></div>
-          <div class="col-sm-2"><label>Unit:</label></div>
-          <div class="col-sm-2"><label>Rate:</label></div>
-          <div class="col-sm-2"><label>Item Count:</label></div>
-          <div class="col-sm-2"><label>Amount:</label></div>
-        </div>
-        {% for obj in detail_list %}
-        <div id="id_item_data_{{ obj.id }}" class="form-group row">
-          <div class="col-sm-3">
-              <input type="text" class="form-control" id="id_item_{{ obj.id }}" name="item_{{ obj.id }}" value="{{ obj.item.name }}" disabled>
-          </div>
-          <div class="col-sm-2">
-            <input type="text" class="form-control" id="id_unit_{{ obj.id }}" name="unit_{{ obj.id }}" value="{{ obj.get_unit_display }}" disabled>
-          </div>
-          <div class="col-sm-2">
-            <input type="text" class="form-control" id="id_rate_{{ obj.id }}" name="rate_{{ obj.id }}" value="{{ obj.rate }}" disabled>
-          </div>
-          <div class="col-sm-2">
-            <input type="text" class="form-control" id="id_item_count_{{ obj.id }}" name="item_count_{{ obj.id }}" value="{{ obj.item_count }}" disabled>
-          </div>
-          <div class="col-sm-2">
-            <input type="text" class="form-control" id="id_amount_{{ obj.id }}" name="amount_{{ obj.id }}" value="{% widthratio obj.rate 1 obj.item_count %}" placeholder="Amount" disabled>
-          </div>
-          <div class="col-sm-1">
-            <button type="button" id="id_delete_{{ obj.id }}" data-id="{{ obj.id }}" class="btn btn-danger btn-icon-split">
-              <span class="icon text-white-50">
-                <i class="fa fa-trash"></i>
-              </span>
-            </button>
-          </div>
-      </div>
-      {% endfor %}
-    </div>
-
-      <form action="." id="id_bill_detail" method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="form-group row">
-          <div class="col-sm-3" id="id_item_info">
-            {{ detail_form.item }}
-          </div>
-          <div class="col-sm-2" id="id_unit_info">
-            {{ detail_form.unit }}
-          </div>
-          <div class="col-sm-2">
-              <input type="text" class="form-control" id="id_rate" name="rate" placeholder="Item rate" oninput="calculate();">
-          </div>
-          <div class="col-sm-2">
-              <input type="text" class="form-control" id="id_item_count" name="item_count" placeholder="Total items" oninput="calculate();">
-          </div>
-          <div class="col-sm-2">
-              <input type="text" class="form-control" id="id_amount" name="amount" placeholder="Amount" disabled>
-          </div>
-          <div class="col-sm-1">
-            <button type="button" id="id_submit_detail" data-bill_id="{{ form.instance.id }}" class="btn btn-success btn-icon-split">
-              <span class="icon text-white-50">
-                <i class="fa fa-plus"></i>
-              </span>
-            </button>
-          </div>
-        </div>
-
-        <div class="form-group row">
-          <div class="col-sm-3 text-danger">
-            <ul class="errorlist">
-              <li id="id_item_error" hidden></li>
-            </ul>
-          </div>
-          <div class="col-sm-2 text-danger">
-            <ul class="errorlist">
-              <li id="id_unit_error" hidden></li>
-            </ul>
-          </div>
-          <div class="col-sm-2 text-danger">
-            <ul class="errorlist">
-              <li id="id_rate_error" hidden></li>
-            </ul>
-          </div>
-          <div class="col-sm-2 text-danger">
-            <ul class="errorlist">
-              <li id="id_item_count_error" hidden></li>
-            </ul>
-          </div>
-        </div>
+      <form action="." method="POST" enctype="multipart/form-data">
+        {% include "form_non_field_errors.html" %}
+        {% include "select_field.html" with field=form.client field_label="Client Name" %}
+        {% include "fields.html" with field=form.payment field_label="Payment" %}
+        {% include "datetime_field.html" with field=form.bill_date field_label="Bill Date" %}
+        {% include "form_buttons.html" with name="Supplier Payment" %}
       </form>
-      <form id="id_done_bill" action="//" method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-
-
-        <div class="form-group row">
-          <div class="col-sm-4">
-            <button type="button" onclick="clientBillDone(0)" class="btn btn-primary btn-block">
-              Done and Close
-            </button>
-          </div>
-          <div class="col-sm-4">
-            <button type="button" onclick="clientBillDone(1)" class="btn btn-success btn-block">
-              Done and Print
-            </button>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
-  <div class="col-lg-3">
-    <div id="id_drafted_bill" class="pt-5">
     </div>
   </div>
 </div>
@@ -162,277 +38,21 @@
 
 {% block javascript %}
   <!-- Page level plugins -->
+  <script src="{% static "js/bootstrap-datepicker.js" %}"></script>
   <script src="{% static "js/fstdropdown.js" %}"></script>
   <script>
-    function calculate() {
-      var rate = Number($("#id_rate").val());
-      var billedAmount = Number($("#id_billed_amount").attr("data-amount"));
-      var item_count = Number($("#id_item_count").val());
-      var amount = rate * item_count;
-      if (Number.isInteger(amount)) {
-        $("#id_amount").val(amount);
-        if (Number.isInteger(billedAmount)) {
-          $("#id_billed_amount").attr("value", Number(billedAmount)+amount);
-        } else {
-          $("#id_billed_amount").attr("value", amount);
-        }
-      }
-    }
-
-    function clientBillDone(op) {
-      var selectedClient = $(".fstlist").children(".selected").attr("data-value");
-      var billId = $("#id_submit_detail").attr("data-bill_id");
-      var token = '{{csrf_token}}';
-      if (selectedClient && billId) {
-        $.ajax({
-          headers: { "X-CSRFToken": token },
-          url: "/client-bills/"+selectedClient+"/"+billId+"/done/", 
-          type: 'post',
-          dataType: 'json',
-          success: function ( res ) {
-            if (res["status"] == true) {
-              if (op==0) {
-                window.location.href = "/client-bills/";
-              } else {
-                window.location.href = "/client-bills/"+billId+"/print/";
-              }
-            } else {
-              showGlobalError("Failed to done bill, Error was: "+res["description"]);
-            }
-          }
-        });
-      } else {
-        if (!selectedClient) {
-          showClientError();
-        } else {
-          if (!billId) {
-            removeClientError();
-            var errors = {
-              "item": ["This field is required"],
-              "unit": ["This field is required"],
-              "rate": ["This field is required"],
-              "item_count": ["This field is required"],
-              }
-            showBillDetailError({"errors": errors});
-          }
-        }
-      }
-    }
-
-  function showGlobalError(message) {
-    var innerHtml = '<div class="alert alert-danger alert-dismissible">'+
-                      '<button type="button" class="close" data-dismiss="alert">&times;</button>'+
-                      '<strong>Error!</strong> '+message
-                    '</div>';
-    $("#id_global_error").html(innerHtml);
-
-  }
-  function showClientError() {
-    $("#id_client_info").find(".fstselected").addClass("form-control is-invalid");
-    $("#id_client_info").parent().removeClass("form-group");
-    $("#id_client_info_error").html('<div class="row" style="margin-top: -20px;">'+
-                                      '<div class="text-danger">'+
-                                        '<p></p><ul class="errorlist"><li>This field is required.</li></ul><p></p>'+
-                                      '</div>'+
-                                    '</div>');
-  }
-
-  function removeClientError() {
-    $("#id_client_info").find(".fstselected").removeClass("form-control is-invalid");
-    $("#id_client_info").parent().addClass("form-group");
-    $("#id_client_info_error").html('');
-  }
-
-  function showItemError(error) {
-    $("#id_item_error").text(error);
-    $("#id_item_info").find(".fstselected").addClass("form-control is-invalid");
-    $("#id_item_error").removeAttr("hidden");
-  }
-  function removeItemError() {
-    $("#id_item_error").attr("hidden", true);
-    $("#id_item_error").text('');
-    $("#id_item_info").find(".fstselected").removeClass("form-control is-invalid");
-  }
-
-  function showUnitError(error) {
-    $("#id_unit_error").text(error);
-    $("#id_unit_info").find(".fstselected").addClass("form-control is-invalid");
-    $("#id_unit_error").removeAttr("hidden");
-  }
-  function removeUnitError() {
-    $("#id_unit_error").attr("hidden", true);
-    $("#id_unit_error").text('');
-    $("#id_unit_info").find(".fstselected").removeClass("form-control is-invalid");
-  }
-
-  function showRateError(error) {
-    $("#id_rate_error").text(error);
-    $("#id_rate").addClass("is-invalid");
-    $("#id_rate_error").removeAttr("hidden");
-  }
-  function removeRateError() {
-    $("#id_rate_error").attr("hidden", true);
-    $("#id_rate").removeClass("is-invalid");
-    $("#id_rate_error").text('');
-  }
-
-  function showItemCountError(error) {
-    $("#id_item_count_error").text(error);
-    $("#id_item_count").addClass("is-invalid");
-    $("#id_item_count_error").removeAttr("hidden");
-  }
-  function removeItemCountError() {
-    $("#id_item_count_error").attr("hidden", true);
-    $("#id_item_count").removeClass("is-invalid");
-    $("#id_item_count_error").text('');
-  }
-
-  function showBillDetailError(res) {
-    if (res["errors"]["item"]){
-      showItemError(res["errors"]["item"][0]);
-    } else {
-      removeItemError();
-    }
-    if (res["errors"]["unit"]){
-      showUnitError(res["errors"]["unit"][0]);
-    } else {
-      removeUnitError();
-    }
-    if (res["errors"]["rate"]){
-      showRateError(res["errors"]["rate"][0]);
-    } else {
-      removeRateError();
-    }
-    if (res["errors"]["item_count"]){
-      showItemCountError(res["errors"]["item_count"][0]);
-    } else {
-      removeItemCountError();
-    }
-  }
-
-  function onchangeEvent() {
-    var selectedClient = $(".fstlist").children(".selected").attr("data-value");
-    if (!selectedClient) {
-        $("#id_current_balance").attr("value", "");
-        $("#id_billed_amount").attr("value", "");
-        $("#id_drafted_bill").html("");
-    } else {
-      $.ajax({
-        url: "/client-bills/"+selectedClient+"/client-detail/", 
-        type: 'get',
-        dataType: 'json',
-        success: function ( res ) {
-          if (res["status"] == true) {
-            $("#id_current_balance").attr("value", res["data"]["balance"]);
-            if (Number($("#id_billed_amount").val()) <= 0) {
-              $("#id_billed_amount").attr("value", 0);
-            }
-            var html = '';
-            var draftedBillCount = res["data"]["draft_bills"].length;
-            if (draftedBillCount != 0) {
-              var html = '<div class="text-center text-primary">'+
-                            '<h1 class="h4 text-primary-900 mb-4 font-weight-bold">Drafted Bills</h1>'+
-                         '</div>';
-              for (var i = 0; i < res["data"]["draft_bills"].length; i++) {
-                var innerHtml = '<div class="text-left">'+
-                                  '<ul class="list-unstyled">'+
-                                      '<li><a href="/client-bills/'+res["data"]["draft_bills"][i]["bill_id"]+'/update/">Created on '+res["data"]["draft_bills"][i]["created_time"]+'</a>'+
-                                          '<ul>'+
-                                              '<li>Items: '+res["data"]["draft_bills"][i]["item_count"]+'</li>'+
-                                              '<li>Amount: '+res["data"]["draft_bills"][i]["billed_amount"]+'</li>'+
-                                          '</ul>'+
-                                      '</li>'+
-                                  '</ul>'+
-                               '</div>';
-                html += innerHtml;
-              }
-            }
-            $("#id_drafted_bill").html(html);
-          }
-        }
-      });
-    }
-  }
-
-  $(document).ready(function(){
-    $("#id_client").removeAttr("required");
-    $("#id_item").removeAttr("required");
-    $("#id_unit").removeAttr("required");
-    $("#id_submit_detail").click(function(){
-      var selectedClient = $(".fstlist").children(".selected").attr("data-value");
-      var val = Number($(this).attr("data-bill_id"));
-      var billId = 0;
-      if (Number.isInteger(val)) {
-        billId = val;
-      }
-      if (!selectedClient) {
-          showClientError();
-        } else {
-          removeClientError();
-          removeItemError();
-          removeUnitError();
-          removeRateError();
-          removeItemCountError();
-          $.ajax({
-            url: "/client-bills/"+selectedClient+"/"+billId+"/bill-detail/", 
-            type: 'post',
-            data: $("#id_bill_detail").serialize(),
-            dataType: 'json',
-            success: function ( res ) {
-              console.log(res)
-              if (res["status"] == true) {
-                var objId = res["data"]["id"]
-                var rate = res["data"]["rate"]
-                var item = res["data"]["item"]
-                var unit = res["data"]["unit"]
-                var itemCount = res["data"]["item_count"]
-                var amount = rate * itemCount
-                html = '<div id="id_item_data_'+objId+'" class="form-group row">'+
-                          '<div class="col-sm-3">'+
-                            '<input type="text" class="form-control" id="id_item_'+objId+'" name="item_'+objId+'" value="'+item+'" disabled>'+
-                          '</div>'+
-                          '<div class="col-sm-2">'+
-                            '<input type="text" class="form-control" id="id_unit_'+objId+'" name="unit_'+objId+'" value="'+unit+'" disabled>'+
-                          '</div>'+
-                          '<div class="col-sm-2">'+
-                            '<input type="text" class="form-control" id="id_rate_'+objId+'" name="rate_'+objId+'" value="'+rate+'" disabled>'+
-                          '</div>'+
-                          '<div class="col-sm-2">'+
-                            '<input type="text" class="form-control" id="id_item_count_'+objId+'" name="item_count_'+objId+'" value="'+itemCount+'" disabled>'+
-                          '</div>'+
-                          '<div class="col-sm-2">'+
-                            '<input type="text" class="form-control" id="id_amount_'+objId+'" name="amount_'+objId+'" value="'+amount+'" disabled>'+
-                          '</div>'+
-                          '<div class="col-sm-1">'+
-                            '<button type="button" id="id_delete_'+objId+'" data-id="'+objId+'" class="btn btn-danger btn-icon-split">'+
-                              '<span class="icon text-white-50">'+
-                                '<i class="fa fa-trash"></i>'+
-                              '</span>'+
-                            '</button>'+
-                          '</div>'+
-                      '</div>';
-                $("#id_item_data").append(html);
-                $("#id_done_bill").removeAttr("hidden");
-                $("#id_bill_detail").trigger("reset");
-                $("#id_bill_detail").find(".fstselected").text("Select an Item");
-                $("#id_bill_detail").find(".selected").removeClass("selected");
-
-                var billedAmount = $("#id_billed_amount").attr("data-amount");
-                $("#id_billed_amount").attr("value", Number(billedAmount)+amount);
-                $("#id_billed_amount").attr("data-amount", Number(billedAmount)+amount);
-                $("#id_submit_detail").attr("data-bill_id", res["bill_id"]);
-              } else {
-                showBillDetailError(res);
-              }
-            },
-          });
-        }
+    $(document).ready(function(){
+      $("#id_client").removeAttr("required");
+      $('#id_bill_date').datepicker({
+          todayHighlight: true,
+          format: "yyyy-mm-dd",
+          maxViewMode: 0,
+          todayBtn: "linked",
+          clearBtn: true,
+          autoclose: true,
+          orientation: "bottom auto",
+          daysOfWeekHighlighted: "0"
       });
     });
-
-    $('.fstlist').bind("DOMSubtreeModified",function(){
-      alert('changed');
-    });
-
   </script>
 {% endblock %}
