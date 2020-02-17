@@ -3,7 +3,6 @@
 
 {% block css %}
   <!-- Custom styles for this template-->
-  <link href="{% static "css/bootstrap-datepicker.css" %}" rel="stylesheet">
   <link href="{% static "css/fstdropdown.css" %}" rel="stylesheet">
 {% endblock %}
 
@@ -19,17 +18,129 @@
 
 {% block base_container %}
 <div class="row">
-  <div class="col-lg-9">
+  <div class="col-lg-12">
     <div class="p-5">
       <div class="text-center text-primary">
-        <h1 class="h4 text-primary-900 mb-4 font-weight-bold">Create New Client Bill</h1>
+        <h1 class="h4 text-primary-900 mb-4 font-weight-bold">Create Client Bill Detail</h1>
+      </div>
+
+
+        <table class="table" id="dataTable" cellspacing="0">
+          <thead>
+            <tr>
+              <th width="15%">Billed Amount</th>
+              <th width="15%">Previous Amount</th>
+              <th width="15%">Payment</th>
+              <th width="20%">Bill Date</th>
+              <th width="25%">Client Name</th>
+              <th width="10%">Action</th>
+            </tr>
+          </thead>
+          <tfoot>
+              <th><input type="text" class="form-control" id="id_billed_amount" name="billed_amount" data-amount="0" value="0" readonly></th>
+              <th><input type="text" class="form-control" id="id_client" name="client" value="{{request.bill.client.current_balance}}" readonly></th>
+              <th><input type="text" class="form-control" id="id_client" name="client" value="{{request.bill.payment.amount}}" readonly></th>
+              <th><input type="text" class="form-control" id="id_client" name="client" value="{{request.bill.bill_date}}" readonly></th>
+              <th><input type="text" class="form-control text-right" id="id_client" name="client" value="{{request.bill.client.name}}" readonly></th>
+              <th>
+                <a href="/client-bills/create" class="btn btn-success btn-icon-split">
+                  <span class="text">Change</span>
+                </a>
+              </th>
+          </tfoot>
+
+            
+          </div>
+        </div>
+        <div class="col-lg-2">
+          <div class="form-group">
+            <label class="col-form-label font-weight-bold"></label>
+            
+          </div>
+        </div>
+        <div class="col-lg-1">
+        </div>
       </div>
       <form action="." method="POST" enctype="multipart/form-data">
         {% include "form_non_field_errors.html" %}
-        {% include "select_field.html" with field=form.client field_label="Client Name" %}
-        {% include "fields.html" with field=form.payment field_label="Payment" %}
-        {% include "datetime_field.html" with field=form.bill_date field_label="Bill Date" %}
-        {% include "form_buttons.html" with name="Supplier Payment" %}
+        <table class="table" id="dataTable" cellspacing="0">
+          <thead>
+            <tr>
+              <th width="15%">Item Amount</th>
+              <th width="15%">Item Count</th>
+              <th width="15%">Rate</th>
+              <th width="20%">Unit</th>
+              <th width="25%">Item</th>
+              <th width="10%">Action</th>
+            </tr>
+          </thead>
+          <tfoot>
+            <tr>
+              <th>
+                <input type="text" class="form-control" id="id_item_amount" name="item_amount" value="" placeholder="Item Amount" readonly>
+              </th>
+              <th>
+                <div class="form-group">
+                  {% include "render_field.html" with field=form.item_count field_placeholder="Item total count" oninput="calculate();" %}
+                </div>
+              </th>
+              <th>
+                <div class="form-group">
+                  {% include "render_field.html" with field=form.rate  field_placeholder="Item rate" oninput="calculate();" %}
+                </div>
+              </th>
+              <th>
+                <div class="form-group row">
+                  <div class="col-sm-12">
+                    {{ form.unit }}
+                  </div>
+                  {% if form.unit.errors %}
+                  <div class="col-sm-12">
+                    <div class="text-danger">
+                      <p>{{ form.unit.errors }}</p>
+                    </div>
+                  </div>
+                  {% endif %}
+                </div>
+              </th>
+              <th>
+                <div class="form-group row text-right">
+                  <div class="col-sm-12 is-invalid">
+                    {{ form.item }}
+                  </div>
+                  {% if form.item.errors %}
+                  <div class="col-sm-12">
+                    <div class="text-danger">
+                      <p>{{ form.item.errors }}</p>
+                    </div>
+                  </div>
+                  {% endif %}
+                </div>
+              </th>
+              <th>
+                <div class="form-group">
+                  <button type="submit" class="btn btn-success btn-block">Add</button>
+                </div>
+              </th>
+            </tr>
+          </tfoot>
+          <tbody>
+            {% for obj in object_list %}
+            <tr {% if obj.is_draft %}class="table-danger"{% endif %}>
+              <td></td>
+              <td>{{ obj.item_count }}</td>
+              <td>{{ obj.rate }}</td>
+              <td>{{ obj.unit }}</td>
+              <td>{{ obj.item.name }}</td>
+              <td>
+                <a href="/client-bills/{{obj.id}}/update" class="btn btn-danger">
+                  <i class="fas fa-edit"></i>
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </form>
     </div>
   </div>
@@ -38,21 +149,32 @@
 
 {% block javascript %}
   <!-- Page level plugins -->
-  <script src="{% static "js/bootstrap-datepicker.js" %}"></script>
+  <script src="{% static "vendor/datatables/jquery.dataTables.js" %}"></script>
+  <script src="{% static "vendor/datatables/dataTables.bootstrap4.min.js" %}"></script>
   <script src="{% static "js/fstdropdown.js" %}"></script>
   <script>
     $(document).ready(function(){
-      $("#id_client").removeAttr("required");
-      $('#id_bill_date').datepicker({
-          todayHighlight: true,
-          format: "yyyy-mm-dd",
-          maxViewMode: 0,
-          todayBtn: "linked",
-          clearBtn: true,
-          autoclose: true,
-          orientation: "bottom auto",
-          daysOfWeekHighlighted: "0"
+      $("#id_item").removeAttr("required");
+      $('#dataTable').DataTable({
+        "bPaginate": false,
+        "dom": '<"clear">',
+        "aoColumns": [],
       });
     });
+
+    function calculate() {
+      var rate = Number($("#id_rate").val());
+      var billedAmount = Number($("#id_billed_amount").attr("data-amount"));
+      var item_count = Number($("#id_item_count").val());
+      var amount = rate * item_count;
+      if (Number.isInteger(amount)) {
+        $("#id_item_amount").val(amount);
+        if (Number.isInteger(billedAmount)) {
+          $("#id_billed_amount").attr("value", Number(billedAmount)+amount);
+        } else {
+          $("#id_billed_amount").attr("value", amount);
+        }
+      }
+    }
   </script>
 {% endblock %}

@@ -1,17 +1,6 @@
 <div class="form-group row">
   <label class="col-sm-3 col-form-label font-weight-bold">{{ field_label }}</label>
   <div class="col-sm-9">
-    {% if field.errors %}
-      <input type="text" class="form-control is-invalid" id="id_{{field.name}}" name="{{field.name}}" value="{% if field.value %}{{ field.value }}{% endif %}">
-      <div class="text-danger">
-        <p>{{ field.errors }}</p>
-      </div>
-    {% else %}
-      {% if field.value is not None %}
-        <input type="text" class="form-control" id="id_{{ field.name }}" name="{{ field.name }}" value="{{ field.value }}">
-      {% else %}
-        <input type="text" class="form-control" id="id_{{ field.name }}" name="{{ field.name }}" value="{% if field.initial is not None %}{{ field.initial }}{% endif %}">
-      {% endif %}
-    {% endif %}
+    {% include "render_field.html" with field=field %}
   </div>
 </div>

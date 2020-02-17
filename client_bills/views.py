@@ -139,6 +139,18 @@ class BillDetailCreateView(CustomLoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(BillDetailCreateView, self).get_context_data(**kwargs)
+        form = context["form"]
+        form.fields["item"].widget.attrs["class"] = "fstdropdown-select"
+        form.fields["unit"].widget.attrs["class"] = "fstdropdown-select"
+        form.fields["unit"].widget.attrs["data-searchdisable"] = "true"
+
+        # Load Item choices
+        choices = [("", "Select an item")]
+        qs = Item.objects.all()
+        choices += list(qs.values_list("id", "name"))
+        form.fields["item"].choices = choices
+        form.fields["unit"].choices = form.fields["unit"].choices[1:]
+
         return context
 
     def get_bill_obj(self, bill_id):

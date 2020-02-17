@@ -22,7 +22,7 @@ urlpatterns = [
     re_path(r'^logout/$', auth_views.LogoutView.as_view(template_name='login.html'), name='logout'),
 
     # Admin urls
-    #path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls),
     path('', include(mandi_urls)),
     path('shops/', include(shop_urls)),
     path('suppliers/', include(supplier_urls)),

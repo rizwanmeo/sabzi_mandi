@@ -18,6 +18,6 @@ class ClientBill(models.Model):
 class BillDetail(models.Model):
     bill = models.ForeignKey(ClientBill, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
-    unit = models.CharField(max_length=1, choices=[("k", "KG"), ("i", "Item")])
+    unit = models.CharField(max_length=1, choices=[("k", "KG"), ("i", "Count")])
     rate = models.IntegerField()
     item_count = models.IntegerField()
