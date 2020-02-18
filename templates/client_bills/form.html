@@ -22,14 +22,16 @@
   <div class="col-lg-9">
     <div class="p-5">
       <div class="text-center text-primary">
-        <h1 class="h4 text-primary-900 mb-4 font-weight-bold">Create New Client Bill</h1>
+        <h1 class="h4 text-primary-900 mb-4 font-weight-bold">
+          {% if form.instance.pk %}Update{% else %}Create New{% endif %} Client Bill
+        </h1>
       </div>
       <form action="." method="POST" enctype="multipart/form-data">
         {% include "form_non_field_errors.html" %}
         {% include "select_field.html" with field=form.client field_label="Client Name" %}
         {% include "fields.html" with field=form.payment field_label="Payment" %}
         {% include "datetime_field.html" with field=form.bill_date field_label="Bill Date" %}
-        {% include "form_buttons.html" with name="Supplier Payment" %}
+        {% include "form_buttons.html" with name="Supplier Payment" pk=form.instance.pk %}
       </form>
     </div>
   </div>

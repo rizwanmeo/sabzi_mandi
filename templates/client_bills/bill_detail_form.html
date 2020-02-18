@@ -20,6 +20,7 @@
 <div class="row">
   <div class="col-lg-12">
     <div class="p-5">
+      {% include "alert.html" %}
       <div class="text-center text-primary">
         <h1 class="h4 text-primary-900 mb-4 font-weight-bold">Create Client Bill Detail</h1>
       </div>
@@ -37,13 +38,13 @@
             </tr>
           </thead>
           <tfoot>
-              <th><input type="text" class="form-control" id="id_billed_amount" name="billed_amount" data-amount="0" value="0" readonly></th>
+              <th><input type="text" class="form-control" id="id_billed_amount" name="billed_amount" data-amount="{{billed_amount}}" value="{{billed_amount}}" readonly></th>
               <th><input type="text" class="form-control" id="id_client" name="client" value="{{request.bill.client.current_balance}}" readonly></th>
               <th><input type="text" class="form-control" id="id_client" name="client" value="{{request.bill.payment.amount}}" readonly></th>
               <th><input type="text" class="form-control" id="id_client" name="client" value="{{request.bill.bill_date}}" readonly></th>
               <th><input type="text" class="form-control text-right" id="id_client" name="client" value="{{request.bill.client.name}}" readonly></th>
               <th>
-                <a href="/client-bills/create" class="btn btn-success btn-icon-split">
+                <a href="/client-bills/{{request.bill.id}}/update/" class="btn btn-success btn-icon-split">
                   <span class="text">Change</span>
                 </a>
               </th>
@@ -70,7 +71,7 @@
               <th width="15%">Item Count</th>
               <th width="15%">Rate</th>
               <th width="20%">Unit</th>
-              <th width="25%">Item</th>
+              <th width="25%">Item Name</th>
               <th width="10%">Action</th>
             </tr>
           </thead>
@@ -127,14 +128,14 @@
           <tbody>
             {% for obj in object_list %}
             <tr {% if obj.is_draft %}class="table-danger"{% endif %}>
-              <td></td>
+              <td>{{ obj.amount }}</td>
               <td>{{ obj.item_count }}</td>
               <td>{{ obj.rate }}</td>
               <td>{{ obj.unit }}</td>
-              <td>{{ obj.item.name }}</td>
+              <td>{{ obj.name }}</td>
               <td>
                 <a href="/client-bills/{{obj.id}}/update" class="btn btn-danger">
-                  <i class="fas fa-edit"></i>
+                  <span class="text">Delete</span>
                 </a>
               </td>
             </tr>
@@ -142,6 +143,25 @@
           </tbody>
         </table>
       </form>
+
+
+      <form action="/client-bills/{{request.bill.id}}/done/" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group row">
+          <div class="col-sm-2"></div>
+          <div class="col-sm-4">
+            <button type="submit" class="btn btn-primary btn-block">
+              Done and Close
+            </button>
+          </div>
+          <div class="col-sm-4">
+            <button type="submit" class="btn btn-success btn-block">
+              Done and Print
+            </button>
+          </div>
+        </div>
+      </form>
+
     </div>
   </div>
 </div>
@@ -155,6 +175,13 @@
   <script>
     $(document).ready(function(){
       $("#id_item").removeAttr("required");
+      $(".alert-success").fadeTo(2000, 500).slideUp(500, function(){
+          $(".alert-success").slideUp(500);
+      });
+      $(".alert-danger").fadeTo(2000, 500).slideUp(500, function(){
+          $(".alert-success").slideUp(500);
+      });
+
       $('#dataTable').DataTable({
         "bPaginate": false,
         "dom": '<"clear">',

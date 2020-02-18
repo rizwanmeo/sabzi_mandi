@@ -40,10 +40,16 @@ class ClientBillListView(CustomLoginRequiredMixin, FilterView):
 
         return context
 
+def get_client_choices(form, shop_id):
+    choices = [("", "Select a client for bill")]
+    client_qs = form.fields["client"].queryset.filter(shop_id=shop_id)
+    choices += list(client_qs.values_list("id", "name"))
+    return choices
+
 class ClientBillCreateView(CustomLoginRequiredMixin, CreateView):
     model = ClientBill
     form_class = ClientBillForm
-    success_url = "/client-bills"
+    success_url = ""
     template_name = "client_bills/form.html"
 
     def form_valid(self, form):
@@ -70,44 +76,37 @@ class ClientBillCreateView(CustomLoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super(ClientBillCreateView, self).get_context_data(**kwargs)
         form = context["form"]
-        choices = [("", "Select a client for bill")]
         form.fields["client"].widget.attrs["class"] = "fstdropdown-select"
-        client_qs = form.fields["client"].queryset.filter(shop=self.request.shop)
-        choices += list(client_qs.values_list("id", "name"))
-        form.fields["client"].choices = choices
+        form.fields["client"].choices = get_client_choices(form, self.request.shop.id)
         form.fields["bill_date"].initial = datetime.date.today().strftime("%Y-%m-%d")
         return context
 
 class ClientBillUpdateView(CustomLoginRequiredMixin, UpdateView):
     model = ClientBill
-    success_url = "/client-bills"
+    form_class = ClientBillForm
+    success_url = ""
     template_name = "client_bills/form.html"
-    fields = ["client"]
 
     def form_valid(self, form):
-        super(ClientUpdateView, self).form_valid(form)
-        msg = 'Client: [%s] was updated succfully.' % form.instance.name
+        super(ClientBillUpdateView, self).form_valid(form)
+        payment_amount = form.cleaned_data.get("payment", 0)
+        self.object.payment.amount = payment_amount
+        self.object.payment.save()
+
+        msg = 'Client: [%s] bill was updated succfully. Please add bill detail'
+        msg %= form.instance.client.name
         messages.add_message(self.request, messages.INFO, msg)
-        return HttpResponseRedirect(self.get_success_url())
+
+        success_url = "/client-bills/%d/detail-create/" % self.object.pk
+        return HttpResponseRedirect(success_url)
 
     def get_context_data(self, **kwargs):
         context = super(ClientBillUpdateView, self).get_context_data(**kwargs)
         form = context["form"]
-        choices = [("", "Select a client for bill")]
         form.fields["client"].widget.attrs["class"] = "fstdropdown-select"
-        form.fields["client"].widget.attrs["required"] = False
-        client_qs = form.fields["client"].queryset.filter(shop__owner=self.request.user)
-        choices += list(client_qs.values_list("id", "name"))
-        form.fields["client"].choices = choices
-        context["detail_list"] = self.object.billdetail_set.all()
-        context["detail_form"] = BillDetailForm()
-        context["current_balance"] = int(self.object.client.current_balance)
-        context["billed_amount"] = 0
-        billdetail_vs = list(self.object.billdetail_set.values("rate", "item_count"))
-        for detail_obj in billdetail_vs:
-            context["billed_amount"] += detail_obj["rate"] * detail_obj["item_count"]
-        context["billed_amount"] = int(context["billed_amount"])
-
+        form.fields["client"].choices = get_client_choices(form, self.request.shop.id)
+        form.initial["payment"] = self.object.payment.amount
+        form.initial["bill_date"] = form.initial["bill_date"].strftime("%Y-%m-%d")
         return context
 
 class ClientBillDeleteView(CustomLoginRequiredMixin, DeleteView):
@@ -127,14 +126,17 @@ class ClientBillDeleteView(CustomLoginRequiredMixin, DeleteView):
 
 class BillDetailCreateView(CustomLoginRequiredMixin, CreateView):
     model = BillDetail
-    success_url = "/client-bills"
     template_name = "client_bills/bill_detail_form.html"
     fields = ["item", "unit", "rate", "item_count"]
+
+    def get_success_url(self):
+        return ""
 
     def form_valid(self, form):
         form.instance.bill = self.request.bill
         super(BillDetailCreateView, self).form_valid(form)
-        msg = 'Client: [%s] bill detail was added succfully.'
+        msg = 'Client: [%s] bill detail was added succfully.' % self.request.bill.client.name
+        success_url = "/client-bills/%d/detail-create/" % self.request.bill.pk
         return HttpResponseRedirect(success_url)
 
     def get_context_data(self, **kwargs):
@@ -144,17 +146,41 @@ class BillDetailCreateView(CustomLoginRequiredMixin, CreateView):
         form.fields["unit"].widget.attrs["class"] = "fstdropdown-select"
         form.fields["unit"].widget.attrs["data-searchdisable"] = "true"
 
+        object_list = []
+        selected_items = []
+        billed_amount = 0
+        qs = BillDetail.objects.filter(bill=self.request.bill)
+        vs = list(qs.values("item__id", "item__name", "unit", "rate", "item_count"))
+        for row in vs:
+            detail_obj = {}
+            detail_obj["name"] = row["item__name"]
+            detail_obj["unit"] = "KG" if row["unit"] == 'k' else "Count"
+            detail_obj["rate"] = row["rate"]
+            detail_obj["item_count"] = row["item_count"]
+            detail_obj["amount"] = row["rate"] * row["item_count"]
+            billed_amount += detail_obj["amount"]
+            object_list.append(detail_obj)
+            selected_items.append(row["item__id"])
+
         # Load Item choices
         choices = [("", "Select an item")]
         qs = Item.objects.all()
-        choices += list(qs.values_list("id", "name"))
+        vs = list(qs.values_list("id", "name"))
+        for pk, name in vs:
+            if pk in selected_items: continue
+            choices.append([pk, name])
         form.fields["item"].choices = choices
         form.fields["unit"].choices = form.fields["unit"].choices[1:]
 
+        context["object_list"] = object_list
+        context["billed_amount"] = billed_amount
         return context
 
     def get_bill_obj(self, bill_id):
-        return ClientBill.objects.get(id=bill_id)
+        try:
+            return ClientBill.objects.get(id=bill_id)
+        except:
+            raise Http404
 
     def get(self, request, *args, **kwargs):
         request.bill = self.get_bill_obj(kwargs.get("bill_id", 0))
@@ -220,15 +246,19 @@ def get_drafted_bill(request, client_id):
     return JsonResponse({"status": True, "data": data})
 
 @login_required(login_url='/login/')
-def done_drafted_bill(request, client_id, bill_id):
+def done_drafted_bill(request, bill_id):
+    try:
+        bill_obj = ClientBill.objects.get(id=int(bill_id), is_draft=True)
+    except:
+        raise Http404
+
+    redirect_url = "/client-bills"
     if request.method == "POST":
         billed_amount = 0
-        bill_obj = ClientBill.objects.get(id=int(bill_id), is_draft=True)
         billdetail_vs = bill_obj.billdetail_set.values("rate", "item_count")
         for detail_obj in billdetail_vs:
             billed_amount += detail_obj["rate"] * detail_obj["item_count"]
         bill_obj.is_draft = False
-        bill_obj.client_id = client_id
         bill_obj.billed_amount = billed_amount
         bill_obj.client.current_balance -= billed_amount
         bill_obj.balance = bill_obj.client.current_balance
@@ -236,9 +266,10 @@ def done_drafted_bill(request, client_id, bill_id):
         bill_obj.save()
         msg = 'Client: [%s] Bill was done succfully.' % bill_obj.client.name
         messages.add_message(request, messages.INFO, msg)
-        return JsonResponse({"status": True, "description": "Successfully done"})
     else:
-        return JsonResponse({"status": False, "description": "Invalid request"})
+        redirect_url = "/client-bills/%d/detail-create/" % bill_id
+    return HttpResponseRedirect(redirect_url)
+
 
 @login_required(login_url='/login/')
 def print_bill(request, bill_id):

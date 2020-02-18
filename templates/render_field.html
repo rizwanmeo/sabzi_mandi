@@ -1,11 +1,11 @@
 {% if field.errors %}
-  <input type="text" class="form-control is-invalid" id="id_{{field.name}}" name="{{field.name}}" value="{% if field.value %}{{ field.value }}{% endif %}">
+  <input type="text" class="form-control is-invalid" id="id_{{field.name}}" name="{{field.name}}" value="{% if field.value %}{{ field.value }}{% endif %}" oninput="{{oninput}}">
   <div class="text-danger">
     <p>{{ field.errors }}</p>
   </div>
 {% else %}
   {% if field.value is not None %}
-    <input type="text" class="form-control" id="id_{{ field.name }}" name="{{ field.name }}" value="{{ field.value }}" placeholder="{{field_placeholder}">
+    <input type="text" class="form-control" id="id_{{ field.name }}" name="{{ field.name }}" value="{{ field.value }}" placeholder="{{field_placeholder}}" oninput="{{oninput}}">
   {% else %}
     <input type="text" class="form-control" id="id_{{ field.name }}" name="{{ field.name }}" value="{% if field.initial is not None %}{{ field.initial }}{% endif %}"  placeholder="{{field_placeholder}}" oninput="{{oninput}}">
   {% endif %}
