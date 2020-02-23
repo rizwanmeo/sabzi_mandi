@@ -22,7 +22,7 @@ def get_suppliers_ledger_data(request):
 
         SupplierPaymentFilter = filterset_factory(model=SupplierPayment, fields=["supplier"])
         f = SupplierPaymentFilter(request.GET, queryset=qs)
-        columns = ['supplier__name', 'payment_type', 'payment_time', 'description', 'amount']
+        columns = ['supplier__name', 'payment_type', 'payment_date', 'description', 'amount']
         vs = list(f.qs.values(*columns))
         for obj in vs:
             row = {}

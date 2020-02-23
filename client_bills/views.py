@@ -202,10 +202,7 @@ class BillDetailCreateView(CustomLoginRequiredMixin, CreateView):
         choices = [("", "Select an item")]
         qs = Item.objects.all()
         vs = list(qs.values_list("id", "name"))
-        for pk, name in vs:
-            if pk in selected_items: continue
-            choices.append([pk, name])
-        form.fields["item"].choices = choices
+        form.fields["item"].choices = choices + vs
         form.fields["unit"].choices = form.fields["unit"].choices[1:]
 
         context["object_list"] = object_list
