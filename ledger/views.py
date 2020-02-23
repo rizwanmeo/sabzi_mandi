@@ -1,9 +1,11 @@
 import datetime
 
+from django.db.models import Q
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django_filters.filterset import filterset_factory
 
+from clients.models import Client
 from suppliers.models import Supplier
 from client_bills.models import ClientBill
 from payments.models import SupplierPayment
@@ -52,72 +54,62 @@ def suppliers_ledger_print(request):
     context = get_suppliers_ledger_data(request)
     return render(request, 'ledger/suppliers_ledger_print.html', context)
 
-@login_required(login_url='/login/')
-def clients_ledger_view(request):
+def get_client_ledger_data(request):
     context = {}
     if request.method == "GET":
-        today = datetime.date.today()
-        filter_kwargs = {
-            "client__shop": request.shop,
-            "is_draft": False,
-            #"bill_time__gt": today,
-        }
-
         data = {}
-        client_bill_qs = ClientBill.objects.filter(**filter_kwargs)
-        columns = ['client__name', 'client__id', 'client__current_balance', 'billed_amount']
-        client_bill_vs = client_bill_qs.values(*columns)
-        for obj in client_bill_vs:
-            pk = obj["client__id"]
-            name = obj["client__name"]
-            amount = obj["billed_amount"]
-            balance = obj["client__current_balance"]
+        qs = Client.objects.filter(shop=request.shop)
+        qs = qs.filter(~Q(current_balance=0))
+        vs = list(qs.values('name', 'id', 'current_balance'))
+
+        for obj in vs:
+            pk = obj["id"]
+            name = obj["name"]
+            balance = obj["current_balance"]
+            data[pk] = {"id": pk, "name": name, "balance": balance}
+
+
+
+
+
+
+
+
+        bill_date = request.GET.get("bill_date", "")
+        if bill_date:
+            qs = ClientBill.objects.filter(bill_date=bill_date)
+        else:
+            today = datetime.date.today()
+            qs = ClientBill.objects.filter(bill_date=today)
+        qs = qs.order_by("-id")
+        vs = list(qs.values("client_id", "billed_amount", "balance", "payment__amount"))
+        for obj in vs:
+            pk = obj["client_id"]
+            data[pk]["balance"] = obj["balance"]
             try:
-                data[pk]["amount"] += amount
-                data[pk]["balance"] = data[pk]["balance"]+amount
-            except:
-                data[pk] = {"id": pk, 
-                            "name": name, 
-                            "amount": amount, 
-                            "balance": balance+amount,
-                            "total": balance}
+                data[pk]["payment"] += obj["payment__amount"]
+            except KeyError:
+                data[pk]["payment"] = obj["payment__amount"]
+            try:
+                data[pk]["amount"] += obj["billed_amount"]
+            except KeyError:
+                data[pk]["amount"] = obj["billed_amount"]
+
         vs = list(data.values())
         context["ledger_list"] = vs
+    return context
 
+@login_required(login_url='/login/')
+def clients_ledger_view(request):
+    context = get_client_ledger_data(request)
     return render(request, 'ledger/clients_ledger_list.html', context)
 
 @login_required(login_url='/login/')
 def clients_ledger_print(request):
-    context = {}
-    if request.method == "GET":
-        today = datetime.date.today()
-        filter_kwargs = {
-            "client__shop": request.shop,
-            "is_draft": False,
-            #"bill_time__gt": today,
-        }
-
-        data = {}
-        client_bill_qs = ClientBill.objects.filter(**filter_kwargs)
-        columns = ['client__name', 'client__id', 'client__current_balance', 'billed_amount']
-        client_bill_vs = client_bill_qs.values(*columns)
-        for obj in client_bill_vs:
-            pk = obj["client__id"]
-            name = obj["client__name"]
-            amount = obj["billed_amount"]
-            balance = obj["client__current_balance"]
-            try:
-                data[pk]["amount"] += amount
-                data[pk]["balance"] = data[pk]["balance"]+amount
-            except:
-                data[pk] = {"id": pk, 
-                            "name": name, 
-                            "amount": amount, 
-                            "balance": balance+amount,
-                            "total": balance}
-        vs = list(data.values())
-        ledger_list1, ledger_list2 = vs[:int(len(vs)/2)], vs[int(len(vs)/2):]
-        context["ledger_list1"] = ledger_list1
-        context["ledger_list2"] = ledger_list2[:-1]
+    context = get_client_ledger_data(request)
+    vs = list(context["ledger_list"])
+    ledger_list1, ledger_list2 = vs[:int(len(vs)/2)], vs[int(len(vs)/2):]
+    context["ledger_list1"] = ledger_list1
+    context["ledger_list2"] = ledger_list2[:-1]
 
     return render(request, 'ledger/clients_ledger_print.html', context)

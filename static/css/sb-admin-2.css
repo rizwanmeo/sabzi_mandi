@@ -10121,7 +10121,7 @@ a:focus {
 .sidebar .nav-item .collapse .collapse-inner,
 .sidebar .nav-item .collapsing .collapse-inner {
   padding: .5rem 0;
-  min-width: 10rem;
+  min-width: 100%;
   font-size: 0.85rem;
   margin: 0 0 1rem 0;
 }
@@ -10231,7 +10231,7 @@ a:focus {
 
 @media (min-width: 768px) {
   .sidebar {
-    width: 14rem !important;
+    width: 8rem !important;
   }
   .sidebar .nav-item .collapse {
     position: relative;
@@ -10258,7 +10258,7 @@ a:focus {
     width: 100%;
     text-align: left;
     padding: 1rem;
-    width: 14rem;
+    width: 8rem;
   }
   .sidebar .nav-item .nav-link i {
     font-size: 0.85rem;

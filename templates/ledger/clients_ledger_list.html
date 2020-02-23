@@ -20,17 +20,11 @@
           <div class="row">
             <div class="col-lg-6">
               <div class="text-left">
-                <h4 class="font-weight-bold text-primary">Client Bill list</h4>
+                <h4 class="font-weight-bold text-primary">Client Ledger</h4>
               </div>
             </div>
             <div class="col-lg-6">
               <div class="text-right">
-                  <a href="/ledger/create" class="btn btn-success btn-icon-split">
-                    <span class="icon text-white-50">
-                      <i class="fa fa-plus"></i>
-                    </span>
-                    <span class="text">Add Payment</span>
-                  </a>
                   <a href="/ledger/ledger-print" class="btn btn-primary btn-icon-split">
                     <span class="icon text-white-50">
                       <i class="fa fa-print"></i>
@@ -54,16 +48,6 @@
                   <th>Payment</th>
                 </tr>
               </thead>
-              <tfoot>
-                <tr>
-                  <th>ID</th>
-                  <th>Client Name</th>
-                  <th>Previous</th>
-                  <th>New</th>
-                  <th>Total</th>
-                  <th>Payment</th>
-                </tr>
-              </tfoot>
               <tbody>
                 {% for obj in ledger_list %}
                 <tr>
