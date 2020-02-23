@@ -1,6 +1,8 @@
 import os
 import datetime
+from os import path
 from io import StringIO, BytesIO
+
 
 from django.utils import timezone
 from django.db import models
@@ -9,6 +11,7 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage as storage
 from PIL import Image
 
+from sabzi_mandi import settings
 from sabzi_mandi.models import UpdatedInfo, BasicInfo
 
 class Item(models.Model):
@@ -25,9 +28,14 @@ def validate_file_ext(value):
     raise ValidationError(u'Unsupported file, You can upload only png, jpeg and jpg files')
 
 def content_file_name(instance, filename):
+
+    shop_path = os.path.join(settings.MEDIA_ROOT, 'shops')
+    if not path.exists(shop_path):
+        os.mkdir(shop_path)
+
     ext = filename.split('.')[-1]
     filename = "%s.%s" % (datetime.datetime.now().strftime('%s'), ext)
-    return os.path.join('uploads', filename)
+    return os.path.join('shops', filename)
 
 
 class Shop(UpdatedInfo):
@@ -43,6 +51,11 @@ class Shop(UpdatedInfo):
         """
         Create and save the thumbnail for the photo (simple resize with PIL).
         """
+
+        thumb_path = os.path.join(settings.MEDIA_ROOT, 'shops_thumbs')
+        if not path.exists(thumb_path):
+            os.mkdir(thumb_path)
+
         fh = storage.open(self.logo.name, 'rb')
         try:
             image = Image.open(fh)

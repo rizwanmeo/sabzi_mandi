@@ -23,9 +23,9 @@ class ShopCreateView(CustomLoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
+        super(ShopCreateView, self).form_valid(form)
         if form.instance.logo:
             form.instance.make_thumbnail()
-        super(ShopCreateView, self).form_valid(form)
         msg = 'Shop: [%s] was creates succfully.' % form.instance.name
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())
