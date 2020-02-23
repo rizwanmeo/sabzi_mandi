@@ -34,7 +34,7 @@ def content_file_name(instance, filename):
         os.mkdir(shop_path)
 
     ext = filename.split('.')[-1]
-    filename = "%s.%s" % (datetime.datetime.now().strftime('%s'), ext)
+    filename = "%s.%s" % (datetime.datetime.now().strftime('%Y%m%d%H%M%S'), ext)
     return os.path.join('shops', filename)
 
 

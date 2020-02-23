@@ -19,7 +19,7 @@ class ShopCreateView(CustomLoginRequiredMixin, CreateView):
     model = Shop
     success_url = "/shops"
     template_name = "shops/form.html"
-    fields = ["name", "address", "logo"]
+    fields = ["name", "phone", "address", "logo"]
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
@@ -34,12 +34,11 @@ class ShopUpdateView(CustomLoginRequiredMixin, UpdateView):
     model = Shop
     success_url = "/shops"
     template_name = "shops/form.html"
-    fields = ["name", "address", "logo"]
+    fields = ["name", "phone", "address"]
 
     def form_valid(self, form):
-        form.instance.make_thumbnail()
         form.instance.last_modified = datetime.datetime.now()
-        super(ClientUpdateView, self).form_valid(form)
+        super(ShopUpdateView, self).form_valid(form)
         msg = 'Shop: [%s] was updated succfully.' % form.instance.name
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())

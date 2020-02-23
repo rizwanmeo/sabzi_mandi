@@ -49,6 +49,7 @@
               <thead>
                 <tr>
                   <th>Shop Name</th>
+                  <th>Phone</th>
                   <th>Address</th>
                   <th style="width: 100px;">Logo</th>
                   <th style="width: 10%;padding-top: 30px;">Action</th>
@@ -58,15 +59,18 @@
                 {% for obj in object_list %}
                 <tr {% if obj.is_default %}class="table-success"{% endif %}>
                   <td>{{ obj.name }}</td>
+                  <td>{{ obj.phone }}</td>
                   <td>{% if obj.address %}{{ obj.address }}{% endif %}</td>
                   <td>{% if obj.logo %}<img src="{{ obj.logo_thumbnail.url }}" class="img-thumbnail img-rounded" />{% endif %}</td>
                   <td style="padding-top: 30px;">
-                    <a href="/shops/{{obj.id}}/delete" class="btn btn-danger">
-                      <i class="fas fa-trash"></i>
-                    </a>
-                    <a href="/shops/{{obj.id}}/update" class="btn btn-primary">
-                      <i class="fas fa-edit"></i>
-                    </a>
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                      <a href="/shops/{{obj.id}}/delete" class="btn btn-danger">
+                        <i class="fas fa-trash"></i>
+                      </a>
+                      <a href="/shops/{{obj.id}}/update" class="btn btn-primary">
+                        <i class="fas fa-edit"></i>
+                      </a>
+                    </div>
                   </td>
                 </tr>
                 {% endfor %}

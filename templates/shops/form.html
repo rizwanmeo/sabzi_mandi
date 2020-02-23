@@ -15,13 +15,14 @@
   <div class="col-lg-8">
     <div class="p-5">
       <div class="text-center">
-        <h1 class="h4 text-gray-900 mb-4">Create New Shop</h1>
+        <h1 class="h4 text-gray-900 mb-4">{% if form.instance.pk %}Update{% else %}Create{% endif %} New Shop</h1>
       </div>
       <form action="." method="POST" enctype="multipart/form-data">
         {% include "form_non_field_errors.html" %}
         {% include "fields.html" with field=form.name field_label="Shop Name" %}
         {% include "fields.html" with field=form.phone field_label="Phone Number" %}
         {% include "text_fields.html" with field=form.address field_label="Shop Address" %}
+        {% if not form.instance.pk %}
         <div class="form-group row">
           <label class="col-sm-3 col-form-label font-weight-bold">Logo</label>
           <div class="col-sm-9">
@@ -35,7 +36,8 @@
             {% endif %}
           </div>
         </div>
-        {% include "form_buttons.html" with name="Supplier" %}
+        {% endif %}
+        {% include "form_buttons.html" with name="Supplier" pk=form.instance.pk %}
       </form>
     </div>
   </div>
