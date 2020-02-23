@@ -25,14 +25,14 @@
             </div>
             <div class="col-lg-6">
               <div class="text-right">
-                  <a href="/shops/create" class="btn btn-success btn-icon-split">
+                  <a href="/shops/create" class="btn btn-success btn-icon-split btn-sm">
                     <span class="icon text-white-50">
                       <i class="fa fa-plus"></i>
                     </span>
                     <span class="text">Add New Shop</span>
                   </a>
                   {% if shops_list|length > 1 %}
-                  <a href="#" data-toggle="modal" data-target="#makeDefaultShop" class="btn btn-primary btn-icon-split">
+                  <a href="#" data-toggle="modal" data-target="#makeDefaultShop" class="btn btn-primary btn-icon-split btn-sm">
                     <span class="icon text-white-50">
                       <i class="fa fa-plus"></i>
                     </span>
@@ -45,7 +45,7 @@
         </div>
         <div class="card-body">
           <div class="table-responsive">
-            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+            <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
               <thead>
                 <tr>
                   <th>Shop Name</th>
@@ -62,12 +62,12 @@
                   <td>{{ obj.phone }}</td>
                   <td>{% if obj.address %}{{ obj.address }}{% endif %}</td>
                   <td>{% if obj.logo %}<img src="{{ obj.logo_thumbnail.url }}" class="img-thumbnail img-rounded" />{% endif %}</td>
-                  <td style="padding-top: 30px;">
+                  <td>
                     <div class="btn-group" role="group" aria-label="Basic example">
-                      <a href="/shops/{{obj.id}}/delete" class="btn btn-danger">
+                      <a href="/shops/{{obj.id}}/delete" class="btn btn-danger btn-sm">
                         <i class="fas fa-trash"></i>
                       </a>
-                      <a href="/shops/{{obj.id}}/update" class="btn btn-primary">
+                      <a href="/shops/{{obj.id}}/update" class="btn btn-primary btn-sm">
                         <i class="fas fa-edit"></i>
                       </a>
                     </div>
@@ -125,16 +125,5 @@
   <!-- Page level plugins -->
   <script src="{% static "vendor/datatables/jquery.dataTables.js" %}"></script>
   <script src="{% static "vendor/datatables/dataTables.bootstrap4.min.js" %}"></script>
-  <script>
-    $(function() {
-      $('#dataTable').DataTable();
-      $(".alert-success").fadeTo(2000, 500).slideUp(500, function(){
-          $(".alert-success").slideUp(500);
-      });
-      $(".alert-danger").fadeTo(2000, 500).slideUp(500, function(){
-          $(".alert-success").slideUp(500);
-      });
-    })
-  </script>
 {% endblock %}
 

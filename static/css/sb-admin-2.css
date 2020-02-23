@@ -4367,7 +4367,7 @@ input[type="button"].btn-block {
 }
 
 .card-header {
-  padding: 0.75rem 1.25rem;
+  padding: 0.35rem 1.0rem;
   margin-bottom: 0;
   background-color: #f8f9fc;
   border-bottom: 1px solid #e3e6f0;
@@ -4551,11 +4551,12 @@ input[type="button"].btn-block {
 .breadcrumb {
   display: flex;
   flex-wrap: wrap;
-  padding: 0.75rem 1rem;
+  padding: 0.2rem 1rem;
   margin-bottom: 0rem;
   list-style: none;
   background-color: #eaecf4;
   border-radius: 0.35rem;
+  margin-top: 2px;
 }
 
 .breadcrumb-item + .breadcrumb-item {
@@ -9934,7 +9935,7 @@ a:focus {
 }
 
 .topbar {
-  height: 4.375rem;
+  height: 3.0rem;
 }
 
 .topbar #sidebarToggleTop {
@@ -9967,7 +9968,7 @@ a:focus {
 }
 
 .topbar .nav-item .nav-link {
-  height: 4.375rem;
+  height: 2.75rem;
   display: flex;
   align-items: center;
   padding: 0 0.75rem;

@@ -9,6 +9,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage as storage
+from django.core.exceptions import ValidationError
 from PIL import Image
 
 from sabzi_mandi import settings

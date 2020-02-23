@@ -46,9 +46,8 @@
 
   <!-- Content Row -->
   <div class="row">
-
         <!-- Earnings (Monthly) Card Example -->
-        <div class="col-xl-3 col-md-6 mb-4">
+        <div class="col-xl-3 col-lg-3 col-md-6 mb-4">
             <div class="card border-left-primary shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -65,7 +64,7 @@
         </div>
 
         <!-- Earnings (Monthly) Card Example -->
-        <div class="col-xl-3 col-md-6 mb-4">
+        <div class="col-xl-3 col-lg-3 col-md-6 mb-4">
             <div class="card border-left-primary shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -81,7 +80,7 @@
             </div>
         </div>
         <!-- Earnings (Monthly) Card Example -->
-        <div class="col-xl-3 col-md-6 mb-4">
+        <div class="col-xl-3 col-lg-3 col-md-6 mb-4">
             <div class="card border-left-info shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -98,7 +97,7 @@
         </div>
 
         <!-- Earnings (Monthly) Card Example -->
-        <div class="col-xl-3 col-md-6 mb-4">
+        <div class="col-xl-3 col-lg-3 col-md-6 mb-4">
             <div class="card border-left-info shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -120,8 +119,8 @@
   <div class="row">
 
     <!-- Area Chart -->
-    <div class="col-xl-6 col-lg-7">
-      <div class="card shadow mb-4">
+    <div class="col-xl-6 col-lg-6 col-md-12">
+      <div class="card shadow">
         <!-- Card Header - Dropdown -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
             <h6 class="m-0 font-weight-bold text-primary">Last 12 months earning overview</h6>
@@ -136,7 +135,7 @@
     </div>
 
     <!-- Pie Chart -->
-    <div class="col-xl-6 col-lg-5">
+    <div class="col-xl-6 col-lg-6 col-md-12">
       <div class="card shadow mb-4">
         <!-- Card Header - Dropdown -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -180,7 +179,6 @@
             load_bar_chart(labels, data, max_value);
           }
       });
-
       // Loading client data
       $.ajax({
           url: "/get_top_client",
@@ -195,4 +193,3 @@
     });
   </script>
 {% endblock %}
-

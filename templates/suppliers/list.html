@@ -87,15 +87,4 @@
   <!-- Page level plugins -->
   <script src="{% static "vendor/datatables/jquery.dataTables.js" %}"></script>
   <script src="{% static "vendor/datatables/dataTables.bootstrap4.min.js" %}"></script>
-  <script>
-    $(function() {
-      $('#dataTable').DataTable();
-      $(".alert-success").fadeTo(2000, 500).slideUp(500, function(){
-          $(".alert-success").slideUp(500);
-      });
-      $(".alert-danger").fadeTo(2000, 500).slideUp(500, function(){
-          $(".alert-success").slideUp(500);
-      });
-    })
-  </script>
 {% endblock %}

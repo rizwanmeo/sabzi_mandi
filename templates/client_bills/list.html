@@ -55,7 +55,7 @@
                     </select>
                   </div>
                   <div class="col-lg-4">
-                    <a href="/client-bills/create" class="btn btn-success btn-icon-split">
+                    <a href="/client-bills/create" class="btn btn-success btn-icon-split btn-sm">
                       <span class="icon text-white-50">
                         <i class="fa fa-plus"></i>
                       </span>
@@ -97,14 +97,14 @@
                   <td>{{ obj.balance }}</td>
                   <td>
                     {% if obj.is_draft %}
-                      <button type="button" onclick="showDeleteConfirmation({{obj.id}})"  class="btn btn-danger">
+                      <button type="button" onclick="showDeleteConfirmation({{obj.id}})"  class="btn btn-danger btn-sm">
                         <i class="fas fa-trash"></i>
                       </button>
-                      <a href="/client-bills/{{obj.id}}/update" class="btn btn-primary">
+                      <a href="/client-bills/{{obj.id}}/update" class="btn btn-primary btn-sm">
                         <i class="fas fa-edit"></i>
                       </a>
                     {% else %}
-                      <a href="/client-bills/{{obj.id}}/print" class="btn btn-primary">
+                      <a href="/client-bills/{{obj.id}}/print" class="btn btn-primary btn-sm">
                         <i class="fas fa-print"></i>
                       </a>
                     {% endif %}
@@ -198,13 +198,6 @@
           }
         });
 
-      $('#dataTable').DataTable();
-      $(".alert-success").fadeTo(2000, 500).slideUp(500, function(){
-          $(".alert-success").slideUp(500);
-      });
-      $(".alert-danger").fadeTo(2000, 500).slideUp(500, function(){
-          $(".alert-success").slideUp(500);
-      });
       $('#id_bill_date').datepicker({
           format: "yyyy-mm-dd",
           maxViewMode: 0,

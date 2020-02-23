@@ -68,19 +68,13 @@ def get_client_ledger_data(request):
             balance = obj["current_balance"]
             data[pk] = {"id": pk, "name": name, "balance": balance}
 
-
-
-
-
-
-
-
         bill_date = request.GET.get("bill_date", "")
         if bill_date:
             qs = ClientBill.objects.filter(bill_date=bill_date)
         else:
             today = datetime.date.today()
             qs = ClientBill.objects.filter(bill_date=today)
+
         qs = qs.order_by("-id")
         vs = list(qs.values("client_id", "billed_amount", "balance", "payment__amount"))
         for obj in vs:
