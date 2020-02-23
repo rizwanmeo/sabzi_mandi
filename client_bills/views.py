@@ -18,14 +18,50 @@ from sabzi_mandi.views import CustomLoginRequiredMixin
 class ClientBillListView(CustomLoginRequiredMixin, FilterView):
     model = ClientBill
     template_name = "client_bills/list.html"
-    filterset_fields = ["client", "client__name"]
+    filterset_fields = ["client"]
 
     def get_context_data(self, **kwargs):
         context = super(ClientBillListView, self).get_context_data(**kwargs)
+
+
         object_list = context["object_list"]
         object_list = object_list.filter(client__shop=self.request.shop, is_draft=False)
-        object_list = object_list.annotate(items=Count('billdetail__item'))
-        context["object_list"] = object_list
+        #object_list = object_list.annotate(items=Count('billdetail__item'))
+        columns = ["id", "client__name", "created_time", "is_draft", "bill_date",
+                   "balance", "billed_amount", "payment__amount", "billdetail__rate",
+                   "billdetail__item__name", "billdetail__unit", "billdetail__item_count"]
+        data = {}
+        vs = list(object_list.values(*columns))
+        for row in vs:
+            row_data = {}
+            row_data["id"] = row["id"]
+            row_data["pk"] = row["id"]
+            row_data["client"] = {"name": row["client__name"]}
+            row_data["created_time"] = row["created_time"]
+            row_data["is_draft"] = row["is_draft"]
+            row_data["bill_date"] = row["bill_date"]
+            row_data["balance"] = row["balance"]
+            row_data["billed_amount"] = row["billed_amount"]
+            row_data["payment"] = {"amount": row["payment__amount"]}
+            row_data["total_items"] = 1
+            row_data["billdetail"] = []
+
+            detail = {}
+            detail["item"] = {"name": row["billdetail__item__name"]}
+            detail["rate"] = row["billdetail__rate"]
+            detail["unit"] = "KG" if row["billdetail__unit"] == "k" else "Count"
+            detail["item_count"] = row["billdetail__item_count"]
+
+            row_data["billdetail"].append(detail)
+
+            try:
+                data[row["id"]]["billdetail"].append(detail)
+                data[row["id"]]["total_items"] += 1
+            except KeyError:
+                data[row["id"]] = row_data
+
+        context["object_list"] = data.values()
+
         client_id = self.request.GET.get("client", "")
         client_id=int(client_id) if client_id.isdigit() else 0
         qs = Client.objects.filter(shop=self.request.shop)
@@ -49,7 +85,7 @@ def get_client_choices(form, shop_id):
 class ClientBillCreateView(CustomLoginRequiredMixin, CreateView):
     model = ClientBill
     form_class = ClientBillForm
-    success_url = ""
+    success_url = "/client-bills"
     template_name = "client_bills/form.html"
 
     def form_valid(self, form):
@@ -84,7 +120,7 @@ class ClientBillCreateView(CustomLoginRequiredMixin, CreateView):
 class ClientBillUpdateView(CustomLoginRequiredMixin, UpdateView):
     model = ClientBill
     form_class = ClientBillForm
-    success_url = ""
+    success_url = "/client-bills"
     template_name = "client_bills/form.html"
 
     def form_valid(self, form):
@@ -277,7 +313,28 @@ def print_bill(request, bill_id):
     if request.method == "GET":
         obj = ClientBill.objects.get(id=int(bill_id), is_draft=False)
         context["obj"] = obj
-        context["bill_detail_list"] = obj.billdetail_set.all()
+        qs = obj.billdetail_set.all()
+        vs = list(qs.values("item__name", "unit", "rate", "item_count"))
+        data = []
+        total_item_count = 0
+        total_item_weight = 0
+        for row in vs:
+            detail_obj = {}
+            detail_obj["name"] = row["item__name"]
+            detail_obj["rate"] = row["rate"]
+            detail_obj["item_count"] = row["item_count"]
+            detail_obj["amount"] = row["rate"] * row["item_count"]
+            detail_obj["unit"] = row["unit"]
+            if row["unit"] == 'k':
+                total_item_weight += row["item_count"]
+            else:
+                total_item_count += row["item_count"]
+
+            data.append(detail_obj)
+
+        context["bill_detail_list"] = data
+        context["total_item_count"] = total_item_count
+        context["total_item_weight"] = total_item_weight
 
     return render(request, 'client_bills/print.html', context)
 

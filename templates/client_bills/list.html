@@ -88,8 +88,22 @@
                 <tr {% if obj.is_draft %}class="table-danger"{% endif %}>
                   <td>{{ obj.id }}</td>
                   <td>{{ obj.client.name }}</td>
-                  <td>{{ obj.bill_time }}</td>
-                  <td>{{ obj.items }}</td>
+                  <td>{{ obj.bill_date }}</td>
+                  <td>
+                    <span onclick="showPopover({{obj.id}})" class="badge badge-info" data-toggle="popover" title="Bill Detail" data-placement="top">{{ obj.total_items }}</span>
+  <table border="1">
+    {% for detail in obj.billdetail %}
+    <tr>
+      <td>{{detail.item.name}}</td>
+      <td>{{detail.unit}}</td>
+      <td>{{detail.rate}}</td>
+      <td>{{detail.item_count}}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+
+                  </td>
                   <td>{{ obj.billed_amount }}</td>
                   <td>{{ obj.billed_amount|add:obj.balance }}</td>
                   <td>{{ obj.balance }}</td>
@@ -115,6 +129,36 @@
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+{% for obj in object_list %}
+<div id="id_{{obj.id}}_bill_detail" data-html="true">
+</div>
+{% endfor %}
+
+
+<a href="#" id="id_test" class="btn btn-primary" tabindex="0" data-toggle="popover" data-trigger="focus" data-popover-content="#a1" data-placement="right">Popover Example</a>
+<div id="a1" class="hidden">
+  <div class="popover-heading">Title <span style="float:right;cursor:pointer;" class="fa fa-times" data-toggle="popover"></span></div>
+  <div class="popover-body">
+    <table style="width:100%">
+      <tr>
+        <td>Jill</td>
+        <td>Smith</td>
+        <td>50</td>
+      </tr>
+      <tr>
+        <td>Eve</td>
+        <td>Jackson</td>
+        <td>94</td>
+      </tr>
+      <tr>
+        <td>John</td>
+        <td>Doe</td>
+        <td>80</td>
+      </tr>
+    </table>
   </div>
 </div>
 
@@ -156,6 +200,18 @@
       $("#id_delete").attr('href', "/client-bills/"+billId+"/delete/");
     }
 
+    function showPopover(detailID) {
+      console.log($('#id_2_bill_detail').html());
+      $('[data-toggle="popover"]').popover({
+        
+         content: $('#id_'+detailID+'_bill_detail').removeAttr('hidden').html(),
+         html: true,
+      }).click(function(){
+          setTimeout(function () {
+              $('[data-toggle="popover"]').popover('hide');
+          }, 3000);
+      });
+    }
     function onchangeEvent() {
       var selectedClient = $(".fstlist").children(".selected").attr("data-value");
       if (selectedClient == "") {
@@ -166,6 +222,20 @@
     }
 
     $(function() {
+
+
+        $("#id_test").popover({
+          html: true,
+          content: function() {
+            var content = $(this).attr("data-popover-content");
+            return $(content).children(".popover-body").html();
+          },
+          title: function() {
+            var title = $(this).attr("data-popover-content");
+            return $(title).children(".popover-heading").html();
+          }
+        });
+
       $('#dataTable').DataTable();
       $(".alert-success").fadeTo(2000, 500).slideUp(500, function(){
           $(".alert-success").slideUp(500);

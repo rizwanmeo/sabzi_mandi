@@ -10,6 +10,7 @@
 
     <!-- Load paper.css for happy printing -->
     <link rel="stylesheet" href="{% static "css/print.css" %}">
+    <link href="{% static "css/urdu-lang.css" %}" rel="stylesheet">
 
     <!-- Set page size here: A5, A4 or A3 -->
     <!-- Set also "landscape" if you need -->
@@ -28,14 +29,14 @@
         <div class="row">
           <div class="col-lg-3" style="width: 25%"></div>
           <div class="col-lg-6" style="width: 50%">
-            <table class="table" border="0" cellspacing="0" cellpadding="0">
+            <table class="table" cellspacing="0" cellpadding="0">
               <tr colspan=5>
                 <img src="/static/img/index.jpeg" width="100%">
               </tr>
               <tr>
-                <th colspan=2>{{ obj.bill_time.date }}</th>
-                <th colspan=2>{{ obj.client.name }}</th>
-                <th>Code: {{ obj.client.id }}</th>
+                <th colspan=2>{{ obj.bill_date }}</th>
+                <th width="85px">Code: 12{{ obj.client.id }}</th>
+                <th colspan=2><div class="text-right">{{ obj.client.name }}</div></th>
               </tr>
               <tr>
                 <th>Amount</th>
@@ -50,14 +51,14 @@
                 <td>{% if bill_obj.unit == 'k' %}{{ bill_obj.item_count }}{% endif %}</td>
                 <td>{{ bill_obj.rate }}</td>
                 <td>{% if bill_obj.unit == 'i' %}{{ bill_obj.item_count }}{% endif %}</td>
-                <td>{{ bill_obj.item.name }}</td>
+                <td><div class="text-right">{{ bill_obj.name }}</div></td>
               </tr>
               {% endfor %}
               <tr>
                 <td>{{ obj.billed_amount }}</td>
                 <td colspan=2>Billed Amount</td>
-                <td>Total Items: 20</td>
-                <td>Total Weight: 50KG</td>
+                <td>{{total_item_count}} Items</td>
+                <td>{{total_item_weight}}KG Weight</td>
               </tr>
               <tr>
                 <td>{{ obj.balance }}</td>
@@ -67,13 +68,15 @@
                 <td>{{ obj.balance }}</td>
                 <td>Total Amount</td>
                 <td colspan=3 rowspan=0>
+                  <div class="text-center">
                     Develop By</br>
                     Ahmed Faraz Arain</br>
                     0346-2073561
+                  </div>
                 </th>
               </tr>
               <tr>
-                <td>{{ obj.balance }}</td>
+                <td>{{ obj.payment.amount }}</td>
                 <td>Paid Amount</td>
               </tr>
               <tr>
@@ -87,6 +90,7 @@
         </div>
       </div>
     </div>
+    <script src="{% static "vendor/jquery/jquery.min.js" %}"></script>
     <script src="{% static "vendor/datatables/jquery.dataTables.js" %}"></script>
     <script src="{% static "vendor/datatables/dataTables.bootstrap4.min.js" %}"></script>
   </body>

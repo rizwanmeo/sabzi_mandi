@@ -54,14 +54,6 @@
                   <th style="width: 10%;padding-top: 30px;">Action</th>
                 </tr>
               </thead>
-              <tfoot>
-                <tr>
-                  <th>Shop Name</th>
-                  <th>Address</th>
-                  <th style="width: 100px;">Logo</th>
-                  <th style="width: 10%">Action</th>
-                </tr>
-              </tfoot>
               <tbody>
                 {% for obj in object_list %}
                 <tr {% if obj.is_default %}class="table-success"{% endif %}>
