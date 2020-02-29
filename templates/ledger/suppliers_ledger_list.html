@@ -32,7 +32,7 @@
             <div class="col-lg-6">
               <div class="text-right">
                 <div class="row">
-                  <div class="col-lg-5"></div>
+                  <div class="col-lg-4"></div>
                   <div class="col-lg-4">
                     <select name="supplier" class="fstdropdown-select" id="id_supplier" onChange="onchangeEvent();">
                       <option value="" {% if selected_supplier <= 0 %}selected=""{% endif %}>Select a Supplier</option>
@@ -45,7 +45,7 @@
                       {% endfor %}
                     </select>
                   </div>
-                  <div class="col-lg-3">
+                  <div class="col-lg-4">
                     <a href="/ledger/suppliers/print/?{{ request.GET.urlencode }}" class="btn btn-primary btn-icon-split btn-sm">
                       <span class="icon text-white-50">
                         <i class="fa fa-print"></i>
@@ -111,5 +111,8 @@
         window.location.href = "/ledger/suppliers/?supplier="+selectedSupplier;
       }
     }
+    $(function() {
+      $(".fstselected").addClass("form-control-sm");
+    });
   </script>
 {% endblock %}

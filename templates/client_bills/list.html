@@ -75,9 +75,10 @@
                   <th>Client Name</th>
                   <th>Bill Time</th>
                   <th>Items #</th>
-                  <th>Amount</th>
-                  <th>Previous Amount</th>
-                  <th>Balance</th>
+                  <th>Billed Amount</th>
+                  <th>Billed Payment</th>
+                  <th>Balance Before</th>
+                  <th>Balance After</th>
                   <!-- <th style="width: 120px;padding-top: 30px;">Action</th> -->
                   <th>Action</th>
                 </tr>
@@ -92,7 +93,8 @@
                     <span onclick="showPopover({{obj.id}})" class="badge badge-info" data-toggle="popover" title="Bill Detail" data-placement="top">{{ obj.total_items }}</span>
                   </td>
                   <td>{{ obj.billed_amount }}</td>
-                  <td>{{ obj.billed_amount|add:obj.balance }}</td>
+                  <td>{{ obj.payment.amount }}</td>
+                  <td>{{ obj.previous_amount }}</td>
                   <td>{{ obj.balance }}</td>
                   <td>
                     {% if obj.is_draft %}

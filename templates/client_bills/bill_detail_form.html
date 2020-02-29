@@ -26,7 +26,7 @@
       </div>
 
 
-        <table class="table" id="dataTable" cellspacing="0">
+        <table class="table" id="id_bill_detail_form" cellspacing="0">
           <thead>
             <tr>
               <th width="15%">Billed Amount</th>
@@ -64,7 +64,7 @@
       </div>
       <form action="." method="POST" enctype="multipart/form-data">
         {% include "form_non_field_errors.html" %}
-        <table class="table" id="dataTable" cellspacing="0">
+        <table class="table" id="id_bill_detail_form" cellspacing="0">
           <thead>
             <tr>
               <th width="15%">Item Amount</th>
@@ -182,7 +182,7 @@
           $(".alert-success").slideUp(500);
       });
 
-      $('#dataTable').DataTable({
+      $('#id_bill_detail_form').DataTable({
         "bPaginate": false,
         "dom": '<"clear">',
         "aoColumns": [],

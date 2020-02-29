@@ -26,7 +26,6 @@ class ClientBillListView(CustomLoginRequiredMixin, FilterView):
 
         object_list = context["object_list"]
         object_list = object_list.filter(client__shop=self.request.shop, is_draft=False)
-        #object_list = object_list.annotate(items=Count('billdetail__item'))
         columns = ["id", "client__name", "created_time", "is_draft", "bill_date",
                    "balance", "billed_amount", "payment__amount", "billdetail__rate",
                    "billdetail__item__name", "billdetail__unit", "billdetail__item_count"]
@@ -42,10 +41,11 @@ class ClientBillListView(CustomLoginRequiredMixin, FilterView):
             row_data["bill_date"] = row["bill_date"]
             row_data["balance"] = row["balance"]
             row_data["billed_amount"] = row["billed_amount"]
-            row_data["payment"] = {"amount": row["payment__amount"]}
+            row_data["payment"] = {"amount": row["payment__amount"] or 0}
             row_data["total_items"] = 1
             row_data["billdetail"] = []
 
+            row_data["previous_amount"] = row_data["balance"] - row["billed_amount"] + row_data["payment"]["amount"]
             detail = {}
             detail["item"] = {"name": row["billdetail__item__name"]}
             detail["rate"] = row["billdetail__rate"]
@@ -293,7 +293,11 @@ def done_drafted_bill(request, bill_id):
             billed_amount += detail_obj["rate"] * detail_obj["item_count"]
         bill_obj.is_draft = False
         bill_obj.billed_amount = billed_amount
-        bill_obj.client.current_balance -= billed_amount
+
+        bill_obj.client.current_balance += billed_amount
+        if bill_obj.payment:
+            bill_obj.client.current_balance -= bill_obj.payment.amount
+
         bill_obj.balance = bill_obj.client.current_balance
         bill_obj.client.save()
         bill_obj.save()
