@@ -32,10 +32,9 @@
             </div>
             <div class="col-lg-6">
               <div class="text-right">
-
                 <div class="row">
                   <div class="col-lg-4">
-                    <div class="input-group mb-3">
+                    <div class="input-group input-group-sm mb-3">
                       <input type="text" class="form-control" id="id_bill_date" name="bill_date" value="{{selected_date}}" readonly="">
                       <div class="input-group-append">
                         <span class="input-group-text fa fa-calendar"></span>
@@ -43,7 +42,7 @@
                     </div>
                   </div>
                   <div class="col-lg-4">
-                    <select name="client" class="fstdropdown-select" id="id_client" onChange="onchangeEvent();">
+                    <select name="client" class="fstdropdown-select form-control-sm" id="id_client" onChange="onchangeEvent();">
                       <option value="" {% if selected_supplier <= 0 %}selected=""{% endif %}>Select a Client</option>
                       {% for obj in client_list %}
                         {% if obj.id == selected_client %}
@@ -59,7 +58,7 @@
                       <span class="icon text-white-50">
                         <i class="fa fa-plus"></i>
                       </span>
-                      <span class="text">Add New Client Bill</span>
+                      <span class="text">Add New Bill</span>
                     </a>
                   </div>
                 </div>
@@ -69,7 +68,7 @@
         </div>
         <div class="card-body">
           <div class="table-responsive">
-            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+            <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
               <thead>
                 <tr>
                   <th>ID</th>
@@ -184,20 +183,6 @@
     }
 
     $(function() {
-
-
-        $("#id_test").popover({
-          html: true,
-          content: function() {
-            var content = $(this).attr("data-popover-content");
-            return $(content).children(".popover-body").html();
-          },
-          title: function() {
-            var title = $(this).attr("data-popover-content");
-            return $(title).children(".popover-heading").html();
-          }
-        });
-
       $('#id_bill_date').datepicker({
           format: "yyyy-mm-dd",
           maxViewMode: 0,
@@ -222,6 +207,8 @@
           url = url + "&bill_date=" + selectedDate;
           window.location.href = url
       });
+      
+      $(".fstselected").addClass("form-control-sm");
     });
   </script>
 {% endblock %}

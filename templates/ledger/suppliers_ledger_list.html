@@ -46,7 +46,7 @@
                     </select>
                   </div>
                   <div class="col-lg-3">
-                    <a href="/ledger/suppliers/print/?{{ request.GET.urlencode }}" class="btn btn-primary btn-icon-split">
+                    <a href="/ledger/suppliers/print/?{{ request.GET.urlencode }}" class="btn btn-primary btn-icon-split btn-sm">
                       <span class="icon text-white-50">
                         <i class="fa fa-print"></i>
                       </span>
@@ -60,7 +60,7 @@
         </div>
         <div class="card-body">
           <div class="table-responsive">
-            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+            <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
               <thead>
                 <tr>
                   <th>Remaining Amount</th>
@@ -103,10 +103,6 @@
   <script src="{% static "vendor/datatables/dataTables.bootstrap4.min.js" %}"></script>
   <script src="{% static "js/fstdropdown.js" %}"></script>
   <script>
-    $(function() {
-      $('#dataTable').DataTable();
-    });
-
     function onchangeEvent() {
       var selectedSupplier = $(".fstlist").children(".selected").attr("data-value");
       if (selectedSupplier == "") {

@@ -25,7 +25,7 @@
             </div>
             <div class="col-lg-6">
               <div class="text-right">
-                  <a href="/ledger/ledger-print" class="btn btn-primary btn-icon-split">
+                  <a href="/ledger/ledger-print" class="btn btn-primary btn-icon-split btn-sm">
                     <span class="icon text-white-50">
                       <i class="fa fa-print"></i>
                     </span>
@@ -37,7 +37,7 @@
         </div>
         <div class="card-body">
           <div class="table-responsive">
-            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+            <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
               <thead>
                 <tr>
                   <th>ID</th>
@@ -74,15 +74,4 @@
   <!-- Page level plugins -->
   <script src="{% static "vendor/datatables/jquery.dataTables.js" %}"></script>
   <script src="{% static "vendor/datatables/dataTables.bootstrap4.min.js" %}"></script>
-  <script>
-    $(function() {
-      $('#dataTable').DataTable();
-      $(".alert-success").fadeTo(2000, 500).slideUp(500, function(){
-          $(".alert-success").slideUp(500);
-      });
-      $(".alert-danger").fadeTo(2000, 500).slideUp(500, function(){
-          $(".alert-success").slideUp(500);
-      });
-    })
-  </script>
 {% endblock %}
