@@ -54,7 +54,7 @@
                     </select>
                   </div>
                   <div class="col-lg-4">
-                    <a href="/client-bills/create" class="btn btn-success btn-icon-split btn-sm">
+                    <a href="/client-bills/create/?{{ request.GET.urlencode }}" class="btn btn-success btn-icon-split btn-sm">
                       <span class="icon text-white-50">
                         <i class="fa fa-plus"></i>
                       </span>
@@ -176,12 +176,16 @@
       });
     }
     function onchangeEvent() {
+      var url = "/client-bills/?shop={{request.shop.id}}";
+      var selectedDate = $('#id_bill_date').val();
       var selectedClient = $(".fstlist").children(".selected").attr("data-value");
-      if (selectedClient == "") {
-        window.location.href = "/client-bills/";
-      } else {
-        window.location.href = "/client-bills/?client="+selectedClient;
+      if (selectedClient != "") {
+        url = url + "&client=" + selectedClient;
       }
+      if (selectedDate != "") {
+        url = url + "&bill_date=" + selectedDate;
+      }
+      window.location.href = url
     }
 
     $(function() {
@@ -200,14 +204,7 @@
       });
 
       $('#id_bill_date').change(function () {
-          var selectedDate = $('#id_bill_date').val();
-          var selectedClient = $(".fstlist").children(".selected").attr("data-value");
-          var url = "/client-bills/?";
-          if (selectedClient != "") {
-            url = url + "client=" + selectedClient;
-          }
-          url = url + "&bill_date=" + selectedDate;
-          window.location.href = url
+        onchangeEvent();
       });
       
       $(".fstselected").addClass("form-control-sm");

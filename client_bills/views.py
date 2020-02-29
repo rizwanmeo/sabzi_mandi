@@ -104,8 +104,8 @@ class ClientBillCreateView(CustomCreateView):
         msg %= form.instance.client.name
         messages.add_message(self.request, messages.INFO, msg)
         obj = ClientBill.objects.get(client=form.instance.client, is_draft=True)
-        success_url = "/client-bills/%d/detail-create/" % obj.pk
-        return HttpResponseRedirect(success_url)
+        success_url = "/client-bills/%d/detail-create/?shop_id=%d"
+        return HttpResponseRedirect(success_url % (self.object.pk, self.request.shop.pk))
 
     def get_context_data(self, **kwargs):
         context = super(ClientBillCreateView, self).get_context_data(**kwargs)
@@ -131,8 +131,8 @@ class ClientBillUpdateView(CustomUpdateView):
         msg %= form.instance.client.name
         messages.add_message(self.request, messages.INFO, msg)
 
-        success_url = "/client-bills/%d/detail-create/" % self.object.pk
-        return HttpResponseRedirect(success_url)
+        success_url = "/client-bills/%d/detail-create/?shop_id=%d"
+        return HttpResponseRedirect(success_url % (self.object.pk, self.request.shop.pk))
 
     def get_context_data(self, **kwargs):
         context = super(ClientBillUpdateView, self).get_context_data(**kwargs)
@@ -283,7 +283,7 @@ def done_drafted_bill(request, bill_id):
     except:
         raise Http404
 
-    redirect_url = "/client-bills"
+    redirect_url = "/client-bills/?shop_id=%d" % request.shop.pk
     if request.method == "POST":
         billed_amount = 0
         billdetail_vs = bill_obj.billdetail_set.values("rate", "item_count")
@@ -302,7 +302,7 @@ def done_drafted_bill(request, bill_id):
         msg = 'Client: [%s] Bill was done succfully.' % bill_obj.client.name
         messages.add_message(request, messages.INFO, msg)
     else:
-        redirect_url = "/client-bills/%d/detail-create/" % bill_id
+        redirect_url = "/client-bills/%d/detail-create/?shop_id=%d" % (bill_id, request.shop.pk)
     return HttpResponseRedirect(redirect_url)
 
 
