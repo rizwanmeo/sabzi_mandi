@@ -7,21 +7,19 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, Http404, JsonResponse
-from django.views.generic import CreateView, UpdateView, DeleteView
 
-from .models import *
 from .forms import *
-from django_filters.views import FilterView
-from sabzi_mandi.views import CustomLoginRequiredMixin
+from .models import *
+from sabzi_mandi.views import *
 
 
-class ClientPaymentListView(CustomLoginRequiredMixin, FilterView):
+class ClientPaymentListView(CustomListView):
     model = ClientPayment
     template_name = "payments/client_payment_list.html"
     filterset_fields = ["client__name"]
 
 
-class ClientPaymentCreateView(CustomLoginRequiredMixin, CreateView):
+class ClientPaymentCreateView(CustomCreateView):
     model = ClientPayment
     success_url = "/payment/clients"
     template_name = "payments/client_payment_form.html"
@@ -41,17 +39,19 @@ class ClientPaymentCreateView(CustomLoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         super(ClientPaymentCreateView, self).form_valid(form)
+        form.instance.client.current_balance -= form.instance.amount
+        form.instance.client.save()
         msg = 'Client Payment: [%s] was creates succefully.' % form.instance.client.name
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())
 
 
-class SupplierPaymentListView(CustomLoginRequiredMixin, FilterView):
+class SupplierPaymentListView(CustomListView):
     model = SupplierPayment
     template_name = "payments/supplier_payment_list.html"
     filterset_fields = ["supplier__name"]
 
-class SupplierPaymentCreateView(CustomLoginRequiredMixin, CreateView):
+class SupplierPaymentCreateView(CustomCreateView):
     model = SupplierPayment
     success_url = "/payment/suppliers"
     template_name = "payments/supplier_payment_form.html"

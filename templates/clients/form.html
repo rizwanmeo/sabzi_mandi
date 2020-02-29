@@ -17,7 +17,7 @@
       <div class="text-center text-primary">
         <h1 class="h4 text-primary-900 mb-4 font-weight-bold">Create New Client</h1>
       </div>
-      <form action="." method="POST" enctype="multipart/form-data">
+      <form action="{{request.get_full_path}}" method="POST" enctype="multipart/form-data">
         {% include "form_non_field_errors.html" %}
         {% include "fields.html" with field=form.name field_label="Client Name" %}
         {% include "fields.html" with field=form.cnic field_label="CNIC Number" %}

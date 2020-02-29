@@ -106,7 +106,7 @@
     function onchangeEvent() {
       var selectedSupplier = $(".fstlist").children(".selected").attr("data-value");
       if (selectedSupplier == "") {
-        window.location.href = "/ledger/suppliers/";
+        window.location.href = "/ledger/suppliers/?";
       } else {
         window.location.href = "/ledger/suppliers/?supplier="+selectedSupplier;
       }

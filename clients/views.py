@@ -4,13 +4,11 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, Http404, JsonResponse
-from django.views.generic import CreateView, UpdateView, DeleteView
 
 from .models import *
-from django_filters.views import FilterView
-from sabzi_mandi.views import CustomLoginRequiredMixin
+from sabzi_mandi.views import *
 
-class ClientListView(CustomLoginRequiredMixin, FilterView):
+class ClientListView(CustomListView):
     model = Client
     template_name = "clients/list.html"
     filterset_fields = ["name"]
@@ -22,7 +20,7 @@ class ClientListView(CustomLoginRequiredMixin, FilterView):
         context["object_list"] = object_list
         return context
 
-class ClientCreateView(CustomLoginRequiredMixin, CreateView):
+class ClientCreateView(CustomCreateView):
     model = Client
     success_url = "/clients"
     template_name = "clients/form.html"
@@ -36,7 +34,7 @@ class ClientCreateView(CustomLoginRequiredMixin, CreateView):
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())
 
-class ClientUpdateView(CustomLoginRequiredMixin, UpdateView):
+class ClientUpdateView(CustomUpdateView):
     model = Client
     success_url = "/clients"
     template_name = "clients/form.html"

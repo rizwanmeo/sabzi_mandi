@@ -6,13 +6,11 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, Http404, JsonResponse
-from django.views.generic import CreateView, UpdateView, DeleteView
 
 from .models import *
-from django_filters.views import FilterView
-from sabzi_mandi.views import CustomLoginRequiredMixin
+from sabzi_mandi.views import *
 
-class SupplierListView(FilterView, CustomLoginRequiredMixin):
+class SupplierListView(CustomListView):
     model = Supplier
     template_name = "suppliers/list.html"
     filterset_fields = ["name"]
@@ -24,7 +22,7 @@ class SupplierListView(FilterView, CustomLoginRequiredMixin):
         context["object_list"] = object_list
         return context
 
-class SupplierCreateView(CustomLoginRequiredMixin, CreateView):
+class SupplierCreateView(CustomCreateView):
     model = Supplier
     success_url = "/suppliers"
     template_name = "suppliers/form.html"
@@ -38,7 +36,7 @@ class SupplierCreateView(CustomLoginRequiredMixin, CreateView):
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())
 
-class SupplierUpdateView(CustomLoginRequiredMixin, UpdateView):
+class SupplierUpdateView(CustomUpdateView):
     model = Supplier
     success_url = "/suppliers"
     template_name = "suppliers/form.html"

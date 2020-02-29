@@ -6,16 +6,14 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, Http404, JsonResponse
-from django.views.generic import CreateView, UpdateView, DeleteView
 
-from .models import *
 from .forms import *
+from .models import *
 from clients.models import Client
 
-from django_filters.views import FilterView
-from sabzi_mandi.views import CustomLoginRequiredMixin
+from sabzi_mandi.views import *
 
-class ClientBillListView(CustomLoginRequiredMixin, FilterView):
+class ClientBillListView(CustomListView):
     model = ClientBill
     template_name = "client_bills/list.html"
     filterset_fields = ["client"]
@@ -82,7 +80,7 @@ def get_client_choices(form, shop_id):
     choices += list(client_qs.values_list("id", "name"))
     return choices
 
-class ClientBillCreateView(CustomLoginRequiredMixin, CreateView):
+class ClientBillCreateView(CustomCreateView):
     model = ClientBill
     form_class = ClientBillForm
     success_url = "/client-bills"
@@ -117,7 +115,7 @@ class ClientBillCreateView(CustomLoginRequiredMixin, CreateView):
         form.fields["bill_date"].initial = datetime.date.today().strftime("%Y-%m-%d")
         return context
 
-class ClientBillUpdateView(CustomLoginRequiredMixin, UpdateView):
+class ClientBillUpdateView(CustomUpdateView):
     model = ClientBill
     form_class = ClientBillForm
     success_url = "/client-bills"
@@ -145,7 +143,7 @@ class ClientBillUpdateView(CustomLoginRequiredMixin, UpdateView):
         form.initial["bill_date"] = form.initial["bill_date"].strftime("%Y-%m-%d")
         return context
 
-class ClientBillDeleteView(CustomLoginRequiredMixin, DeleteView):
+class ClientBillDeleteView(CustomDeleteView):
     model = ClientBill
     success_url = "/client-bills"
 
@@ -160,7 +158,7 @@ class ClientBillDeleteView(CustomLoginRequiredMixin, DeleteView):
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())
 
-class BillDetailCreateView(CustomLoginRequiredMixin, CreateView):
+class BillDetailCreateView(CustomCreateView):
     model = BillDetail
     template_name = "client_bills/bill_detail_form.html"
     fields = ["item", "unit", "rate", "item_count"]

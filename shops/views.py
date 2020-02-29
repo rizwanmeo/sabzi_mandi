@@ -2,20 +2,18 @@ from django.contrib import messages
 
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
-from django.views.generic import CreateView, UpdateView, DeleteView
-from django_filters.views import FilterView
 
 from .models import *
-from sabzi_mandi.views import CustomLoginRequiredMixin
+from sabzi_mandi.views import *
 
 
-class ShopListView(CustomLoginRequiredMixin, FilterView):
+class ShopListView(CustomListView):
     model = Shop
     template_name = "shops/list.html"
     filterset_fields = ["name"]
 
 
-class ShopCreateView(CustomLoginRequiredMixin, CreateView):
+class ShopCreateView(CustomCreateView):
     model = Shop
     success_url = "/shops"
     template_name = "shops/form.html"
@@ -30,7 +28,7 @@ class ShopCreateView(CustomLoginRequiredMixin, CreateView):
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())
 
-class ShopUpdateView(CustomLoginRequiredMixin, UpdateView):
+class ShopUpdateView(CustomUpdateView):
     model = Shop
     success_url = "/shops"
     template_name = "shops/form.html"

@@ -17,7 +17,7 @@
       <div class="text-center">
         <h1 class="h4 text-gray-900 mb-4">{% if form.instance.pk %}Update{% else %}Create{% endif %} New Shop</h1>
       </div>
-      <form action="." method="POST" enctype="multipart/form-data">
+      <form action="{{request.get_full_path}}" method="POST" enctype="multipart/form-data">
         {% include "form_non_field_errors.html" %}
         {% include "fields.html" with field=form.name field_label="Shop Name" %}
         {% include "fields.html" with field=form.phone field_label="Phone Number" %}

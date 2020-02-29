@@ -49,20 +49,17 @@
                 </a>
               </th>
           </tfoot>
-
-            
           </div>
         </div>
         <div class="col-lg-2">
           <div class="form-group">
             <label class="col-form-label font-weight-bold"></label>
-            
           </div>
         </div>
         <div class="col-lg-1">
         </div>
       </div>
-      <form action="." method="POST" enctype="multipart/form-data">
+      <form action="{{request.get_full_path}}" method="POST" enctype="multipart/form-data">
         {% include "form_non_field_errors.html" %}
         <table class="table" id="id_bill_detail_form" cellspacing="0">
           <thead>
@@ -143,9 +140,7 @@
           </tbody>
         </table>
       </form>
-
-
-      <form action="/client-bills/{{request.bill.id}}/done/" method="POST" enctype="multipart/form-data">
+      <form action="/client-bills/{{request.bill.id}}/done/?{{request.GET.urlencode}}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="form-group row">
           <div class="col-sm-2"></div>
@@ -161,7 +156,6 @@
           </div>
         </div>
       </form>
-
     </div>
   </div>
 </div>
