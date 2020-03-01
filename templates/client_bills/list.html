@@ -176,7 +176,7 @@
       });
     }
     function onchangeEvent() {
-      var url = "/client-bills/?shop={{request.shop.id}}";
+      var url = "/client-bills/?shop_id={{request.shop.id}}";
       var selectedDate = $('#id_bill_date').val();
       var selectedClient = $(".fstlist").children(".selected").attr("data-value");
       if (selectedClient != "") {

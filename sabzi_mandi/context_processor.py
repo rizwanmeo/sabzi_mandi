@@ -1,10 +1,12 @@
+import datetime
+
 from shops.models import Shop
 
 def default_shop(request):
     """ 
     Adds Player to context
     """
-    context = {}
+    context = {"today": datetime.date.today().strftime("%Y-%m-%d")}
     shop_id = request.GET.get('shop_id', 0)
     if request.user.is_authenticated:
         shop_qs = request.user.shop_set.all()

@@ -20,7 +20,7 @@
 
   <!-- Nav Item - Dashboard -->
   <li class="nav-item active">
-    <a class="nav-link" href="/?{{ request.GET.urlencode }}">
+    <a class="nav-link" href="/?shop_id={{ request.shop.id }}">
       <i class="fas fa-fw fa-tachometer-alt"></i>
       <span>Dashboard</span>
     </a>
@@ -31,7 +31,7 @@
 
   <!-- Nav Item - Pages Collapse Menu -->
   <li class="nav-item">
-    <a class="nav-link" href="/shops/?{{ request.GET.urlencode }}">
+    <a class="nav-link" href="/shops/?shop_id={{ request.shop.id }}">
       <i class="fas fa-fw fa-cog"></i>
       <span>Shops</span>
     </a>
@@ -39,7 +39,7 @@
 
   <!-- Nav Item - Pages Collapse Menu -->
   <li class="nav-item">
-    <a class="nav-link" href="/suppliers/?{{ request.GET.urlencode }}">
+    <a class="nav-link" href="/suppliers/?shop_id={{ request.shop.id }}">
       <i class="fas fa-fw fa-cog"></i>
       <span>Supplier</span>
     </a>
@@ -47,7 +47,7 @@
 
   <!-- Nav Item - Utilities Collapse Menu -->
   <li class="nav-item">
-    <a class="nav-link" href="/clients/?{{ request.GET.urlencode }}">
+    <a class="nav-link" href="/clients/?shop_id={{ request.shop.id }}">
       <i class="fas fa-fw fa-wrench"></i>
       <span>Clients</span>
     </a>
@@ -58,7 +58,7 @@
 
   <!-- Nav Item - Pages Collapse Menu -->
   <li class="nav-item">
-    <a class="nav-link" href="/client-bills/?{{ request.GET.urlencode }}">
+    <a class="nav-link" href="/client-bills/?shop_id={{ request.shop.id }}&bill_date={{today}}">
       <i class="fas fa-file-invoice"></i>
       <span>Bill To Client</span>
     </a>
@@ -72,8 +72,8 @@
     </a>
     <div id="collapseLadger" class="collapse" aria-labelledby="headingLadger" data-parent="#accordionSidebar">
       <div class="py-2 collapse-inner rounded">
-        <a class="collapse-item" href="/ledger/suppliers/?{{ request.GET.urlencode }}">Supplier</a>
-        <a class="collapse-item" href="/ledger/clients/?{{ request.GET.urlencode }}">Client</a>
+        <a class="collapse-item" href="/ledger/suppliers/?shop_id={{ request.shop.id }}">Supplier</a>
+        <a class="collapse-item" href="/ledger/clients/?shop_id={{ request.shop.id }}">Client</a>
       </div>
     </div>
   </li>
@@ -86,8 +86,8 @@
     </a>
     <div id="collapsePayment" class="collapse" aria-labelledby="headingPayment" data-parent="#accordionSidebar">
       <div class="py-2 collapse-inner rounded">
-        <a class="collapse-item" href="/payment/suppliers/?{{ request.GET.urlencode }}">Supplier</a>
-        <a class="collapse-item" href="/payment/clients/?{{ request.GET.urlencode }}">Client</a>
+        <a class="collapse-item" href="/payment/suppliers/?shop_id={{ request.shop.id }}">Supplier</a>
+        <a class="collapse-item" href="/payment/clients/?shop_id={{ request.shop.id }}">Client</a>
       </div>
     </div>
   </li>

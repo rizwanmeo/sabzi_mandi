@@ -16,11 +16,10 @@ from sabzi_mandi.views import *
 class ClientBillListView(CustomListView):
     model = ClientBill
     template_name = "client_bills/list.html"
-    filterset_fields = ["client"]
+    filterset_fields = ["client", "bill_date"]
 
     def get_context_data(self, **kwargs):
         context = super(ClientBillListView, self).get_context_data(**kwargs)
-
 
         object_list = context["object_list"]
         object_list = object_list.filter(client__shop=self.request.shop, is_draft=False)
