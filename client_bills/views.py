@@ -309,8 +309,20 @@ def done_drafted_bill(request, bill_id):
 @login_required(login_url='/login/')
 def print_bill(request, bill_id):
     context = {}
-    if request.method == "GET":
+
+    try:
         obj = ClientBill.objects.get(id=int(bill_id), is_draft=False)
+    except:
+        raise Http404
+
+    if request.method == "GET":
+
+        if obj.payment:
+            obj.previous_balance = obj.balance - obj.billed_amount + obj.payment.amount
+        else:
+            obj.previous_balance = obj.balance - obj.billed_amount
+        obj.after_bill_balance = obj.previous_balance + obj.billed_amount
+
         context["obj"] = obj
         qs = obj.billdetail_set.all()
         vs = list(qs.values("item__name", "unit", "rate", "item_count"))
