@@ -170,8 +170,8 @@ class BillDetailCreateView(CustomCreateView):
         form.instance.bill = self.request.bill
         super(BillDetailCreateView, self).form_valid(form)
         msg = 'Client: [%s] bill detail was added succfully.' % self.request.bill.client.name
-        success_url = "/client-bills/%d/detail-create/" % self.request.bill.pk
-        return HttpResponseRedirect(success_url)
+        success_url = "/client-bills/%d/detail-create/?shop_id=%d"
+        return HttpResponseRedirect(success_url % (self.request.bill.pk, self.request.shop.pk))
 
     def get_context_data(self, **kwargs):
         context = super(BillDetailCreateView, self).get_context_data(**kwargs)
