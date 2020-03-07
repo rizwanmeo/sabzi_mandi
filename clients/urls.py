@@ -12,4 +12,5 @@ urlpatterns = [
 
     # client update view url
     re_path(r'^(?P<pk>\d+)/update/$', views.ClientUpdateView.as_view(), name='^clients_update$'),
+    re_path(r'^(?P<pk>\d+)/delete/$', views.ClientDeleteView.as_view(), name='^clients_delete$'),
 ]

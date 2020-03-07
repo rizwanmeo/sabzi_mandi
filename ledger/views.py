@@ -8,7 +8,7 @@ from django_filters.filterset import filterset_factory
 from clients.models import Client
 from suppliers.models import Supplier
 from client_bills.models import ClientBill
-from payments.models import SupplierPayment
+from payments.models import ClientPayment, SupplierPayment
 
 
 def get_suppliers_ledger_data(request):
@@ -60,37 +60,42 @@ def get_client_ledger_data(request):
         data = {}
         qs = Client.objects.filter(shop=request.shop)
         qs = qs.filter(~Q(current_balance=0))
-        vs = list(qs.values('name', 'id', 'current_balance'))
-
-        for obj in vs:
+        client_vs = list(qs.values('id', 'name', 'current_balance'))
+        for obj in client_vs:
             pk = obj["id"]
             name = obj["name"]
-            balance = obj["current_balance"]
-            data[pk] = {"id": pk, "name": name, "balance": balance}
+            current_balance = obj["current_balance"]
+            data[pk] = {"id": pk, "name": name, "previous_balance": 0,
+                        "current_balance": current_balance, "payment": 0,
+                        "billed_amount": 0}
 
-        bill_date = request.GET.get("bill_date", "")
-        if bill_date:
-            qs = ClientBill.objects.filter(bill_date=bill_date)
-        else:
-            today = datetime.date.today()
-            qs = ClientBill.objects.filter(bill_date=today)
+        today = datetime.date.today()
+        bill_kwargs = {"client__shop": request.shop}
+        bill_kwargs = {"client__shop": request.shop, "created_time__gte": today}
+        bill_qs = ClientBill.objects.filter(**bill_kwargs)
 
-        qs = qs.order_by("-id")
-        vs = list(qs.values("client_id", "billed_amount", "balance", "payment__amount"))
-        for obj in vs:
-            pk = obj["client_id"]
-            data[pk]["balance"] = obj["balance"]
-            try:
-                data[pk]["payment"] += obj["payment__amount"]
-            except KeyError:
-                data[pk]["payment"] = obj["payment__amount"]
-            try:
-                data[pk]["amount"] += obj["billed_amount"]
-            except KeyError:
-                data[pk]["amount"] = obj["billed_amount"]
+        payment_kwargs = {"client__shop": request.shop, "payment_time__gte": today}
+        payment_qs = ClientPayment.objects.filter(**payment_kwargs)
 
-        vs = list(data.values())
-        context["ledger_list"] = vs
+        bill_qs = bill_qs.order_by("id")
+        bill_vs = list(bill_qs.values("client_id", "billed_amount", "created_time"))
+        for obj in bill_vs:
+            client_id = obj["client_id"]
+            data[client_id]["billed_amount"] += obj["billed_amount"]
+
+        payment_qs = list(payment_qs.values("client_id", "amount"))
+        for obj in payment_qs:
+            client_id = obj["client_id"]
+            data[client_id]["payment"] += obj["amount"]
+
+        ledger_list = []
+        for pk in data:
+            billed_amount = data[client_id]["billed_amount"]
+            current_balance = data[pk]["current_balance"]
+            data[pk]["previous_balance"] = current_balance - billed_amount
+            ledger_list.append(data[pk])
+
+        context["ledger_list"] = ledger_list
     return context
 
 @login_required(login_url='/login/')

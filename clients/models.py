@@ -5,3 +5,6 @@ from sabzi_mandi.models import BasicInfo
 
 class Client(BasicInfo):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = [('shop', 'name')]

@@ -42,10 +42,10 @@
                 <tr>
                   <th>ID</th>
                   <th>Client Name</th>
-                  <th>Previous</th>
-                  <th>New</th>
-                  <th>Total</th>
+                  <th>Previous Amount</th>
+                  <th>Bill Amount</th>
                   <th>Payment</th>
+                  <th>Total Amount</th>
                 </tr>
               </thead>
               <tbody>
@@ -53,10 +53,10 @@
                 <tr>
                   <td>{{ obj.id }}</td>
                   <td>{{ obj.name }}</td>
-                  <td>{{ obj.balance }}</td>
-                  <td>{{ obj.amount }}</td>
-                  <td>{{ obj.total }}</td>
-                  <td>{{ obj.payment }}</td>
+                  <td>{{ obj.previous_balance }}</td>
+                  <td>{% if obj.billed_amount %}{{ obj.billed_amount }}{% endif %}</td>
+                  <td>{% if obj.payment %}{{ obj.payment }}{% endif %}</td>
+                  <td>{{ obj.current_balance }}</td>
                 </tr>
                 {% endfor %}
               </tbody>

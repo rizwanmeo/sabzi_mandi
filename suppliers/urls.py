@@ -1,6 +1,5 @@
 from django.urls import re_path
 
-
 from . import views
 
 urlpatterns = [
@@ -12,4 +11,7 @@ urlpatterns = [
 
     # supplier update view url
     re_path(r'^(?P<pk>\d+)/update/$', views.SupplierUpdateView.as_view(), name='^suppliers_update$'),
+
+    # supplier delete view url
+    re_path(r'^(?P<pk>\d+)/delete/$', views.SupplierDeleteView.as_view(), name='^suppliers_delete$'),
 ]

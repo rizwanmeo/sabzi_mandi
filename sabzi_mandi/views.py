@@ -7,7 +7,16 @@ class CustomLoginRequiredMixin(LoginRequiredMixin):
     login_url = "/login"
 
 class CustomListView(CustomLoginRequiredMixin, FilterView):
-    pass
+    shop_lookup = ""
+
+    def get_context_data(self, **kwargs):
+        context = super(CustomListView, self).get_context_data(**kwargs)
+        object_list = context["object_list"]
+        if self.shop_lookup:
+            filter_kwargs = {self.shop_lookup: self.request.shop}
+            object_list = object_list.filter(**filter_kwargs)
+        context["object_list"] = object_list
+        return context
 
 class CustomViewMixin(object):
     def get_success_url(self):
@@ -21,4 +30,5 @@ class CustomUpdateView(CustomLoginRequiredMixin, CustomViewMixin, UpdateView):
     pass
 
 class CustomDeleteView(CustomLoginRequiredMixin, CustomViewMixin, DeleteView):
-    pass
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)

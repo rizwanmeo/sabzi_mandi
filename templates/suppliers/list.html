@@ -44,7 +44,6 @@
                   <th>Supplier Name</th>
                   <th>CNIC</th>
                   <th>Phone</th>
-                  <th>address</th>
                   <th>Opening Balance</th>
                   <th>Current Balance</th>
                   <th>Action</th>
@@ -57,15 +56,14 @@
                   <td>{{ obj.name }}</td>
                   <td>{% if obj.cnic %}{{ obj.cnic }}{% endif %}</td>
                   <td>{% if obj.phone %}{{ obj.phone }}{% endif %}</td>
-                  <td>{% if obj.address %}{{ obj.address }}{% endif %}</td>
                   <td>{{ obj.opening_balance }}</td>
                   <td>{{ obj.current_balance }}</td>
                   <td>
                     <div class="btn-group" role="group" aria-label="Basic example">
-                      <a href="/suppliers/{{obj.id}}/delete" class="btn btn-sm btn-danger">
+                      <button type="button" onclick="showDeleteConfirmation({{obj.id}})" class="btn btn-danger btn-sm">
                         <i class="fas fa-trash"></i>
-                      </a>
-                      <a href="/suppliers/{{obj.id}}/update" class="btn btn-sm btn-primary">
+                      </button>
+                      <a href="/suppliers/{{obj.id}}/update/?{{ request.GET.urlencode }}" class="btn btn-sm btn-primary">
                         <i class="fas fa-edit"></i>
                       </a>
                     </div>
@@ -80,6 +78,29 @@
     </div>
   </div>
 </div>
+
+<!-- Logout Modal-->
+<div class="modal fade" id="id_delete_confirmation" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalLabel">Delete Select Bill!</h5>
+        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete selected supplier.
+      </div>
+      <div class="modal-footer ">
+        <a id="id_delete" href="" class="btn btn-success">
+          Yes
+        </a>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block javascript %}
@@ -87,4 +108,10 @@
   <!-- Page level plugins -->
   <script src="{% static "vendor/datatables/jquery.dataTables.js" %}"></script>
   <script src="{% static "vendor/datatables/dataTables.bootstrap4.min.js" %}"></script>
+  <script>
+    function showDeleteConfirmation(Id) {
+      $("#id_delete_confirmation").modal('show');
+      $("#id_delete").attr('href', "/suppliers/"+Id+"/delete/?{{ request.GET.urlencode }}");
+    }
+  </script>
 {% endblock %}

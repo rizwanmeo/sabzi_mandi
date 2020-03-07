@@ -17,12 +17,16 @@ class ClientBillListView(CustomListView):
     model = ClientBill
     template_name = "client_bills/list.html"
     filterset_fields = ["client", "bill_date"]
+    shop_lookup = "client__shop"
 
     def get_context_data(self, **kwargs):
         context = super(ClientBillListView, self).get_context_data(**kwargs)
 
         object_list = context["object_list"]
-        object_list = object_list.filter(client__shop=self.request.shop, is_draft=False)
+        object_list = object_list.filter(is_draft=False)
+        if self.request.GET.get("bill_date") is None:
+            today = datetime.date.today().strftime("%Y-%m-%d")
+            object_list = object_list.filter(bill_date=today)
         columns = ["id", "client__name", "created_time", "is_draft", "bill_date",
                    "balance", "billed_amount", "payment__amount", "billdetail__rate",
                    "billdetail__item__name", "billdetail__unit", "billdetail__item_count"]
@@ -58,7 +62,6 @@ class ClientBillListView(CustomListView):
                 data[row["id"]] = row_data
 
         context["object_list"] = data.values()
-
         client_id = self.request.GET.get("client", "")
         client_id=int(client_id) if client_id.isdigit() else 0
         qs = Client.objects.filter(shop=self.request.shop)
@@ -90,13 +93,16 @@ class ClientBillCreateView(CustomCreateView):
         form.instance.is_draft = True
         payment_amount = form.cleaned_data.get("payment", 0)
         description = "payment received against bill on %s" % today.strftime("%Y-%m-%d")
-        payment_obj = ClientPayment()
-        payment_obj.client = form.instance.client
-        payment_obj.payment_date = today
-        payment_obj.amount = payment_amount
-        payment_obj.description = description
-        payment_obj.save()
-        form.instance.payment = payment_obj
+        # Only create when payment amount > 0
+        if payment_amount > 0:
+            payment_obj = ClientPayment()
+            payment_obj.client = form.instance.client
+            payment_obj.payment_date = today
+            payment_obj.amount = payment_amount
+            payment_obj.description = description
+            payment_obj.save()
+            form.instance.payment = payment_obj
+
         ClientBill.objects.filter(client=form.instance.client, is_draft=True).delete()
         super(ClientBillCreateView, self).form_valid(form)
         msg = 'Client: [%s] bill was added succfully. Please add bill detail'
@@ -246,34 +252,6 @@ def client_bill_detail(request, client_id, bill_id=0):
         else:
             return JsonResponse({"status": False, "errors": form.errors})
     return JsonResponse({"status": False, "description": "Invalid request"})
-
-@login_required(login_url='/login/')
-def get_drafted_bill(request, client_id):
-    data = {}
-    draft_bills = []
-    if request.method == "GET":
-        client = Client.objects.get(id=client_id)
-        kwargs = {
-            "client_id":      client_id,
-            "client__shop":   request.shop,
-            "is_draft":       True}
-        client_qs = ClientBill.objects.filter(**kwargs).order_by("-created_time")
-        for obj in client_qs[:10]:
-            draft_bill = {}
-            billdetail_vs = list(obj.billdetail_set.values("rate", "item_count"))
-            item_count = len(billdetail_vs)
-            if item_count == 0: continue
-            draft_bill["bill_id"] = obj.id
-            draft_bill["billed_amount"] = 0
-            draft_bill["item_count"] = item_count
-            draft_bill["created_time"] = obj.created_time.strftime("%d %b, %Y %I:%M%p")
-            for detail_obj in billdetail_vs:
-                draft_bill["billed_amount"] += detail_obj["rate"] * detail_obj["item_count"]
-            draft_bills.append(draft_bill)
-        data["draft_bills"] = draft_bills
-        data["balance"] = client.current_balance
-
-    return JsonResponse({"status": True, "data": data})
 
 @login_required(login_url='/login/')
 def done_drafted_bill(request, bill_id):

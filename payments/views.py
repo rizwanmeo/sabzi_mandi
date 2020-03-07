@@ -17,7 +17,7 @@ class ClientPaymentListView(CustomListView):
     model = ClientPayment
     template_name = "payments/client_payment_list.html"
     filterset_fields = ["client__name"]
-
+    shop_lookup = "client__shop"
 
 class ClientPaymentCreateView(CustomCreateView):
     model = ClientPayment
@@ -50,6 +50,7 @@ class SupplierPaymentListView(CustomListView):
     model = SupplierPayment
     template_name = "payments/supplier_payment_list.html"
     filterset_fields = ["supplier__name"]
+    shop_lookup = "supplier__shop"
 
 class SupplierPaymentCreateView(CustomCreateView):
     model = SupplierPayment

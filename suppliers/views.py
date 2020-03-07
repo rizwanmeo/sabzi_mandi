@@ -14,13 +14,7 @@ class SupplierListView(CustomListView):
     model = Supplier
     template_name = "suppliers/list.html"
     filterset_fields = ["name"]
-
-    def get_context_data(self, **kwargs):
-        context = super(SupplierListView, self).get_context_data(**kwargs)
-        object_list = context["object_list"]
-        object_list = object_list.filter(shop=self.request.shop)
-        context["object_list"] = object_list
-        return context
+    shop_lookup = "shop"
 
 class SupplierCreateView(CustomCreateView):
     model = Supplier
@@ -46,5 +40,15 @@ class SupplierUpdateView(CustomUpdateView):
         form.instance.last_modified = datetime.datetime.now()
         super(SupplierUpdateView, self).form_valid(form)
         msg = 'Supplier: [%s] was updated succfully.' % form.instance.name
+        messages.add_message(self.request, messages.INFO, msg)
+        return HttpResponseRedirect(self.get_success_url())
+
+class SupplierDeleteView(CustomDeleteView):
+    model = Supplier
+    success_url = "/suppliers"
+
+    def delete(self, request, *args, **kwargs):
+        super(SupplierDeleteView, self).delete(request, *args, **kwargs)
+        msg = 'Supplier: [%s] was delete succfully.' % self.object.name
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())

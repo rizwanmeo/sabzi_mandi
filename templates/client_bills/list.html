@@ -98,7 +98,7 @@
                   <td>{{ obj.balance }}</td>
                   <td>
                     {% if obj.is_draft %}
-                      <button type="button" onclick="showDeleteConfirmation({{obj.id}})"  class="btn btn-danger btn-sm">
+                      <button type="button" onclick="showDeleteConfirmation({{obj.id}})" class="btn btn-danger btn-sm">
                         <i class="fas fa-trash"></i>
                       </button>
                       <a href="/client-bills/{{obj.id}}/update" class="btn btn-primary btn-sm">

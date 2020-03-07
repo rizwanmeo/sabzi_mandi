@@ -11,7 +11,7 @@ class UpdatedInfo(models.Model):
         abstract = True
 
 class BasicInfo(UpdatedInfo):
-    name = models.CharField(max_length=200, unique=True)
+    name = models.CharField(max_length=200)
     cnic = models.CharField(max_length=16, blank=True, null=True)
     phone = models.CharField(max_length=16, blank=True, null=True)
     address = models.CharField(max_length=264, blank=True, null=True)
@@ -24,6 +24,7 @@ class BasicInfo(UpdatedInfo):
 class PaymentMixin(models.Model):
     amount = models.IntegerField()
     payment_date = models.DateField()
+    payment_time = models.DateTimeField(default=timezone.now, editable=False)
 
     class Meta:
         abstract = True

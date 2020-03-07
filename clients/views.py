@@ -12,13 +12,7 @@ class ClientListView(CustomListView):
     model = Client
     template_name = "clients/list.html"
     filterset_fields = ["name"]
-
-    def get_context_data(self, **kwargs):
-        context = super(ClientListView, self).get_context_data(**kwargs)
-        object_list = context["object_list"]
-        object_list = object_list.filter(shop=self.request.shop)
-        context["object_list"] = object_list
-        return context
+    shop_lookup = "shop"
 
 class ClientCreateView(CustomCreateView):
     model = Client
@@ -44,5 +38,18 @@ class ClientUpdateView(CustomUpdateView):
         form.instance.last_modified = datetime.datetime.now()
         super(ClientUpdateView, self).form_valid(form)
         msg = 'Client: [%s] was updated succfully.' % form.instance.name
+        messages.add_message(self.request, messages.INFO, msg)
+        return HttpResponseRedirect(self.get_success_url())
+
+class ClientDeleteView(CustomDeleteView):
+    model = Client
+    success_url = "/clients"
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        super(ClientDeleteView, self).delete(request, *args, **kwargs)
+        msg = 'Client: [%s] was delete succfully.' % self.object.name
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())
