@@ -29,20 +29,20 @@
         <table class="table" id="id_bill_detail_form" cellspacing="0">
           <thead>
             <tr>
-              <th width="15%">Billed Amount</th>
-              <th width="15%">Previous Amount</th>
-              <th width="15%">Payment</th>
-              <th width="20%">Bill Date</th>
               <th width="25%">Client Name</th>
+              <th width="20%">Bill Date</th>
+              <th width="15%">Payment</th>
+              <th width="15%">Previous Amount</th>
+              <th width="15%">Billed Amount</th>
               <th width="10%">Action</th>
             </tr>
           </thead>
           <tfoot>
-              <th><input type="text" class="form-control" id="id_billed_amount" name="billed_amount" data-amount="{{billed_amount}}" value="{{billed_amount}}" readonly></th>
-              <th><input type="text" class="form-control" id="id_client" name="client" value="{{request.bill.client.current_balance}}" readonly></th>
-              <th><input type="text" class="form-control" id="id_client" name="client" value="{{request.bill.payment.amount}}" readonly></th>
-              <th><input type="text" class="form-control" id="id_client" name="client" value="{{request.bill.bill_date}}" readonly></th>
               <th><input type="text" class="form-control text-right" id="id_client" name="client" value="{{request.bill.client.name}}" readonly></th>
+              <th><input type="text" class="form-control" id="id_client" name="client" value="{{request.bill.bill_date}}" readonly></th>
+              <th><input type="text" class="form-control" id="id_client" name="client" value="{% if request.bill.payment %}{{request.bill.payment.amount}}{% else %}0{% endif %}" readonly></th>
+              <th><input type="text" class="form-control" id="id_client" name="client" value="{{request.bill.client.current_balance}}" readonly></th>
+              <th><input type="text" class="form-control" id="id_billed_amount" name="billed_amount" data-amount="{{billed_amount}}" value="{{billed_amount}}" readonly></th>
               <th>
                 <a href="/client-bills/{{request.bill.id}}/update/" class="btn btn-success btn-icon-split">
                   <span class="text">Change</span>
@@ -64,27 +64,28 @@
         <table class="table" id="id_bill_detail_form" cellspacing="0">
           <thead>
             <tr>
-              <th width="15%">Item Amount</th>
-              <th width="15%">Item Count</th>
-              <th width="15%">Rate</th>
-              <th width="20%">Unit</th>
               <th width="25%">Item Name</th>
+              <th width="20%">Unit</th>
+              <th width="15%">Rate</th>
+              <th width="15%">Item Count</th>
+              <th width="15%">Item Amount</th>
               <th width="10%">Action</th>
             </tr>
           </thead>
           <tfoot>
             <tr>
               <th>
-                <input type="text" class="form-control" id="id_item_amount" name="item_amount" value="" placeholder="Item Amount" readonly>
-              </th>
-              <th>
-                <div class="form-group">
-                  {% include "render_field.html" with field=form.item_count field_placeholder="Item total count" oninput="calculate();" %}
-                </div>
-              </th>
-              <th>
-                <div class="form-group">
-                  {% include "render_field.html" with field=form.rate  field_placeholder="Item rate" oninput="calculate();" %}
+                <div class="form-group row text-right">
+                  <div class="col-sm-12 is-invalid">
+                    {{ form.item }}
+                  </div>
+                  {% if form.item.errors %}
+                  <div class="col-sm-12">
+                    <div class="text-danger">
+                      <p>{{ form.item.errors }}</p>
+                    </div>
+                  </div>
+                  {% endif %}
                 </div>
               </th>
               <th>
@@ -102,18 +103,17 @@
                 </div>
               </th>
               <th>
-                <div class="form-group row text-right">
-                  <div class="col-sm-12 is-invalid">
-                    {{ form.item }}
-                  </div>
-                  {% if form.item.errors %}
-                  <div class="col-sm-12">
-                    <div class="text-danger">
-                      <p>{{ form.item.errors }}</p>
-                    </div>
-                  </div>
-                  {% endif %}
+                <div class="form-group">
+                  {% include "render_field.html" with field=form.rate  field_placeholder="Item rate" oninput="calculate();" %}
                 </div>
+              </th>
+              <th>
+                <div class="form-group">
+                  {% include "render_field.html" with field=form.item_count field_placeholder="Item total count" oninput="calculate();" %}
+                </div>
+              </th>
+              <th>
+                <input type="text" class="form-control" id="id_item_amount" name="item_amount" value="" placeholder="Item Amount" readonly>
               </th>
               <th>
                 <div class="form-group">

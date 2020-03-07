@@ -22,7 +22,6 @@
         {% include "fields.html" with field=form.name field_label="Shop Name" %}
         {% include "fields.html" with field=form.phone field_label="Phone Number" %}
         {% include "text_fields.html" with field=form.address field_label="Shop Address" %}
-        {% if not form.instance.pk %}
         <div class="form-group row">
           <label class="col-sm-3 col-form-label font-weight-bold">Logo</label>
           <div class="col-sm-9">
@@ -36,7 +35,6 @@
             {% endif %}
           </div>
         </div>
-        {% endif %}
         {% include "form_buttons.html" with name="Supplier" pk=form.instance.pk %}
       </form>
     </div>

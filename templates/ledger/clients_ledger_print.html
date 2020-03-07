@@ -26,63 +26,61 @@
 <body>
   <div class="book">
     <div class="page">
-      <table border="0" cellspacing="0" cellpadding="0">
+      <table class="table" border="0" cellspacing="0" cellpadding="0">
        <tr style="width: 100%">
           <img src="/static/img/index.jpeg" width="100%">
        </tr>
        <tr style="font-size: 13px;">
-         <td>
-          Sunday, 2 February 2020
-         </td>
+         <td>{{ ledger_date }}</td>
        </tr>
        <tr>
          <td width="50%">
-            <table class="table" style="border-right: 1px solid #e3e6f0">
+            <table class="table table-striped" style="border-right: 1px solid #e3e6f0">
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Name</th>
-                  <th>Previous</th>
-                  <th>New</th>
-                  <th>Total</th>
                   <th>Payment</th>
+                  <th>Total</th>
+                  <th>New</th>
+                  <th>Previous</th>
+                  <th>Name</th>
+                  <th>ID</th>
                 </tr>
               </thead>
               <tbody>
                 {% for obj in ledger_list1 %}
                 <tr>
-                  <td>{{ obj.id }}</td>
+                  <td>{% if obj.payment %}{{ obj.payment }}{% endif %}</td>
+                  <td>{{ obj.current_balance }}</td>
+                  <td>{% if obj.billed_amount %}{{ obj.billed_amount }}{% endif %}</td>
+                  <td>{{ obj.previous_balance }}</td>
                   <td>{{ obj.name }}</td>
-                  <td>{{ obj.balance }}</td>
-                  <td>{{ obj.amount }}</td>
-                  <td>{{ obj.total }}</td>
-                  <td>{{ obj.payment }}</td>
+                  <td>{{ obj.id }}</td>
                 </tr>
                 {% endfor %}
               </tbody>
             </table>
          </td>
          <td width="50%">
-            <table class="table" style="border-left: 1px solid #e3e6f0">
+            <table class="table table-striped" style="border-left: 1px solid #e3e6f0">
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Name</th>
-                  <th>Previous</th>
-                  <th>New</th>
-                  <th>Total</th>
                   <th>Payment</th>
+                  <th>Total</th>
+                  <th>New</th>
+                  <th>Previous</th>
+                  <th>Name</th>
+                  <th>ID</th>
                 </tr>
               </thead>
               <tbody>
                 {% for obj in ledger_list2 %}
                 <tr>
-                  <td>{{ obj.id }}</td>
+                  <td>{% if obj.payment %}{{ obj.payment }}{% endif %}</td>
+                  <td>{{ obj.current_balance }}</td>
+                  <td>{% if obj.billed_amount %}{{ obj.billed_amount }}{% endif %}</td>
+                  <td>{{ obj.previous_balance }}</td>
                   <td>{{ obj.name }}</td>
-                  <td>{{ obj.balance }}</td>
-                  <td>{{ obj.amount }}</td>
-                  <td>{{ obj.total }}</td>
-                  <td>{{ obj.payment }}</td>
+                  <td>{{ obj.id }}</td>
                 </tr>
                 {% endfor %}
               </tbody>

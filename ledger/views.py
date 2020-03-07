@@ -109,6 +109,8 @@ def clients_ledger_print(request):
     vs = list(context["ledger_list"])
     ledger_list1, ledger_list2 = vs[:int(len(vs)/2)], vs[int(len(vs)/2):]
     context["ledger_list1"] = ledger_list1
-    context["ledger_list2"] = ledger_list2[:-1]
+    context["ledger_list2"] = ledger_list2
 
+    today = datetime.date.today()
+    context["ledger_date"] = today.strftime("%A, %d %B, %Y")
     return render(request, 'ledger/clients_ledger_print.html', context)
