@@ -125,11 +125,11 @@
           <tbody>
             {% for obj in object_list %}
             <tr {% if obj.is_draft %}class="table-danger"{% endif %}>
-              <td>{{ obj.amount }}</td>
-              <td>{{ obj.item_count }}</td>
-              <td>{{ obj.rate }}</td>
-              <td>{{ obj.unit }}</td>
               <td>{{ obj.name }}</td>
+              <td>{{ obj.unit }}</td>
+              <td>{{ obj.rate }}</td>
+              <td>{{ obj.item_count }}</td>
+              <td>{{ obj.amount }}</td>
               <td>
                 <a href="/client-bills/{{obj.id}}/update" class="btn btn-danger">
                   <span class="text">Delete</span>

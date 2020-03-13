@@ -107,7 +107,12 @@ def clients_ledger_view(request):
 def clients_ledger_print(request):
     context = get_client_ledger_data(request)
     vs = list(context["ledger_list"])
-    ledger_list1, ledger_list2 = vs[:int(len(vs)/2)], vs[int(len(vs)/2):]
+    vs_len = len(vs)
+    if vs_len % 2 == 0:
+        mid = vs_len/2
+    else:
+        mid = int(vs_len/2)+1
+    ledger_list1, ledger_list2 = vs[:mid], vs[mid:]
     context["ledger_list1"] = ledger_list1
     context["ledger_list2"] = ledger_list2
 
