@@ -2,6 +2,18 @@ import datetime
 
 from django.db import models
 from django.utils import timezone
+from django.core.validators import BaseValidator
+from django.utils.deconstruct import deconstructible
+from django.utils.translation import gettext_lazy as _
+
+@deconstructible
+class PaymentValidator(BaseValidator):
+    message = _('Ensure this value is not equal to %(limit_value)s.')
+    code = 'min_value'
+
+    def compare(self, a, b):
+        return a == b
+
 
 class UpdatedInfo(models.Model):
     created_time = models.DateTimeField(default=timezone.now, editable=False)
@@ -22,7 +34,7 @@ class BasicInfo(UpdatedInfo):
         abstract = True
 
 class PaymentMixin(models.Model):
-    amount = models.IntegerField(min_value=1)
+    amount = models.IntegerField(validators=[PaymentValidator(0)])
     payment_date = models.DateField()
     payment_time = models.DateTimeField(default=timezone.now, editable=False)
 
