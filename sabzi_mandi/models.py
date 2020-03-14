@@ -22,7 +22,7 @@ class BasicInfo(UpdatedInfo):
         abstract = True
 
 class PaymentMixin(models.Model):
-    amount = models.IntegerField()
+    amount = models.IntegerField(min_value=1)
     payment_date = models.DateField()
     payment_time = models.DateTimeField(default=timezone.now, editable=False)
 

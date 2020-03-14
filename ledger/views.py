@@ -90,7 +90,7 @@ def get_client_ledger_data(request):
 
         ledger_list = []
         for pk in data:
-            billed_amount = data[client_id]["billed_amount"]
+            billed_amount = data[pk]["billed_amount"]
             current_balance = data[pk]["current_balance"]
             data[pk]["previous_balance"] = current_balance - billed_amount
             ledger_list.append(data[pk])

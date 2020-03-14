@@ -106,9 +106,9 @@
     function onchangeEvent() {
       var selectedSupplier = $(".fstlist").children(".selected").attr("data-value");
       if (selectedSupplier == "") {
-        window.location.href = "/ledger/suppliers/?";
+        window.location.href = "/ledger/suppliers/?shop_id={{request.shop.id}}";
       } else {
-        window.location.href = "/ledger/suppliers/?supplier="+selectedSupplier;
+        window.location.href = "/ledger/suppliers/?shop_id={{request.shop.id}}&supplier="+selectedSupplier;
       }
     }
     $(function() {
