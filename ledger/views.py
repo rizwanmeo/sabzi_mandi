@@ -110,10 +110,10 @@ def clients_ledger_print(request):
     data = []
     ledger_list1, ledger_list2 = [], []
     for count, i in enumerate(context["ledger_list"]):
-        if len(ledger_list1) == 40:
+        if len(ledger_list1) == 38:
             data.append([ledger_list1, ledger_list2])
             ledger_list1, ledger_list2 = [], []
-        elif count == 60:
+        elif count == 56:
             data.append([ledger_list1, ledger_list2])
             ledger_list1, ledger_list2 = [], []
 
