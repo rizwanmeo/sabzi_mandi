@@ -1,43 +1,50 @@
-body {
-    margin: 0;
-    padding: 0;
-    background-color: #FAFAFA;
-    font: 9pt "Tahoma";
-}
-* {
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-}
-.page {
-    padding: 20px;
-    width: 25cm;
-    min-height: 29.7cm;
-    margin: 1cm auto;
-    border: 1px #D3D3D3 solid;
-    border-radius: 5px;
-    background: white;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-}
-.subpage {
-    padding: 1cm;
-    border: 5px red solid;
-    height: 256mm;
-    outline: 2cm #FFEAEA solid;
+/*!
+ * HTML-Sheets-of-Paper (https://github.com/delight-im/HTML-Sheets-of-Paper)
+ * Copyright (c) delight.im (https://www.delight.im/)
+ * Licensed under the MIT License (https://opensource.org/licenses/MIT)
+ */
+
+@import "sheets-of-paper.css";
+
+table {
+        border-collapse: collapse;
+        width: 100%;
 }
 
-@page {
-    size: A4;
-    margin: 0;
+.table {
 }
-@media print {
-    .page {
-        margin: 0;
-        border: initial;
-        border-radius: initial;
-        width: initial;
-        min-height: initial;
-        box-shadow: initial;
-        background: initial;
-        page-break-after: always;
-    }
+.table tr:nth-child(even) {
+        background-color: #f2f2f2;
+}
+
+thead {
+        background-color: #f2f2f2;
+}
+
+.page {
+	/* Styles for better appearance on screens only -- are reset to defaults in print styles later */
+
+	/* Reflect the paper width in the screen rendering (must match size from @page rule) */
+	width: 21cm;
+	/* Reflect the paper height in the screen rendering (must match size from @page rule) */
+	min-height: 29.7cm;
+
+	/* Reflect the actual page margin/padding on paper in the screen rendering (must match margin from @page rule) */
+	padding-left: 0.2cm;
+	padding-top: 0.2cm;
+	padding-right: 0.2cm;
+	padding-bottom: 0.2cm;
+}
+/* Use CSS Paged Media to switch from continuous documents to sheet-like documents with separate pages */
+@page {
+	/* You can only change the size, margins, orphans, widows and page breaks here */
+
+	/* Paper size and page orientation */
+	size: A4 portrait;
+
+	/* Margin per single side of the page */
+	margin-left: 0.2cm;
+	margin-top: 0.2cm;
+	margin-right: 0.2cm;
+	margin-bottom: 0.2cm;
 }

@@ -95,6 +95,7 @@ def get_client_ledger_data(request):
             data[pk]["previous_balance"] = current_balance - billed_amount
             ledger_list.append(data[pk])
 
+        ledger_list = sorted(ledger_list, key = lambda i: i['id']) 
         context["ledger_list"] = ledger_list
     return context
 
@@ -106,16 +107,23 @@ def clients_ledger_view(request):
 @login_required(login_url='/login/')
 def clients_ledger_print(request):
     context = get_client_ledger_data(request)
-    vs = list(context["ledger_list"])
-    vs_len = len(vs)
-    if vs_len % 2 == 0:
-        mid = vs_len/2
-    else:
-        mid = int(vs_len/2)+1
-    ledger_list1, ledger_list2 = vs[:mid], vs[mid:]
-    context["ledger_list1"] = ledger_list1
-    context["ledger_list2"] = ledger_list2
+    data = []
+    ledger_list1, ledger_list2 = [], []
+    for count, i in enumerate(context["ledger_list"]):
+        if len(ledger_list1) == 40:
+            data.append([ledger_list1, ledger_list2])
+            ledger_list1, ledger_list2 = [], []
+        elif count == 60:
+            data.append([ledger_list1, ledger_list2])
+            ledger_list1, ledger_list2 = [], []
+
+        if count % 2 == 1:
+            ledger_list1.append(i)
+        else:
+            ledger_list2.append(i)
 
     today = datetime.date.today()
+    data.append([ledger_list1, ledger_list2])
+    context["data"] = data
     context["ledger_date"] = today.strftime("%A, %d %B, %Y")
     return render(request, 'ledger/clients_ledger_print.html', context)
