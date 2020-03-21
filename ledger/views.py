@@ -63,26 +63,24 @@ def get_client_ledger_data(request):
         client_vs = list(qs.values('id', 'name', 'current_balance'))
         for obj in client_vs:
             pk = obj["id"]
-            name = obj["name"]
-            current_balance = obj["current_balance"]
-            data[pk] = {"id": pk, "name": name, "previous_balance": 0,
-                        "current_balance": current_balance, "payment": 0,
-                        "billed_amount": 0}
+            data[pk] = {}
+            data[pk]["id"] = obj["id"]
+            data[pk]["name"] = obj["name"]
+            data[pk]["previous_balance"] = 0
+            data[pk]["current_balance"] = obj["current_balance"]
+            data[pk]["payment"] = 0
+            data[pk]["billed_amount"] = 0
 
         today = datetime.date.today()
-        bill_kwargs = {"client__shop": request.shop}
         bill_kwargs = {"client__shop": request.shop, "created_time__gte": today}
         bill_qs = ClientBill.objects.filter(**bill_kwargs)
-
-        payment_kwargs = {"client__shop": request.shop, "payment_time__gte": today}
-        payment_qs = ClientPayment.objects.filter(**payment_kwargs)
-
-        bill_qs = bill_qs.order_by("id")
-        bill_vs = list(bill_qs.values("client_id", "billed_amount", "created_time"))
+        bill_vs = list(bill_qs.values("client_id", "billed_amount"))
         for obj in bill_vs:
             client_id = obj["client_id"]
             data[client_id]["billed_amount"] += obj["billed_amount"]
 
+        payment_kwargs = {"client__shop": request.shop, "payment_time__gte": today}
+        payment_qs = ClientPayment.objects.filter(**payment_kwargs)
         payment_qs = list(payment_qs.values("client_id", "amount"))
         for obj in payment_qs:
             client_id = obj["client_id"]
@@ -92,7 +90,8 @@ def get_client_ledger_data(request):
         for pk in data:
             billed_amount = data[pk]["billed_amount"]
             current_balance = data[pk]["current_balance"]
-            data[pk]["previous_balance"] = current_balance - billed_amount
+            payment = data[pk]["payment"]
+            data[pk]["previous_balance"] = current_balance + payment - billed_amount
             ledger_list.append(data[pk])
 
         ledger_list = sorted(ledger_list, key = lambda i: i['id']) 
