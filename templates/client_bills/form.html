@@ -19,6 +19,14 @@
 
 {% block base_container %}
 <div class="row">
+  <div class="col-lg-12">
+    <div class="p-3">
+      {% include "alert.html" %}
+    </div>
+  </div>
+</div>
+
+<div class="row">
   <div class="col-lg-9">
     <div class="p-5">
       <div class="text-center text-primary">
@@ -31,7 +39,7 @@
         {% include "select_field.html" with field=form.client field_label="Client Name" %}
         {% include "fields.html" with field=form.payment field_label="Payment" %}
         {% include "datetime_field.html" with field=form.bill_date field_label="Bill Date" %}
-        {% include "form_buttons.html" with name="Supplier Payment" pk=form.instance.pk %}
+        {% include "form_buttons.html" with name="New Bill" pk=form.instance.pk %}
       </form>
     </div>
   </div>
@@ -45,6 +53,14 @@
   <script>
     $(document).ready(function(){
       $("#id_client").removeAttr("required");
+      {% if request.GET.client %}
+        var displayText = $( "#id_client option:selected").text();
+        var displayVal = $( "#id_client option:selected").val();
+        $(".fstlist").find('.selected').removeClass("selected");
+        $(".fstlist").find("[data-value='{{ request.GET.client }}']").addClass("selected")
+        $(".fstselected").text(displayText)
+      {% endif %}
+
       $('#id_bill_date').datepicker({
           todayHighlight: true,
           format: "yyyy-mm-dd",

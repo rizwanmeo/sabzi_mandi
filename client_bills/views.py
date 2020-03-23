@@ -109,15 +109,23 @@ class ClientBillCreateView(CustomCreateView):
         msg %= form.instance.client.name
         messages.add_message(self.request, messages.INFO, msg)
         obj = ClientBill.objects.get(client=form.instance.client, is_draft=True)
-        success_url = "/client-bills/%d/detail-create/?shop_id=%d"
-        return HttpResponseRedirect(success_url % (self.object.pk, self.request.shop.pk))
+        success_url = "/client-bills/%d/detail-create/?" % self.object.pk
+        success_url += self.request.GET.urlencode()
+        return HttpResponseRedirect(success_url)
 
     def get_context_data(self, **kwargs):
         context = super(ClientBillCreateView, self).get_context_data(**kwargs)
         form = context["form"]
         form.fields["client"].widget.attrs["class"] = "fstdropdown-select"
         form.fields["client"].choices = get_client_choices(form, self.request.shop.id)
-        form.fields["bill_date"].initial = datetime.date.today().strftime("%Y-%m-%d")
+
+        if self.request.GET.get("client"):
+            form.fields["client"].initial = self.request.GET.get("client")
+
+        bill_date = datetime.date.today().strftime("%Y-%m-%d")
+        if self.request.GET.get("bill_date"):
+            bill_date = self.request.GET.get("bill_date")
+        form.fields["bill_date"].initial = bill_date
         return context
 
 class ClientBillUpdateView(CustomUpdateView):
@@ -152,9 +160,6 @@ class ClientBillDeleteView(CustomDeleteView):
     model = ClientBill
     success_url = "/client-bills"
 
-    def get(self, request, *args, **kwargs):
-        return self.post(request, *args, **kwargs)
-
     def delete(self, request, *args, **kwargs):
         if not self.get_object().is_draft:
             raise Http404
@@ -162,6 +167,21 @@ class ClientBillDeleteView(CustomDeleteView):
         msg = 'Client: [%s] bill was delete succfully.' % self.object.client.name
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())
+
+class ClientBillDetailDeleteView(CustomDeleteView):
+    model = BillDetail
+    success_url = "/client-bills"
+
+    def delete(self, request, *args, **kwargs):
+        if not self.get_object().bill.is_draft:
+            raise Http404
+
+        super(ClientBillDetailDeleteView, self).delete(request, *args, **kwargs)
+        msg = 'Client bill: Item [%s] was delete succfully from bill.' % self.object.item.name
+        messages.add_message(self.request, messages.INFO, msg)
+        get_success_url = "/client-bills/%s/detail-create/?" % self.object.bill_id
+        get_success_url += self.request.GET.urlencode()
+        return HttpResponseRedirect(get_success_url)
 
 class BillDetailCreateView(CustomCreateView):
     model = BillDetail
@@ -186,12 +206,12 @@ class BillDetailCreateView(CustomCreateView):
         form.fields["unit"].widget.attrs["data-searchdisable"] = "true"
 
         object_list = []
-        selected_items = []
         billed_amount = 0
         qs = BillDetail.objects.filter(bill=self.request.bill)
-        vs = list(qs.values("item__id", "item__name", "unit", "rate", "item_count"))
+        vs = list(qs.values("id", "item__name", "unit", "rate", "item_count"))
         for row in vs:
             detail_obj = {}
+            detail_obj["id"] = row["id"]
             detail_obj["name"] = row["item__name"]
             detail_obj["unit"] = "KG" if row["unit"] == 'k' else "Count"
             detail_obj["rate"] = row["rate"]
@@ -199,7 +219,6 @@ class BillDetailCreateView(CustomCreateView):
             detail_obj["amount"] = row["rate"] * row["item_count"]
             billed_amount += detail_obj["amount"]
             object_list.append(detail_obj)
-            selected_items.append(row["item__id"])
 
         # Load Item choices
         choices = [("", "Select an item")]
@@ -253,87 +272,99 @@ def client_bill_detail(request, client_id, bill_id=0):
             return JsonResponse({"status": False, "errors": form.errors})
     return JsonResponse({"status": False, "description": "Invalid request"})
 
-@login_required(login_url='/login/')
-def done_drafted_bill(request, bill_id):
-    try:
-        bill_obj = ClientBill.objects.get(id=int(bill_id), is_draft=True)
-    except:
-        raise Http404
+def done_drafted_bill(request, bill_obj):
+    billed_amount = 0
+    billdetail_vs = bill_obj.billdetail_set.values("rate", "item_count")
+    for detail_obj in billdetail_vs:
+        billed_amount += detail_obj["rate"] * detail_obj["item_count"]
+    bill_obj.is_draft = False
+    bill_obj.billed_amount = billed_amount
 
-    redirect_url = "/client-bills/?shop_id=%d" % request.shop.pk
-    if request.method == "POST":
-        billed_amount = 0
-        billdetail_vs = bill_obj.billdetail_set.values("rate", "item_count")
-        for detail_obj in billdetail_vs:
-            billed_amount += detail_obj["rate"] * detail_obj["item_count"]
-        bill_obj.is_draft = False
-        bill_obj.billed_amount = billed_amount
+    bill_obj.client.current_balance += billed_amount
+    if bill_obj.payment:
+        bill_obj.client.current_balance -= bill_obj.payment.amount
 
-        bill_obj.client.current_balance += billed_amount
-        if bill_obj.payment:
-            bill_obj.client.current_balance -= bill_obj.payment.amount
+    bill_obj.balance = bill_obj.client.current_balance
+    bill_obj.client.save()
+    bill_obj.save()
 
-        bill_obj.balance = bill_obj.client.current_balance
-        bill_obj.client.save()
-        bill_obj.save()
-        msg = 'Client: [%s] Bill was done succfully.' % bill_obj.client.name
-        messages.add_message(request, messages.INFO, msg)
-    else:
-        redirect_url = "/client-bills/%d/detail-create/?shop_id=%d" % (bill_id, request.shop.pk)
-    return HttpResponseRedirect(redirect_url)
-
-
-@login_required(login_url='/login/')
-def print_bill(request, bill_id):
+def get_print_bill_data(request, bill_obj):
     context = {}
+    if bill_obj.payment:
+        bill_obj.previous_balance = bill_obj.balance - bill_obj.billed_amount + bill_obj.payment.amount
+    else:
+        bill_obj.previous_balance = bill_obj.balance - bill_obj.billed_amount
+    bill_obj.after_bill_balance = bill_obj.previous_balance + bill_obj.billed_amount
+
+    context["obj"] = bill_obj
+    qs = bill_obj.billdetail_set.all()
+    vs = list(qs.values("item__name", "unit", "rate", "item_count"))
+    data = []
+    total_item_count = 0
+    total_item_weight = 0
+    for row in vs:
+        detail_obj = {}
+        detail_obj["name"] = row["item__name"]
+        detail_obj["rate"] = row["rate"]
+        detail_obj["item_count"] = row["item_count"]
+        detail_obj["amount"] = row["rate"] * row["item_count"]
+        detail_obj["unit"] = row["unit"]
+        if row["unit"] == 'k':
+            total_item_weight += row["item_count"]
+        else:
+            total_item_count += row["item_count"]
+
+        data.append(detail_obj)
+
+    context["bill_detail_list"] = data
+    context["total_item_count"] = total_item_count
+    context["total_item_weight"] = total_item_weight
+
+    return context
+
+@login_required(login_url='/login/')
+def print_bill(request, bill_obj):
+    if request.method != "GET":
+        raise Http404
 
     try:
-        obj = ClientBill.objects.get(id=int(bill_id), is_draft=False)
+        bill_obj = ClientBill.objects.get(id=int(bill_id), is_draft=False)
     except:
         raise Http404
 
-    if request.method == "GET":
-
-        if obj.payment:
-            obj.previous_balance = obj.balance - obj.billed_amount + obj.payment.amount
-        else:
-            obj.previous_balance = obj.balance - obj.billed_amount
-        obj.after_bill_balance = obj.previous_balance + obj.billed_amount
-
-        context["obj"] = obj
-        qs = obj.billdetail_set.all()
-        vs = list(qs.values("item__name", "unit", "rate", "item_count"))
-        data = []
-        total_item_count = 0
-        total_item_weight = 0
-        for row in vs:
-            detail_obj = {}
-            detail_obj["name"] = row["item__name"]
-            detail_obj["rate"] = row["rate"]
-            detail_obj["item_count"] = row["item_count"]
-            detail_obj["amount"] = row["rate"] * row["item_count"]
-            detail_obj["unit"] = row["unit"]
-            if row["unit"] == 'k':
-                total_item_weight += row["item_count"]
-            else:
-                total_item_count += row["item_count"]
-
-            data.append(detail_obj)
-
-        context["bill_detail_list"] = data
-        context["total_item_count"] = total_item_count
-        context["total_item_weight"] = total_item_weight
-
+    context = get_print_bill_data(request, bill_obj)
     return render(request, 'client_bills/print.html', context)
 
 @login_required(login_url='/login/')
-def delete_client_bill_detail(request, detail_id):
-    if request.method == "DELETE":
-        try:
-            obj = BillDetail.object.get(id=detail_id)
-            obj.delete()
-            return JsonResponse({"status": True, "description": "Successfully deleted"})
-        except:
-            return JsonResponse({"status": False, "description": "Invalid bill ID"})
-    return JsonResponse({"status": False, "description": "Invalid Request"})
+def done_bill(request, bill_id):
+    if request.method != "POST":
+        raise Http404
 
+    try:
+        bill_obj = ClientBill.objects.get(id=int(bill_id), is_draft=False)
+    except:
+        raise Http404
+
+    if bill_obj.billdetail_set.count() == 0:
+        raise Http404
+
+    action = int(request.POST.get("submit", 0))
+    if action == 1:
+        done_drafted_bill(request, bill_obj)
+        redirect_url = "/client-bills/?"+request.GET.urlencode()
+        msg = 'Client: [%s] Bill was done succfully.' % bill_obj.client.name
+        messages.add_message(request, messages.INFO, msg)
+        return HttpResponseRedirect(redirect_url)
+    elif action == 2:
+        done_drafted_bill(request, bill_obj)
+        context = get_print_bill_data(request, bill_obj)
+        return render(request, 'client_bills/print.html', context)
+    elif action == 3:
+        done_drafted_bill(request, bill_obj)
+        redirect_url = "/client-bills/create/?"
+        redirect_url += request.GET.urlencode()
+        msg = 'Client: [%s] Bill was done succfully.' % bill_obj.client.name
+        messages.add_message(request, messages.INFO, msg)
+        return HttpResponseRedirect(redirect_url)
+    else:
+        raise Http404

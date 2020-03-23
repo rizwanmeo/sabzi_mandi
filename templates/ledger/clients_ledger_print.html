@@ -50,23 +50,23 @@
             <table class="table" {% if ledger_list2|length > ledger_list1|length %}style="margin-top: -27px;"{% endif %}>
               <thead>
                 <tr>
-                  <th>Payment</th>
-                  <th>Total</th>
-                  <th>New</th>
-                  <th align="left">Previous</th>
+                  <th align="center">Payment</th>
+                  <th align="center">Total</th>
+                  <th align="center">New</th>
+                  <th align="center">Previous</th>
                   <th align="right">Name</th>
-                  <th align="right" style="border-right: 0.1rem solid #ddd;">ID</th>
+                  <th align="right">ID</th>
                 </tr>
               </thead>
               <tbody>
                 {% for obj in ledger_list1 %}
                 <tr>
-                  <td>{% if obj.payment %}{{ obj.payment }}{% endif %}</td>
-                  <td>{{ obj.current_balance }}</td>
-                  <td>{% if obj.billed_amount %}{{ obj.billed_amount }}{% endif %}</td>
-                  <td>{{ obj.previous_balance }}</td>
+                  <td align="center">{% if obj.payment %}{{ obj.payment }}{% endif %}</td>
+                  <td align="center">{{ obj.current_balance }}</td>
+                  <td align="center">{% if obj.billed_amount %}{{ obj.billed_amount }}{% endif %}</td>
+                  <td align="center">{{ obj.previous_balance }}</td>
                   <td align="right">{{ obj.name }}</td>
-                  <td align="right" style="border-right: 0.1rem solid #ddd;">{{ obj.id }}</td>
+                  <td align="right">{{ obj.id }}</td>
                 </tr>
                 {% endfor %}
               </tbody>
@@ -76,10 +76,10 @@
             <table class="table" {% if ledger_list1|length > ledger_list2|length %}style="margin-top: -27px;"{% endif %}>
               <thead>
                 <tr>
-                  <th style="border-left: 0.1rem solid #ddd;">Payment</th>
-                  <th>Total</th>
-                  <th>New</th>
-                  <th align="left">Previous</th>
+                  <th align="center">Payment</th>
+                  <th align="center">Total</th>
+                  <th align="center">New</th>
+                  <th align="center">Previous</th>
                   <th align="right">Name</th>
                   <th align="right">ID</th>
                 </tr>
@@ -87,10 +87,10 @@
               <tbody>
                 {% for obj in ledger_list2 %}
                 <tr>
-                  <td style="border-left: 0.1rem solid #ddd;">{% if obj.payment %}{{ obj.payment }}{% endif %}</td>
-                  <td>{{ obj.current_balance }}</td>
-                  <td>{% if obj.billed_amount %}{{ obj.billed_amount }}{% endif %}</td>
-                  <td>{{ obj.previous_balance }}</td>
+                  <td align="center">{% if obj.payment %}{{ obj.payment }}{% endif %}</td>
+                  <td align="center">{{ obj.current_balance }}</td>
+                  <td align="center">{% if obj.billed_amount %}{{ obj.billed_amount }}{% endif %}</td>
+                  <td align="center">{{ obj.previous_balance }}</td>
                   <td align="right">{{ obj.name }}</td>
                   <td align="right">{{ obj.id }}</td>
                 </tr>

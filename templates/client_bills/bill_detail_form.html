@@ -65,9 +65,9 @@
           <thead>
             <tr>
               <th width="25%">Item Name</th>
-              <th width="20%">Unit</th>
-              <th width="15%">Rate</th>
-              <th width="15%">Item Count</th>
+              <th width="20%">Item Count</th>
+              <th width="20%">Rate</th>
+              <th width="10%">Unit</th>
               <th width="15%">Item Amount</th>
               <th width="10%">Action</th>
             </tr>
@@ -89,28 +89,45 @@
                 </div>
               </th>
               <th>
-                <div class="form-group row">
-                  <div class="col-sm-12">
-                    {{ form.unit }}
-                  </div>
-                  {% if form.unit.errors %}
-                  <div class="col-sm-12">
-                    <div class="text-danger">
-                      <p>{{ form.unit.errors }}</p>
+                <div class="form-group">
+                  {% if form.item_count.errors %}
+                    <input type="text" class="form-control is-invalid" id="id_item_count" name="item_count" value="{% if form.item_count.value %}{{ form.item_count.value }}{% endif %}" placeholder="Item total count" oninput="calculate();">
+                    <div class="text-danger" style="margin-left: -25px;">
+                      <p>{{ form.item_count.errors }}</p>
                     </div>
-                  </div>
+                  {% else %}
+                    <input type="text" class="form-control" id="id_item_count" name="item_count" placeholder="Item total count" oninput="{{oninput}}">
                   {% endif %}
                 </div>
               </th>
               <th>
                 <div class="form-group">
-                  {% include "render_field.html" with field=form.rate  field_placeholder="Item rate" oninput="calculate();" %}
+                  {% if form.rate.errors %}
+                    <input type="text" class="form-control is-invalid" id="id_rate" name="rate" value="{% if form.rate.value %}{{ form.rate.value }}{% endif %}" placeholder="Item rate" oninput="calculate();">
+                    <div class="text-danger" style="margin-left: -25px;">
+                      <p>{{ form.rate.errors }}</p>
+                    </div>
+                  {% else %}
+                    <input type="text" class="form-control" id="id_rate" name="rate" placeholder="Item rate" oninput="calculate();">
+                  {% endif %}
                 </div>
               </th>
               <th>
-                <div class="form-group">
-                  {% include "render_field.html" with field=form.item_count field_placeholder="Item total count" oninput="calculate();" %}
+                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                  <label class="btn btn-info active">
+                    <input type="radio" name="unit" id="id_unit" value="i" autocomplete="off" checked> Unit
+                  </label>
+                  <label class="btn btn-info">
+                    <input type="radio" name="unit" id="id_unit" value="k" autocomplete="off"> KG
+                  </label>
                 </div>
+                {% if form.unit.errors %}
+                <div class="col-sm-12">
+                  <div class="text-danger" style="margin-left: -40px;">
+                    <p>{{ form.unit.errors }}</p>
+                  </div>
+                </div>
+                {% endif %}
               </th>
               <th>
                 <input type="text" class="form-control" id="id_item_amount" name="item_amount" value="" placeholder="Item Amount" readonly>
@@ -126,12 +143,12 @@
             {% for obj in object_list %}
             <tr {% if obj.is_draft %}class="table-danger"{% endif %}>
               <td>{{ obj.name }}</td>
-              <td>{{ obj.unit }}</td>
-              <td>{{ obj.rate }}</td>
               <td>{{ obj.item_count }}</td>
+              <td>{{ obj.rate }}</td>
+              <td>{{ obj.unit }}</td>
               <td>{{ obj.amount }}</td>
               <td>
-                <a href="/client-bills/{{obj.id}}/update" class="btn btn-danger">
+                <a href="/client-bills/{{obj.id}}/bill-detail-delete" class="btn btn-danger btn-block">
                   <span class="text">Delete</span>
                 </a>
               </td>
@@ -143,15 +160,19 @@
       <form action="/client-bills/{{request.bill.id}}/done/?{{request.GET.urlencode}}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="form-group row">
-          <div class="col-sm-2"></div>
           <div class="col-sm-4">
-            <button type="submit" class="btn btn-primary btn-block">
+            <button type="submit" name="submit" value="1" class="btn btn-primary btn-block">
               Done and Close
             </button>
           </div>
           <div class="col-sm-4">
-            <button type="submit" class="btn btn-success btn-block">
+            <button type="submit" name="submit" value="2" class="btn btn-success btn-block">
               Done and Print
+            </button>
+          </div>
+          <div class="col-sm-4">
+            <button type="submit" name="submit" value="3" class="btn btn-primary btn-block">
+              Done and Add another
             </button>
           </div>
         </div>

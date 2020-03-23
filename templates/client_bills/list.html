@@ -164,9 +164,7 @@
     }
 
     function showPopover(detailID) {
-      console.log($('#id_2_bill_detail').html());
       $('[data-toggle="popover"]').popover({
-        
          content: $('#id_'+detailID+'_bill_detail').removeAttr('hidden').html(),
          html: true,
       }).click(function(){
