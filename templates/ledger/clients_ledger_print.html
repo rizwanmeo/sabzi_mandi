@@ -99,6 +99,32 @@
             </table>
          </td>
        </tr>
+        {% if forloop.last %}
+       <tr>
+         <td colspan="2">
+            <table class="table">
+              <tbody>
+                <tr>
+                  <th style="width: 70%" align="right">{{total_previous_balance}}</th>
+                  <th style="width: 30%"align="right">Total Amount Before Bill</th>
+                </tr>
+                <tr>
+                  <th style="width: 70%"align="right">{{total_billed_amount}}</th>
+                  <th style="width: 30%" align="right">Billed Total Amount</th>
+                </tr>
+                <tr>
+                  <th style="width: 70%"align="right">{{total_payment}}</th>
+                  <th style="width: 30%" align="right">Total Payment Received</th>
+                </tr>
+                <tr>
+                  <th style="width: 70%"align="right">{{total_current_balance}}</th>
+                  <th style="width: 30%" align="right">Total Amount After Bill</th>
+                </tr>
+              </tbody>
+            </table>
+         </td>
+       </tr>
+        {% endif %}
       </table>
   </div>
   {% endfor %}

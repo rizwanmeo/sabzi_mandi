@@ -341,7 +341,7 @@ def done_bill(request, bill_id):
         raise Http404
 
     try:
-        bill_obj = ClientBill.objects.get(id=int(bill_id), is_draft=False)
+        bill_obj = ClientBill.objects.get(id=int(bill_id), is_draft=True)
     except:
         raise Http404
 

@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django_filters.filterset import filterset_factory
+from django.views.decorators.http import require_http_methods
 
 from clients.models import Client
 from suppliers.models import Supplier
@@ -55,55 +56,70 @@ def suppliers_ledger_print(request):
     return render(request, 'ledger/suppliers_ledger_print.html', context)
 
 def get_client_ledger_data(request):
+    data = {}
     context = {}
-    if request.method == "GET":
-        data = {}
-        qs = Client.objects.filter(shop=request.shop)
-        qs = qs.filter(~Q(current_balance=0))
-        client_vs = list(qs.values('id', 'name', 'current_balance'))
-        for obj in client_vs:
-            pk = obj["id"]
-            data[pk] = {}
-            data[pk]["id"] = obj["id"]
-            data[pk]["name"] = obj["name"]
-            data[pk]["previous_balance"] = 0
-            data[pk]["current_balance"] = obj["current_balance"]
-            data[pk]["payment"] = 0
-            data[pk]["billed_amount"] = 0
+    total_payment = 0
+    total_previous_balance = 0
+    total_current_balance = 0
+    total_billed_amount = 0
+    qs = Client.objects.filter(shop=request.shop)
+    qs = qs.filter(~Q(current_balance=0))
+    client_vs = list(qs.values('id', 'name', 'current_balance'))
+    for obj in client_vs:
+        pk = obj["id"]
+        data[pk] = {}
+        data[pk]["id"] = obj["id"]
+        data[pk]["name"] = obj["name"]
+        data[pk]["previous_balance"] = 0
+        data[pk]["current_balance"] = obj["current_balance"]
+        data[pk]["payment"] = 0
+        data[pk]["billed_amount"] = 0
 
-        today = datetime.date.today()
-        bill_kwargs = {"client__shop": request.shop, "created_time__gte": today}
-        bill_qs = ClientBill.objects.filter(**bill_kwargs)
-        bill_vs = list(bill_qs.values("client_id", "billed_amount"))
-        for obj in bill_vs:
-            client_id = obj["client_id"]
-            data[client_id]["billed_amount"] += obj["billed_amount"]
+    today = datetime.date.today()
+    bill_kwargs = {"client__shop": request.shop, "created_time__gte": today}
+    bill_qs = ClientBill.objects.filter(**bill_kwargs)
+    bill_vs = list(bill_qs.values("client_id", "billed_amount"))
+    for obj in bill_vs:
+        client_id = obj["client_id"]
+        data[client_id]["billed_amount"] += obj["billed_amount"]
 
-        payment_kwargs = {"client__shop": request.shop, "payment_time__gte": today}
-        payment_qs = ClientPayment.objects.filter(**payment_kwargs)
-        payment_qs = list(payment_qs.values("client_id", "amount"))
-        for obj in payment_qs:
-            client_id = obj["client_id"]
-            data[client_id]["payment"] += obj["amount"]
+    payment_kwargs = {"client__shop": request.shop, "payment_time__gte": today}
+    payment_qs = ClientPayment.objects.filter(**payment_kwargs)
+    payment_qs = list(payment_qs.values("client_id", "amount"))
+    for obj in payment_qs:
+        client_id = obj["client_id"]
+        data[client_id]["payment"] += obj["amount"]
 
-        ledger_list = []
-        for pk in data:
-            billed_amount = data[pk]["billed_amount"]
-            current_balance = data[pk]["current_balance"]
-            payment = data[pk]["payment"]
-            data[pk]["previous_balance"] = current_balance + payment - billed_amount
-            ledger_list.append(data[pk])
+    ledger_list = []
+    for pk in data:
+        billed_amount = data[pk]["billed_amount"]
+        current_balance = data[pk]["current_balance"]
+        payment = data[pk]["payment"]
+        previous_balance = current_balance + payment - billed_amount
+        data[pk]["previous_balance"] = previous_balance
+        ledger_list.append(data[pk])
 
-        ledger_list = sorted(ledger_list, key = lambda i: i['id']) 
-        context["ledger_list"] = ledger_list
+        total_payment += payment
+        total_previous_balance += previous_balance
+        total_current_balance += current_balance
+        total_billed_amount += billed_amount
+
+    ledger_list = sorted(ledger_list, key = lambda i: i['id'])
+    context["ledger_list"] = ledger_list
+    context["total_payment"] = total_payment
+    context["total_previous_balance"] = total_previous_balance
+    context["total_current_balance"] = total_current_balance
+    context["total_billed_amount"] = total_billed_amount
     return context
 
 @login_required(login_url='/login/')
+@require_http_methods(["GET"])
 def clients_ledger_view(request):
     context = get_client_ledger_data(request)
     return render(request, 'ledger/clients_ledger_list.html', context)
 
 @login_required(login_url='/login/')
+@require_http_methods(["GET"])
 def clients_ledger_print(request):
     context = get_client_ledger_data(request)
     data = []
