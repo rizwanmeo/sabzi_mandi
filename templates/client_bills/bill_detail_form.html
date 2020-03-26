@@ -22,10 +22,12 @@
     <div class="p-5">
       {% include "alert.html" %}
       <div class="text-center text-primary">
+        {% if request.bill.is_draft %}
         <h1 class="h4 text-primary-900 mb-4 font-weight-bold">Create Client Bill Detail</h1>
+        {% else %}
+        <h1 class="h4 text-primary-900 mb-4 font-weight-bold">Client Bill Detail</h1>
+        {% endif %}
       </div>
-
-
         <table class="table" id="id_bill_detail_form" cellspacing="0">
           <thead>
             <tr>
@@ -34,7 +36,9 @@
               <th width="15%">Payment</th>
               <th width="15%">Previous Amount</th>
               <th width="15%">Billed Amount</th>
+              {% if request.bill.is_draft %}
               <th width="10%">Action</th>
+              {% endif %}
             </tr>
           </thead>
           <tfoot>
@@ -43,11 +47,13 @@
               <th><input type="text" class="form-control" id="id_client" name="client" value="{% if request.bill.payment %}{{request.bill.payment.amount}}{% else %}0{% endif %}" readonly></th>
               <th><input type="text" class="form-control" id="id_client" name="client" value="{{request.bill.client.current_balance}}" readonly></th>
               <th><input type="text" class="form-control" id="id_billed_amount" name="billed_amount" data-amount="{{billed_amount}}" value="{{billed_amount}}" readonly></th>
+              {% if request.bill.is_draft %}
               <th>
                 <a href="/client-bills/{{request.bill.id}}/update/" class="btn btn-success btn-icon-split">
                   <span class="text">Change</span>
                 </a>
               </th>
+              {% endif %}
           </tfoot>
           </div>
         </div>
@@ -69,9 +75,12 @@
               <th width="20%">Rate</th>
               <th width="10%">Unit</th>
               <th width="15%">Item Amount</th>
+              {% if request.bill.is_draft %}
               <th width="10%">Action</th>
+              {% endif %}
             </tr>
           </thead>
+          {% if request.bill.is_draft %}
           <tfoot>
             <tr>
               <th>
@@ -139,6 +148,7 @@
               </th>
             </tr>
           </tfoot>
+          {% endif %}
           <tbody>
             {% for obj in object_list %}
             <tr {% if obj.is_draft %}class="table-danger"{% endif %}>
@@ -147,16 +157,19 @@
               <td>{{ obj.rate }}</td>
               <td>{{ obj.unit }}</td>
               <td>{{ obj.amount }}</td>
+              {% if request.bill.is_draft %}
               <td>
                 <a href="/client-bills/{{obj.id}}/bill-detail-delete" class="btn btn-danger btn-block">
                   <span class="text">Delete</span>
                 </a>
               </td>
+              {% endif %}
             </tr>
             {% endfor %}
           </tbody>
         </table>
       </form>
+      {% if request.bill.is_draft %}
       <form action="/client-bills/{{request.bill.id}}/done/?{{request.GET.urlencode}}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="form-group row">
@@ -177,6 +190,7 @@
           </div>
         </div>
       </form>
+      {% endif %}
     </div>
   </div>
 </div>

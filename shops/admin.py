@@ -29,9 +29,12 @@ class ClientBillAdmin(admin.ModelAdmin):
 class ClientPaymentAdmin(admin.ModelAdmin):
     list_display = ['client', 'amount', 'payment_date']
 
+class ItemAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name']
+
 admin.site.register(Shop, ShopAdmin)
 admin.site.register(Supplier, SupplierAdmin)
 admin.site.register(Client, ClientAdmin)
-admin.site.register(Item)
+admin.site.register(Item, ItemAdmin)
 admin.site.register(ClientBill, ClientBillAdmin)
 admin.site.register(ClientPayment, ClientPaymentAdmin)

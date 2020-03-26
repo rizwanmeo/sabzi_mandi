@@ -11,7 +11,6 @@ urlpatterns = [
     re_path(r'^(?P<bill_id>\d+)/detail-create/$', views.BillDetailCreateView.as_view(), name='client_bills_detail_create'),
     re_path(r'^(?P<bill_id>\d+)/done/$', views.done_bill, name='client_bill_done'),
     re_path(r'^(?P<bill_id>\d+)/print/$', views.print_bill, name='print_bill'),
-    re_path(r'^(?P<client_id>\d+)/(?P<bill_id>\d+)/bill-detail/$', views.client_bill_detail, name='client_bill_detail'),
 
     # all delete view urls
     re_path(r'^(?P<pk>\d+)/delete/$', views.ClientBillDeleteView.as_view(), name='client_bills_delete'),

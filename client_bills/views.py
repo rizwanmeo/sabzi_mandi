@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, Http404, JsonResponse
+from django.views.decorators.http import require_http_methods
 
 from .forms import *
 from .models import *
@@ -149,10 +150,15 @@ class ClientBillUpdateView(CustomUpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(ClientBillUpdateView, self).get_context_data(**kwargs)
+        if self.object.is_draft is False:
+            raise Http404
         form = context["form"]
         form.fields["client"].widget.attrs["class"] = "fstdropdown-select"
         form.fields["client"].choices = get_client_choices(form, self.request.shop.id)
-        form.initial["payment"] = self.object.payment.amount
+        if self.object.payment:
+            form.initial["payment"] = self.object.payment.amount
+        else:
+            form.initial["payment"] = 0
         form.initial["bill_date"] = form.initial["bill_date"].strftime("%Y-%m-%d")
         return context
 
@@ -221,7 +227,13 @@ class BillDetailCreateView(CustomCreateView):
             object_list.append(detail_obj)
 
         # Load Item choices
-        choices = [("", "Select an item")]
+        try:
+            Item.objects.get(id=0)
+        except:
+            item_obj = Item(id=0, name="test name")
+            item_obj.save()
+
+        choices = [(0, "test name")]
         qs = Item.objects.all()
         vs = list(qs.values_list("id", "name"))
         form.fields["item"].choices = choices + vs
@@ -244,33 +256,6 @@ class BillDetailCreateView(CustomCreateView):
     def post(self, request, *args, **kwargs):
         request.bill = self.get_bill_obj(kwargs.get("bill_id", 0))
         return super(BillDetailCreateView, self).post(request)
-
-@login_required(login_url='/login/')
-def client_bill_detail(request, client_id, bill_id=0):
-    client_obj = Client.objects.get(id=client_id, shop=request.shop)
-    if request.method == "POST":
-        form = BillDetailForm(request.POST)
-        if form.is_valid():
-            try:
-                if int(bill_id) > 0:
-                    bill_obj = ClientBill.objects.get(id=bill_id, client_id=client_id)
-                else:
-                    bill_obj = ClientBill.objects.annotate(item_count=Count('billdetail')).get(client_id=client_id, is_draft=True, item_count=0)
-                    bill_id = bill_obj.id
-            except ClientBill.DoesNotExist:
-                bill_obj = ClientBill(client=client_obj, is_draft=True)
-                bill_obj.save()
-                bill_id = bill_obj.id
-
-            form.instance.bill = bill_obj
-            form.save()
-            data = {"id": form.instance.id, "unit": form.instance.get_unit_display(),
-                    "rate": form.instance.rate, "item": form.instance.item.name,
-                    "item_count": form.instance.item_count}
-            return JsonResponse({"status": True, "data": data, "bill_id": bill_id})
-        else:
-            return JsonResponse({"status": False, "errors": form.errors})
-    return JsonResponse({"status": False, "description": "Invalid request"})
 
 def done_drafted_bill(request, bill_obj):
     billed_amount = 0
@@ -323,10 +308,8 @@ def get_print_bill_data(request, bill_obj):
     return context
 
 @login_required(login_url='/login/')
-def print_bill(request, bill_obj):
-    if request.method != "GET":
-        raise Http404
-
+@require_http_methods(["GET"])
+def print_bill(request, bill_id):
     try:
         bill_obj = ClientBill.objects.get(id=int(bill_id), is_draft=False)
     except:
@@ -336,10 +319,8 @@ def print_bill(request, bill_obj):
     return render(request, 'client_bills/print.html', context)
 
 @login_required(login_url='/login/')
+@require_http_methods(["POST"])
 def done_bill(request, bill_id):
-    if request.method != "POST":
-        raise Http404
-
     try:
         bill_obj = ClientBill.objects.get(id=int(bill_id), is_draft=True)
     except:
