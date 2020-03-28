@@ -227,14 +227,8 @@ class BillDetailCreateView(CustomCreateView):
             object_list.append(detail_obj)
 
         # Load Item choices
-        try:
-            Item.objects.get(id=0)
-        except:
-            item_obj = Item(id=0, name="test name")
-            item_obj.save()
-
-        choices = [(0, "test name")]
-        qs = Item.objects.all()
+        choices = []
+        qs = Item.objects.all().order_by("id")
         vs = list(qs.values_list("id", "name"))
         form.fields["item"].choices = choices + vs
         form.fields["unit"].choices = form.fields["unit"].choices[1:]

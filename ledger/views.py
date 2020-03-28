@@ -63,7 +63,7 @@ def get_client_ledger_data(request):
     total_current_balance = 0
     total_billed_amount = 0
     qs = Client.objects.filter(shop=request.shop)
-    qs = qs.filter(~Q(current_balance=0))
+    #qs = qs.filter(~Q(current_balance=0))
     client_vs = list(qs.values('id', 'name', 'current_balance'))
     for obj in client_vs:
         pk = obj["id"]
@@ -97,6 +97,7 @@ def get_client_ledger_data(request):
         payment = data[pk]["payment"]
         previous_balance = current_balance + payment - billed_amount
         data[pk]["previous_balance"] = previous_balance
+        if current_balance == 0: continue
         ledger_list.append(data[pk])
 
         total_payment += payment
