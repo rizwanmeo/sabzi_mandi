@@ -19,6 +19,13 @@ class ClientPaymentListView(CustomListView):
     filterset_fields = ["client__name"]
     shop_lookup = "client__shop"
 
+    def get_context_data(self, **kwargs):
+        context = super(ClientPaymentListView, self).get_context_data(**kwargs)
+        qs = context["object_list"]
+        qs = qs.filter(is_draft=False)
+        context["object_list"] = qs
+        return context
+
 class ClientPaymentCreateView(CustomCreateView):
     model = ClientPayment
     success_url = "/payment/clients"
@@ -39,6 +46,7 @@ class ClientPaymentCreateView(CustomCreateView):
 
     def form_valid(self, form):
         super(ClientPaymentCreateView, self).form_valid(form)
+        create_payment_ledger(bill_obj, form.instance.client.current_balance)
         form.instance.client.current_balance -= form.instance.amount
         form.instance.client.save()
         msg = 'Client Payment: [%s] was creates succefully.' % form.instance.client.name

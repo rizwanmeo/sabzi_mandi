@@ -10,9 +10,9 @@ from django.views.decorators.http import require_http_methods
 
 from .forms import *
 from .models import *
-from clients.models import Client
-
 from sabzi_mandi.views import *
+from clients.models import Client
+from ledger.utils import create_bill_ledger, create_payment_ledger
 
 class ClientBillListView(CustomListView):
     model = ClientBill
@@ -93,14 +93,13 @@ class ClientBillCreateView(CustomCreateView):
         today = datetime.date.today()
         form.instance.is_draft = True
         payment_amount = form.cleaned_data.get("payment", 0)
-        description = "payment received against bill on %s" % today.strftime("%Y-%m-%d")
         # Only create when payment amount > 0
         if payment_amount > 0:
             payment_obj = ClientPayment()
             payment_obj.client = form.instance.client
             payment_obj.payment_date = today
             payment_obj.amount = payment_amount
-            payment_obj.description = description
+            payment_obj.is_draft = False
             payment_obj.save()
             form.instance.payment = payment_obj
 
@@ -138,8 +137,11 @@ class ClientBillUpdateView(CustomUpdateView):
     def form_valid(self, form):
         super(ClientBillUpdateView, self).form_valid(form)
         payment_amount = form.cleaned_data.get("payment", 0)
-        self.object.payment.amount = payment_amount
-        self.object.payment.save()
+        if payment_amount > 0:
+            self.object.payment.amount = payment_amount
+            self.object.payment.save()
+        elif self.object.payment is not None:
+            self.object.payment.delete()
 
         msg = 'Client: [%s] bill was updated succfully. Please add bill detail'
         msg %= form.instance.client.name
@@ -259,9 +261,15 @@ def done_drafted_bill(request, bill_obj):
     bill_obj.is_draft = False
     bill_obj.billed_amount = billed_amount
 
+    create_bill_ledger(bill_obj, bill_obj.client.current_balance)
     bill_obj.client.current_balance += billed_amount
     if bill_obj.payment:
+        create_payment_ledger(bill_obj.payment, bill_obj.client.current_balance)
         bill_obj.client.current_balance -= bill_obj.payment.amount
+        bill_obj.payment.is_draft = True
+        description = "Payment received against bill ID bill-%06d" % bill_obj.id
+        bill_obj.description = description
+        bill_obj.payment.save()
 
     bill_obj.balance = bill_obj.client.current_balance
     bill_obj.client.save()

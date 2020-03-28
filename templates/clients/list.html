@@ -53,7 +53,11 @@
                 {% for obj in object_list %}
                 <tr>
                   <td>{{ obj.id }}</td>
-                  <td>{{ obj.name }}</td>
+                  <td>
+                    <a href="/clients/{{obj.id}}/detail/?{{ request.GET.urlencode }}">
+                      {{ obj.name }}
+                    </a>
+                  </td>
                   <td>{% if obj.cnic %}{{ obj.cnic }}{% endif %}</td>
                   <td>{% if obj.phone %}{{ obj.phone }}{% endif %}</td>
                   <td>{{ obj.opening_balance }}</td>
@@ -109,6 +113,15 @@
   <script src="{% static "vendor/datatables/jquery.dataTables.js" %}"></script>
   <script src="{% static "vendor/datatables/dataTables.bootstrap4.min.js" %}"></script>
   <script>
+    $(function() {
+      $("#dataTable").DataTable({
+          "oLanguage": {
+            "sLengthMenu": "_MENU_",
+            "sSearch": "_INPUT_",
+          }
+      });
+    });
+
     function showDeleteConfirmation(Id) {
       $("#id_delete_confirmation").modal('show');
       $("#id_delete").attr('href', "/clients/"+Id+"/delete/?{{ request.GET.urlencode }}");

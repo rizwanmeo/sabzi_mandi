@@ -82,12 +82,6 @@
   {% block javascript %}{% endblock %}
   <script>
     $(function() {
-      $('#dataTable').DataTable({
-          "oLanguage": {
-            "sLengthMenu": "_MENU_",
-            "sSearch": "_INPUT_",
-          },
-      });
       $(".alert-success").fadeTo(2000, 500).slideUp(500, function(){
           $(".alert-success").slideUp(500);
       });

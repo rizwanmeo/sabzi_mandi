@@ -1,7 +1,7 @@
 from django_filters.views import FilterView
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import CreateView, UpdateView, DeleteView
+from django.views.generic import CreateView, UpdateView, DeleteView, DetailView
 
 class CustomLoginRequiredMixin(LoginRequiredMixin):
     login_url = "/login"
@@ -32,3 +32,6 @@ class CustomUpdateView(CustomLoginRequiredMixin, CustomViewMixin, UpdateView):
 class CustomDeleteView(CustomLoginRequiredMixin, CustomViewMixin, DeleteView):
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
+
+class CustomDetailView(CustomLoginRequiredMixin, DetailView):
+    pass

@@ -3,8 +3,9 @@
 {% block breadcrumb %}
 <nav aria-label="breadcrumb" class="p-3">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Clients Payment list</li>
+    <li class="breadcrumb-item"><a href="/?{{ request.GET.urlencode }}">Dashboard</a></li>
+    <li class="breadcrumb-item active" aria-current="page"><a href="/clients/?{{ request.GET.urlencode }}">Clients</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{object.name}}</li>
   </ol>
 </nav>
 {% endblock %}
@@ -20,17 +21,7 @@
           <div class="row">
             <div class="col-lg-6">
               <div class="text-left">
-                <h4 class="font-weight-bold text-primary">Clients Payment list</h4>
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="text-right">
-                  <a href="/payment/clients/create/?{{ request.GET.urlencode }}" class="btn btn-success btn-icon-split btn-sm">
-                    <span class="icon text-white-50">
-                      <i class="fa fa-plus"></i>
-                    </span>
-                    <span class="text">Add New Payment</span>
-                  </a>
+                <h4 class="font-weight-bold text-primary">{{object.name}}</h4>
               </div>
             </div>
           </div>
@@ -40,21 +31,25 @@
             <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
               <thead>
                 <tr>
-                  <th>Payment Time</th>
-                  <th>Description</th>
-                  <th>Amount</th>
-                  <th>Client Name</th>
+                  <th hidden>PK</th>
                   <th>ID</th>
+                  <th>Date</th>
+                  <th>Billed Amount</th>
+                  <th>Payment</th>
+                  <th>Balance</th>
+                  <th>Description</th>
                 </tr>
               </thead>
               <tbody>
-                {% for obj in object_list %}
+                {% for obj in data %}
                 <tr>
-                  <td>{{ obj.payment_time }}</td>
-                  <td>{{ obj.description }}</td>
-                  <td>{{ obj.amount }}</td>
-                  <td>{{ obj.client.name }}</td>
-                  <td>{{ obj.id }}</td>
+                  <th hidden>{{obj.id}}</th>
+                  <th>{{obj.tx_id}}</th>
+                  <th>{{obj.tx_date}}</th>
+                  <th>{{obj.bill_amount}}</th>
+                  <th>{{obj.payment_amount}}</th>
+                  <th>{{obj.balance}}</th>
+                  <th>{{obj.description}}</th>
                 </tr>
                 {% endfor %}
               </tbody>
@@ -78,7 +73,11 @@
           "oLanguage": {
             "sLengthMenu": "_MENU_",
             "sSearch": "_INPUT_",
-          }
+          },
+          "aoColumnDefs": [
+              { "bSortable": false, "aTargets": [ 0, 1, 2, 3, 4, 5 ] }, 
+              { "bSearchable": false, "aTargets": [ 0, 1, 2, 3, 4, 5 ] }
+          ]
       });
     });
   </script>

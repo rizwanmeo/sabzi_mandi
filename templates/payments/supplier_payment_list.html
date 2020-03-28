@@ -72,4 +72,14 @@
   <!-- Page level plugins -->
   <script src="{% static "vendor/datatables/jquery.dataTables.js" %}"></script>
   <script src="{% static "vendor/datatables/dataTables.bootstrap4.min.js" %}"></script>
+  <script>
+    $(function() {
+      $("#dataTable").DataTable({
+          "oLanguage": {
+            "sLengthMenu": "_MENU_",
+            "sSearch": "_INPUT_",
+          }
+      });
+    });
+  </script>
 {% endblock %}

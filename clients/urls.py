@@ -11,6 +11,11 @@ urlpatterns = [
     re_path(r'^create/$', views.ClientCreateView.as_view(), name='clients_create'),
 
     # client update view url
-    re_path(r'^(?P<pk>\d+)/update/$', views.ClientUpdateView.as_view(), name='^clients_update$'),
-    re_path(r'^(?P<pk>\d+)/delete/$', views.ClientDeleteView.as_view(), name='^clients_delete$'),
+    re_path(r'^(?P<pk>\d+)/update/$', views.ClientUpdateView.as_view(), name='clients_update'),
+
+    # client detail view url
+    re_path(r'^(?P<pk>\d+)/detail/$', views.ClientDetailView.as_view(), name='clients_detail'),
+
+    # client delete view url
+    re_path(r'^(?P<pk>\d+)/delete/$', views.ClientDeleteView.as_view(), name='clients_delete'),
 ]

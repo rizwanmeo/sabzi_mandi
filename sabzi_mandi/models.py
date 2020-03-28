@@ -35,6 +35,7 @@ class BasicInfo(UpdatedInfo):
 
 class PaymentMixin(models.Model):
     amount = models.IntegerField(validators=[PaymentValidator(0)])
+    is_draft = models.BooleanField(default=False)
     payment_date = models.DateField()
     payment_time = models.DateTimeField(default=timezone.now, editable=False)
 

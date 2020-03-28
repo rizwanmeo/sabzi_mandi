@@ -7,6 +7,8 @@ from django.http import HttpResponseRedirect, Http404, JsonResponse
 
 from .models import *
 from sabzi_mandi.views import *
+from client_bills.models import ClientBill
+from ledger.utils import create_opening_ledger
 
 class ClientListView(CustomListView):
     model = Client
@@ -24,6 +26,7 @@ class ClientCreateView(CustomCreateView):
         form.instance.shop = self.request.shop
         form.instance.current_balance = form.instance.opening_balance
         super(ClientCreateView, self).form_valid(form)
+        create_opening_ledger(form.instance)
         msg = 'Client: [%s] was created succfully.' % form.instance.name
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())
@@ -53,3 +56,16 @@ class ClientDeleteView(CustomDeleteView):
         msg = 'Client: [%s] was delete succfully.' % self.object.name
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())
+
+
+class ClientDetailView(CustomDetailView):
+    model = Client
+    template_name = "clients/detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(ClientDetailView, self).get_context_data(**kwargs)
+        obj = context["object"]
+        qs = obj.clientledger_set.all()
+        qs = qs.order_by("id")
+        context["data"] = qs
+        return context
