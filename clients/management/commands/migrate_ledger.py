@@ -1,3 +1,5 @@
+import datetime
+
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
@@ -35,7 +37,10 @@ class Command(BaseCommand):
                     continue
 
                 row = {}
-                row["tx_time"] = bill_obj.created_time
+                if bill_obj.created_time < client_obj.created_time:
+                    row["tx_time"] = client_obj.created_time + datetime.timedelta(minutes=5)
+                else:
+                    row["tx_time"] = bill_obj.created_time
                 row["obj"] = bill_obj
                 data.append(row)
 
@@ -43,7 +48,10 @@ class Command(BaseCommand):
             qs = list(client_obj.clientpayment_set.all())
             for payment_obj in qs:
                 row = {}
-                row["tx_time"] = payment_obj.payment_time
+                if payment_obj.payment_time < client_obj.created_time:
+                    row["tx_time"] = client_obj.created_time + datetime.timedelta(minutes=5)
+                else:
+                    row["tx_time"] = payment_obj.payment_time
                 row["obj"] = payment_obj
                 data.append(row)
 
@@ -52,6 +60,10 @@ class Command(BaseCommand):
             balance = 0
             for row in data:
                 obj = row["obj"]
+                created_time = row["tx_time"]
+                if client_obj.created_time > created_time:
+                    continue
+
                 if isinstance(obj, Client):
                     ledger = create_opening_ledger(obj)
                     balance = ledger.balance
