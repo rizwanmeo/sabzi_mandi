@@ -47,7 +47,7 @@ class ClientPaymentCreateView(CustomCreateView):
 
     def form_valid(self, form):
         super(ClientPaymentCreateView, self).form_valid(form)
-        create_payment_ledger(bill_obj, form.instance.client.current_balance)
+        create_payment_ledger(form.instance, form.instance.client.current_balance)
         form.instance.client.current_balance -= form.instance.amount
         form.instance.client.save()
         msg = 'Client Payment: [%s] was creates succefully.' % form.instance.client.name
