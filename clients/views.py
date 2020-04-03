@@ -69,3 +69,43 @@ class ClientDetailView(CustomDetailView):
         qs = qs.order_by("id")
         context["data"] = qs
         return context
+
+class ClientDetailPrintView(CustomDetailView):
+    model = Client
+    template_name = "clients/detail-print.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(ClientDetailPrintView, self).get_context_data(**kwargs)
+        obj = context["object"]
+        columns = ["client__id", "client__name", "tx_id", "tx_time", "tx_date",
+                   "balance", "bill_amount", "payment_amount", "description"]
+
+        qs = obj.clientledger_set.all()
+        qs = qs.order_by("id")
+        vs = list(qs.values(*columns))
+
+        data = []
+        object_list = []
+        total_payment = 0
+        total_billed_amount = 0
+        for count, row in enumerate(vs):
+            if count == 28:
+                data.append(object_list)
+                object_list = []
+            elif count > 28 and len(object_list) == 38:
+                data.append(object_list)
+                object_list = []
+            row["client"] = {"id": row.pop("client__id"), "name": row.pop("client__name")}
+            object_list.append(row)
+
+            total_payment += row["payment_amount"]
+            total_billed_amount += row["bill_amount"]
+
+        if len(object_list) > 0:
+            data.append(object_list)
+
+        context["data"] = data
+        context["total_payment"] = total_payment
+        context["total_billed_amount"] = total_billed_amount
+
+        return context

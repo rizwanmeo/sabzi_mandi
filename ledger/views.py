@@ -97,7 +97,7 @@ def get_client_ledger_data(request):
         payment = data[pk]["payment"]
         previous_balance = current_balance + payment - billed_amount
         data[pk]["previous_balance"] = previous_balance
-        if current_balance == 0: continue
+        if current_balance == 0 and billed_amount == 0 and payment == 0: continue
         ledger_list.append(data[pk])
 
         total_payment += payment

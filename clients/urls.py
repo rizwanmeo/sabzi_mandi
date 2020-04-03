@@ -15,6 +15,7 @@ urlpatterns = [
 
     # client detail view url
     re_path(r'^(?P<pk>\d+)/detail/$', views.ClientDetailView.as_view(), name='clients_detail'),
+    re_path(r'^(?P<pk>\d+)/print/$', views.ClientDetailPrintView.as_view(), name='clients_detail_print'),
 
     # client delete view url
     re_path(r'^(?P<pk>\d+)/delete/$', views.ClientDeleteView.as_view(), name='clients_delete'),
