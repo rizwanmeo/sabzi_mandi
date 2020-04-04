@@ -44,10 +44,10 @@
                   <th hidden>PK</th>
                   <th>ID</th>
                   <th>Date</th>
+                  <th>Description</th>
                   <th>Billed Amount</th>
                   <th>Payment</th>
                   <th>Balance</th>
-                  <th>Description</th>
                 </tr>
               </thead>
               <tbody>
@@ -56,10 +56,10 @@
                   <th hidden>{{obj.id}}</th>
                   <th>{{obj.tx_id}}</th>
                   <th>{{obj.tx_date}}</th>
+                  <th>{{obj.description}}</th>
                   <th>{{obj.bill_amount}}</th>
                   <th>{{obj.payment_amount}}</th>
                   <th>{{obj.balance}}</th>
-                  <th>{{obj.description}}</th>
                 </tr>
                 {% endfor %}
               </tbody>

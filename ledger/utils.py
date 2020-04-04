@@ -3,7 +3,7 @@ from .models import ClientLedger
 def create_opening_ledger(client_obj):
     ledger = ClientLedger()
     ledger.client = client_obj
-    ledger.tx_id = "client-%06d" % client_obj.id
+    ledger.tx_id = "client-%d" % client_obj.id
     ledger.tx_time = client_obj.created_time
     ledger.tx_date = client_obj.created_time.date()
     ledger.balance = client_obj.opening_balance
@@ -14,7 +14,7 @@ def create_opening_ledger(client_obj):
 def create_bill_ledger(bill_obj, balance):
     ledger = ClientLedger()
     ledger.client = bill_obj.client
-    ledger.tx_id = "bill-%06d" % bill_obj.pk
+    ledger.tx_id = "bill-%d" % bill_obj.pk
     ledger.tx_time = bill_obj.created_time
     ledger.tx_date = bill_obj.bill_date
     ledger.bill_amount = bill_obj.billed_amount
@@ -30,7 +30,7 @@ def create_bill_ledger(bill_obj, balance):
 def create_payment_ledger(payment_obj, balance):
     ledger = ClientLedger()
     ledger.client = payment_obj.client
-    ledger.tx_id = "payment-%06d" % payment_obj.pk
+    ledger.tx_id = "payment-%d" % payment_obj.pk
     ledger.tx_time = payment_obj.payment_time
     ledger.tx_date = payment_obj.payment_date
     ledger.payment_amount = payment_obj.amount
