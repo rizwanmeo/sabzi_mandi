@@ -43,30 +43,33 @@
        <tr style="width: 100%">
          <td colspan="2"><img src="/static/img/index.jpeg" width="100%"></td>
         </tr>
-       <tr align="right"><td colspan="2">{{ object.name }} ({{ object.id }})</td></tr>
+       <tr align="right">
+         <td width="95%">{{ object.name }}</td>
+         <td width="5%">({{ object.id }})</td>
+       </tr>
         {% endif %}
        <tr height="100px;">
-         <td>
+         <td colspan="2">
             <table class="table" {% if ledger_list2|length > ledger_list1|length %}style="margin-top: -27px;"{% endif %}>
               <thead>
                 <tr>
-                  <th width="15%" align="right">ID</th>
-                  <th width="15%" align="center">Date</th>
-                  <th width="40%" align="left">Description</th>
-                  <th width="10%" align="center">Billed Amount</th>
-                  <th width="10%" align="center">Payment</th>
                   <th width="10%" align="center">Balance</th>
+                  <th width="10%" align="center">Payment</th>
+                  <th width="10%" align="center">Billed Amount</th>
+                  <th width="40%" align="right">Description</th>
+                  <th width="15%" align="center">Date</th>
+                  <th width="15%" align="right">ID</th>
                 </tr>
               </thead>
               <tbody>
                 {% for obj in object_list %}
                 <tr>
-                  <th align="right">{{obj.tx_id}}</th>
-                  <th>{{obj.tx_date}}</th>
-                  <th align="left">{{obj.description}}</th>
-                  <th>{{obj.bill_amount}}</th>
-                  <th>{{obj.payment_amount}}</th>
                   <th>{{obj.balance}}</th>
+                  <th>{% if obj.payment_amount %} {{ obj.payment_amount }} {% else %} - {% endif %}</th>
+                  <th>{% if obj.bill_amount %} {{ obj.bill_amount }} {% else %} - {% endif %}</th>
+                  <th align="right">{{obj.description}}</th>
+                  <th>{{obj.tx_date}}</th>
+                  <th align="right">{{obj.tx_id}}</th>
                 </tr>
                 {% endfor %}
               </tbody>
