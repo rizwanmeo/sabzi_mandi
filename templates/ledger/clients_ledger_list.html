@@ -42,10 +42,10 @@
                 <tr>
                   <th>ID</th>
                   <th>Client Name</th>
-                  <th>Previous Amount</th>
-                  <th>Bill Amount</th>
-                  <th>Payment</th>
-                  <th>Total Amount</th>
+                  <th class="text-center">Previous Amount</th>
+                  <th class="text-center">Bill Amount</th>
+                  <th class="text-center">Payment</th>
+                  <th class="text-center">Total Amount</th>
                 </tr>
               </thead>
               <tbody>
@@ -53,10 +53,10 @@
                 <tr>
                   <td>{{ obj.id }}</td>
                   <td>{{ obj.name }}</td>
-                  <td>{{ obj.previous_balance }}</td>
-                  <td>{% if obj.billed_amount %}{{ obj.billed_amount }}{% endif %}</td>
-                  <td>{% if obj.payment %}{{ obj.payment }}{% endif %}</td>
-                  <td>{{ obj.current_balance }}</td>
+                  <td class="text-center">{{ obj.previous_balance }}</td>
+                  <td class="text-center">{% if obj.billed_amount %}{{ obj.billed_amount }}{% else %} - {% endif %}</td>
+                  <td class="text-center">{% if obj.payment %}{{ obj.payment }}{% else %} - {% endif %}</td>
+                  <td class="text-center">{{ obj.current_balance }}</td>
                 </tr>
                 {% endfor %}
               </tbody>
@@ -74,4 +74,14 @@
   <!-- Page level plugins -->
   <script src="{% static "vendor/datatables/jquery.dataTables.js" %}"></script>
   <script src="{% static "vendor/datatables/dataTables.bootstrap4.min.js" %}"></script>
+  <script>
+    $(function() {
+      $("#dataTable").DataTable({
+          "oLanguage": {
+            "sLengthMenu": "_MENU_",
+            "sSearch": "_INPUT_",
+          }
+      });
+    });
+  </script>
 {% endblock %}

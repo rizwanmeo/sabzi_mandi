@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>L</title>
+    <title>Bill Detail: {{ obj.client.name }}</title>
     {% load static %}
 
     <!-- Custom styles for this template-->
@@ -35,53 +35,54 @@
               </tr>
               <tr>
                 <th colspan=2>{{ obj.bill_date }}</th>
-                <th width="85px">Code: 12{{ obj.client.id }}</th>
-                <th colspan=2><div class="text-right">{{ obj.client.name }}</div></th>
+                <th class="text-right">Code:</th>
+                <th class="text-left">{{ obj.client.id }}</th>
+                <th><div class="text-right">{{ obj.client.name }}</div></th>
               </tr>
               <tr>
-                <th>Amount</th>
-                <th>Weight(KG)</th>
-                <th>Rate</th>
-                <th>Items</th>
-                <th>Item Name</th>
+                <th class="text-center" width="20%">Amount</th>
+                <th class="text-center" width="20%">Weight</th>
+                <th class="text-center" width="10%">Rate</th>
+                <th class="text-center" width="10%">Qantity</th>
+                <th class="text-right">Item</th>
               </tr>
               {% for bill_obj in bill_detail_list %}
               <tr>
-                <td>{% widthratio bill_obj.rate 1 bill_obj.item_count %}</td>
-                <td>{% if bill_obj.unit == 'k' %}{{ bill_obj.item_count }}{% endif %}</td>
-                <td>{{ bill_obj.rate }}</td>
-                <td>{% if bill_obj.unit == 'i' %}{{ bill_obj.item_count }}{% endif %}</td>
+                <td class="text-center">{% widthratio bill_obj.rate 1 bill_obj.item_count %}</td>
+                <td class="text-center">{% if bill_obj.unit == 'k' %}{{ bill_obj.item_count }}-KG{% endif %}</td>
+                <td class="text-center">{{ bill_obj.rate }}</td>
+                <td class="text-center">{% if bill_obj.unit == 'i' %}{{ bill_obj.item_count }}{% endif %}</td>
                 <td><div class="text-right">{{ bill_obj.name }}</div></td>
               </tr>
               {% endfor %}
               <tr>
-                <td>{{ obj.billed_amount }}</td>
-                <td colspan=2>Billed Amount</td>
-                <td>{{total_item_count}} Items</td>
-                <td>{{total_item_weight}}KG Weight</td>
+                <td class="text-center">{{ obj.billed_amount }}</td>
+                <td class="text-left"colspan=2>Billed Amount</td>
+                <td class="text-right">{% if total_item_count %}{{total_item_count}}{% endif %}</td>
+                <td class="text-right">{{total_item_weight}}-KG</td>
               </tr>
               <tr>
-                <td>{{ obj.previous_balance }}</td>
-                <td colspan=4>Previous Amount</td>
-              </tr>
-              <tr>
-                <td>{{ obj.after_bill_balance }}</td>
-                <td>Total Amount</td>
-                <td colspan=3 rowspan=0>
-                  <div class="text-center">
+                <td class="text-center">{{ obj.previous_balance }}</td>
+                <td colspan="2">Previous Amount</td>
+                <td rowspan="4" colspan="2" style="vertical-align: middle;">
+                  <div class="text-center h-10">
                     Develop By</br>
                     Ahmed Faraz Arain</br>
                     0346-2073561
                   </div>
-                </th>
+                </td>
               </tr>
               <tr>
-                <td>{{ obj.payment.amount }}</td>
-                <td>Paid Amount</td>
+                <td class="text-center">{{ obj.after_bill_balance }}</td>
+                <td colspan="2">Total Amount</td>
               </tr>
               <tr>
-                <td>{{ obj.balance }}</td>
-                <td>Total</td>
+                <td class="text-center">{{ obj.payment.amount }}</td>
+                <td colspan="2">Paid Amount</td>
+              </tr>
+              <tr>
+                <td class="text-center">{{ obj.balance }}</td>
+                <td colspan="2">Total</td>
               </tr>
             </table>
           </div>

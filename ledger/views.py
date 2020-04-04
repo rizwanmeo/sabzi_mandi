@@ -8,8 +8,8 @@ from django.views.decorators.http import require_http_methods
 
 from clients.models import Client
 from suppliers.models import Supplier
-from client_bills.models import ClientBill
-from payments.models import ClientPayment, SupplierPayment
+from ledger.models import ClientLedger
+from payments.models import SupplierPayment
 
 
 def get_suppliers_ledger_data(request):
@@ -62,50 +62,70 @@ def get_client_ledger_data(request):
     total_previous_balance = 0
     total_current_balance = 0
     total_billed_amount = 0
-    qs = Client.objects.filter(shop=request.shop)
-    #qs = qs.filter(~Q(current_balance=0))
-    client_vs = list(qs.values('id', 'name', 'current_balance'))
-    for obj in client_vs:
-        pk = obj["id"]
+
+    today = datetime.date.today()
+    kwargs = {"client__shop": request.shop, "tx_date": today}
+    ledger_qs = ClientLedger.objects.filter(**kwargs)
+    columns = ["client__id", "client__name", "balance", "payment_amount", "bill_amount"]
+    ledger_vs = ledger_qs.order_by("client", "-tx_date").values(*columns)
+
+    for row in ledger_vs:
+        pk = str(row["client__id"])
+        if pk not in data:
+            data[pk] = {}
+            data[pk]["id"] = pk
+            data[pk]["name"] = row["client__name"]
+            data[pk]["current_balance"] = row["balance"]
+            data[pk]["payment"] = 0
+            data[pk]["billed_amount"] = 0
+            data[pk]["previous_balance"] = 0
+        else:
+            current_balance = row[pk]["balance"]
+            payment = data[pk]["payment_amount"]
+            billed_amount = row[pk]["bill_amount"]
+            previous_balance = current_balance + payment - billed_amount
+            data[pk]["payment"] += payment
+            data[pk]["billed_amount"] += billed_amount
+            data[pk]["previous_balance"] = previous_balance
+
+            total_payment += payment
+            total_previous_balance += previous_balance
+            total_current_balance += current_balance
+            total_billed_amount += billed_amount
+
+    from django.db import connection
+
+    columns = ["t.client_id", "tt.name", "t.balance"]
+    temp_table = "SELECT client_id, name, max(tx_time) AS tx_time FROM ledger_clientledger"
+    temp_table += " JOIN clients_client AS c ON(client_id=c.id)"
+    temp_table += " WHERE c.shop_id=%d" % request.shop.id
+    if len(data) != 0:
+        temp_table += " AND client_id in (%s) AND tx_date < '%s'"
+        temp_table = temp_table % (", ".join(data.keys()), str(today))
+    temp_table += " GROUP BY client_id"
+
+    query = "SELECT %s FROM ledger_clientledger as t"
+    query += " JOIN (%s) AS tt USING(client_id, tx_time)"
+    query = query % (", ".join(columns), temp_table)
+
+    cursor = connection.cursor()
+    cursor.execute(query)
+    rows = cursor.fetchall()
+
+    for row in rows:
+        pk = str(row[0])
         data[pk] = {}
-        data[pk]["id"] = obj["id"]
-        data[pk]["name"] = obj["name"]
-        data[pk]["previous_balance"] = 0
-        data[pk]["current_balance"] = obj["current_balance"]
+        data[pk]["id"] = pk
+        data[pk]["name"] = row[1]
+        data[pk]["current_balance"] = row[2]
+        data[pk]["previous_balance"] = row[2]
         data[pk]["payment"] = 0
         data[pk]["billed_amount"] = 0
 
-    today = datetime.date.today()
-    bill_kwargs = {"client__shop": request.shop, "created_time__gte": today}
-    bill_qs = ClientBill.objects.filter(**bill_kwargs)
-    bill_vs = list(bill_qs.values("client_id", "billed_amount"))
-    for obj in bill_vs:
-        client_id = obj["client_id"]
-        data[client_id]["billed_amount"] += obj["billed_amount"]
+        total_previous_balance += row[2]
+        total_current_balance += row[2]
 
-    payment_kwargs = {"client__shop": request.shop, "payment_time__gte": today}
-    payment_qs = ClientPayment.objects.filter(**payment_kwargs)
-    payment_qs = list(payment_qs.values("client_id", "amount"))
-    for obj in payment_qs:
-        client_id = obj["client_id"]
-        data[client_id]["payment"] += obj["amount"]
-
-    ledger_list = []
-    for pk in data:
-        billed_amount = data[pk]["billed_amount"]
-        current_balance = data[pk]["current_balance"]
-        payment = data[pk]["payment"]
-        previous_balance = current_balance + payment - billed_amount
-        data[pk]["previous_balance"] = previous_balance
-        if current_balance == 0 and billed_amount == 0 and payment == 0: continue
-        ledger_list.append(data[pk])
-
-        total_payment += payment
-        total_previous_balance += previous_balance
-        total_current_balance += current_balance
-        total_billed_amount += billed_amount
-
-    ledger_list = sorted(ledger_list, key = lambda i: i['id'])
+    ledger_list = sorted(data.values(), key = lambda i: i['id'])
     context["ledger_list"] = ledger_list
     context["total_payment"] = total_payment
     context["total_previous_balance"] = total_previous_balance
