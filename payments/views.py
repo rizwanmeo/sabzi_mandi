@@ -54,6 +54,20 @@ class ClientPaymentCreateView(CustomCreateView):
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())
 
+class ClientPaymentDeleteView(CustomDeleteView):
+    model = ClientPayment
+    success_url = "/payment/clients"
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        super(ClientPaymentDeleteView, self).delete(request, *args, **kwargs)
+        self.object.client.current_balance += self.object.amount
+        self.object.client.save()
+        msg = 'Client Payment: [%s] was deleted succfully.' % self.object.client.name
+        messages.add_message(self.request, messages.INFO, msg)
+        return HttpResponseRedirect(self.get_success_url())
 
 class SupplierPaymentListView(CustomListView):
     model = SupplierPayment

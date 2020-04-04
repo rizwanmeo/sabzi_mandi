@@ -113,6 +113,7 @@ def get_client_ledger_data(request):
     rows = cursor.fetchall()
 
     for row in rows:
+        if row[2] == 0: continue
         pk = str(row[0])
         data[pk] = {}
         data[pk]["id"] = pk
