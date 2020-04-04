@@ -102,7 +102,7 @@ def get_client_ledger_data(request):
     if len(data) != 0:
         temp_table += " AND client_id in (%s) AND tx_date < '%s'"
         temp_table = temp_table % (", ".join(data.keys()), str(today))
-    temp_table += " GROUP BY client_id"
+    temp_table += " GROUP BY client_id, name"
 
     query = "SELECT %s FROM ledger_clientledger as t"
     query += " JOIN (%s) AS tt USING(client_id, tx_time)"
