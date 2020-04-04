@@ -42,24 +42,24 @@
               <thead>
                 <tr>
                   <th hidden>PK</th>
-                  <th>Balance</th>
-                  <th>Payment</th>
-                  <th>Billed Amount</th>
-                  <th>Description</th>
-                  <th>Date</th>
-                  <th>ID</th>
+                  <th class="text-center">Balance</th>
+                  <th class="text-center">Payment</th>
+                  <th class="text-center">Billed Amount</th>
+                  <th class="text-right">Description</th>
+                  <th class="text-center">Date</th>
+                  <th class="text-center">ID</th>
                 </tr>
               </thead>
               <tbody>
                 {% for obj in data %}
                 <tr>
                   <th hidden>{{obj.id}}</th>
-                  <th>{{obj.balance}}</th>
-                  <th>{{obj.payment_amount}}</th>
-                  <th>{{obj.bill_amount}}</th>
-                  <th>{{obj.description}}</th>
-                  <th>{{obj.tx_date}}</th>
-                  <th>{{obj.tx_id}}</th>
+                  <th class="text-center">{{obj.balance}}</th>
+                  <th class="text-center">{% if obj.payment_amount %} {{ obj.payment_amount }} {% else %} - {% endif %}</th>
+                  <th class="text-center">{% if obj.bill_amount %} {{ obj.bill_amount }} {% else %} - {% endif %}</th>
+                  <th class="text-right">{{obj.description}}</th>
+                  <th class="text-center">{{obj.tx_date}}</th>
+                  <th class="text-center">{{obj.tx_id}}</th>
                 </tr>
                 {% endfor %}
               </tbody>

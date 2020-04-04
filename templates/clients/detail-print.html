@@ -58,7 +58,7 @@
                   <th width="10%" align="center">Billed Amount</th>
                   <th width="40%" align="right">Description</th>
                   <th width="15%" align="center">Date</th>
-                  <th width="15%" align="right">ID</th>
+                  <th width="15%" align="center">ID</th>
                 </tr>
               </thead>
               <tbody>
@@ -69,7 +69,7 @@
                   <th>{% if obj.bill_amount %} {{ obj.bill_amount }} {% else %} - {% endif %}</th>
                   <th align="right">{{obj.description}}</th>
                   <th>{{obj.tx_date}}</th>
-                  <th align="right">{{obj.tx_id}}</th>
+                  <th align="center">{{obj.tx_id}}</th>
                 </tr>
                 {% endfor %}
               </tbody>
