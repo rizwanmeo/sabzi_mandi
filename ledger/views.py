@@ -82,9 +82,9 @@ def get_client_ledger_data(request):
             data[pk]["billed_amount"] = 0
             data[pk]["previous_balance"] = 0
         else:
-            current_balance = row[pk]["balance"]
-            payment = data[pk]["payment_amount"]
-            billed_amount = row[pk]["bill_amount"]
+            current_balance = data[pk]["current_balance"]
+            payment = data[pk]["payment"]
+            billed_amount = data[pk]["billed_amount"]
             previous_balance = current_balance + payment - billed_amount
             data[pk]["payment"] += payment
             data[pk]["billed_amount"] += billed_amount
@@ -95,7 +95,7 @@ def get_client_ledger_data(request):
             total_current_balance += current_balance
             total_billed_amount += billed_amount
 
-    columns = ["t.client_id", "tt.name", "t.balance"]
+    columns = ["t.id", "t.client_id", "tt.name", "t.balance"]
     temp_table = "SELECT client_id, name, max(tx_time) AS tx_time FROM ledger_clientledger"
     temp_table += " JOIN clients_client AS c ON(client_id=c.id)"
     temp_table += " WHERE c.shop_id=%d" % request.shop.id
@@ -109,23 +109,24 @@ def get_client_ledger_data(request):
     query = query % (", ".join(columns), temp_table)
     print(query)
 
-    cursor = connection.cursor()
-    cursor.execute(query)
-    rows = cursor.fetchall()
+    rows = ClientLedger.objects.raw(query)
+    #cursor = connection.cursor()
+    #cursor.execute(query)
+    #rows = cursor.fetchall()
 
     for row in rows:
-        if row[2] == 0: continue
-        pk = str(row[0])
+        if row.balance == 0: continue
+        pk = str(row.client_id)
         data[pk] = {}
         data[pk]["id"] = pk
-        data[pk]["name"] = row[1]
-        data[pk]["current_balance"] = row[2]
-        data[pk]["previous_balance"] = row[2]
+        data[pk]["name"] = row.name
+        data[pk]["current_balance"] = row.balance
+        data[pk]["previous_balance"] = row.balance
         data[pk]["payment"] = 0
         data[pk]["billed_amount"] = 0
 
-        total_previous_balance += row[2]
-        total_current_balance += row[2]
+        total_previous_balance += row.balance
+        total_current_balance += row.balance
 
     ledger_list = sorted(data.values(), key = lambda i: i['id'])
     context["ledger_list"] = ledger_list
