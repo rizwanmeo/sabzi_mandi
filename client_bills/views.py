@@ -255,20 +255,26 @@ class BillDetailCreateView(CustomCreateView):
 
 def done_drafted_bill(request, bill_obj):
     billed_amount = 0
+    now = datetime.datetime.now()
     billdetail_vs = bill_obj.billdetail_set.values("rate", "item_count")
     for detail_obj in billdetail_vs:
         billed_amount += detail_obj["rate"] * detail_obj["item_count"]
     bill_obj.is_draft = False
     bill_obj.billed_amount = billed_amount
 
+    bill_obj.created_time = now + datetime.timedelta(seconds=1)
+    bill_obj.bill_date = now.date()
     create_bill_ledger(bill_obj, bill_obj.client.current_balance)
     bill_obj.client.current_balance += billed_amount
+
     if bill_obj.payment:
+        bill_obj.payment.payment_time = now + datetime.timedelta(seconds=1)
+        bill_obj.payment.payment_date = now.date()
+        bill_obj.payment.is_draft = False
+        description = "Payment received against bill ID bill-%06d" % bill_obj.id
+        bill_obj.payment.description = description
         create_payment_ledger(bill_obj.payment, bill_obj.client.current_balance)
         bill_obj.client.current_balance -= bill_obj.payment.amount
-        bill_obj.payment.is_draft = True
-        description = "Payment received against bill ID bill-%06d" % bill_obj.id
-        bill_obj.description = description
         bill_obj.payment.save()
 
     bill_obj.balance = bill_obj.client.current_balance

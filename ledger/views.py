@@ -1,8 +1,7 @@
 import datetime
+from collections import defaultdict
 
 from django.db.models import Q
-from django.db import connection
-
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django_filters.filterset import filterset_factory
@@ -69,51 +68,51 @@ def get_client_ledger_data(request):
     kwargs = {"client__shop": request.shop, "tx_date": today}
     ledger_qs = ClientLedger.objects.filter(**kwargs)
     columns = ["client__id", "client__name", "balance", "payment_amount", "bill_amount"]
-    ledger_vs = ledger_qs.order_by("client", "-tx_date").values(*columns)
+    ledger_qs = ledger_qs.order_by("client", "-tx_date")
+    ledger_vs = ledger_qs.values(*columns)
 
+    tmp_data = defaultdict(list)
     for row in ledger_vs:
         pk = str(row["client__id"])
-        if pk not in data:
-            data[pk] = {}
-            data[pk]["id"] = pk
-            data[pk]["name"] = row["client__name"]
-            data[pk]["current_balance"] = row["balance"]
-            data[pk]["payment"] = 0
-            data[pk]["billed_amount"] = 0
-            data[pk]["previous_balance"] = 0
-        else:
-            current_balance = data[pk]["current_balance"]
-            payment = data[pk]["payment"]
-            billed_amount = data[pk]["billed_amount"]
-            previous_balance = current_balance + payment - billed_amount
-            data[pk]["payment"] += payment
-            data[pk]["billed_amount"] += billed_amount
-            data[pk]["previous_balance"] = previous_balance
+        name = row["client__name"]
+        tmp_data[(pk, name)].append(row)
 
-            total_payment += payment
-            total_previous_balance += previous_balance
-            total_current_balance += current_balance
-            total_billed_amount += billed_amount
+    for (pk, name), rows in tmp_data.items():
+        data[pk] = {}
+        data[pk]["id"] = pk
+        data[pk]["name"] = name
+        data[pk]["payment"] = 0
+        data[pk]["billed_amount"] = 0
+        data[pk]["current_balance"] = rows[-1]["balance"]
+
+        for i, row in enumerate(rows):
+            data[pk]["payment"] += row["payment_amount"]
+            data[pk]["billed_amount"] += row["bill_amount"]
+
+        previous_balance = data[pk]["current_balance"]
+        previous_balance += data[pk]["payment"]
+        previous_balance -= data[pk]["billed_amount"]
+        data[pk]["previous_balance"] = previous_balance
+
+        total_payment += data[pk]["payment"]
+        total_previous_balance += data[pk]["previous_balance"]
+        total_current_balance += data[pk]["current_balance"]
+        total_billed_amount += data[pk]["billed_amount"]
 
     columns = ["t.id", "t.client_id", "tt.name", "t.balance"]
     temp_table = "SELECT client_id, name, max(tx_time) AS tx_time FROM ledger_clientledger"
     temp_table += " JOIN clients_client AS c ON(client_id=c.id)"
     temp_table += " WHERE c.shop_id=%d" % request.shop.id
     if len(data) != 0:
-        temp_table += " AND client_id in (%s) AND tx_date < '%s'"
+        temp_table += " AND client_id not in (%s) AND tx_date < '%s'"
         temp_table = temp_table % (", ".join(data.keys()), str(today))
     temp_table += " GROUP BY client_id, name"
 
     query = "SELECT %s FROM ledger_clientledger as t"
     query += " JOIN (%s) AS tt USING(client_id, tx_time)"
     query = query % (", ".join(columns), temp_table)
-    print(query)
 
     rows = ClientLedger.objects.raw(query)
-    #cursor = connection.cursor()
-    #cursor.execute(query)
-    #rows = cursor.fetchall()
-
     for row in rows:
         if row.balance == 0: continue
         pk = str(row.client_id)
