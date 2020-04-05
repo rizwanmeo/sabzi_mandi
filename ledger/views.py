@@ -1,6 +1,8 @@
 import datetime
 
 from django.db.models import Q
+from django.db import connection
+
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django_filters.filterset import filterset_factory
@@ -93,8 +95,6 @@ def get_client_ledger_data(request):
             total_current_balance += current_balance
             total_billed_amount += billed_amount
 
-    from django.db import connection
-
     columns = ["t.client_id", "tt.name", "t.balance"]
     temp_table = "SELECT client_id, name, max(tx_time) AS tx_time FROM ledger_clientledger"
     temp_table += " JOIN clients_client AS c ON(client_id=c.id)"
@@ -107,6 +107,7 @@ def get_client_ledger_data(request):
     query = "SELECT %s FROM ledger_clientledger as t"
     query += " JOIN (%s) AS tt USING(client_id, tx_time)"
     query = query % (", ".join(columns), temp_table)
+    print(query)
 
     cursor = connection.cursor()
     cursor.execute(query)

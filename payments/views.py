@@ -54,17 +54,28 @@ class ClientPaymentCreateView(CustomCreateView):
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())
 
+class ClientPaymentUpdateView(CustomUpdateView):
+    model = ClientPayment
+    success_url = "/payment/clients"
+    template_name = "payments/client_payment_form.html"
+    fields = ["client", "amount", "description"]
+
+    def form_valid(self, form):
+        super(ClientPaymentUpdateView, self).form_valid(form)
+        #form.instance.client.current_balance -= form.instance.amount
+        #form.instance.client.save()
+        msg = 'Client Payment: [%s] was updated succefully.' % form.instance.client.name
+        messages.add_message(self.request, messages.INFO, msg)
+        return HttpResponseRedirect(self.get_success_url())
+
 class ClientPaymentDeleteView(CustomDeleteView):
     model = ClientPayment
     success_url = "/payment/clients"
 
-    def get(self, request, *args, **kwargs):
-        return self.post(request, *args, **kwargs)
-
     def delete(self, request, *args, **kwargs):
         super(ClientPaymentDeleteView, self).delete(request, *args, **kwargs)
-        self.object.client.current_balance += self.object.amount
-        self.object.client.save()
+        #self.object.client.current_balance += self.object.amount
+        #self.object.client.save()
         msg = 'Client Payment: [%s] was deleted succfully.' % self.object.client.name
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())
@@ -97,3 +108,16 @@ class SupplierPaymentCreateView(CustomCreateView):
         msg = 'Supplier Payment: [%s] was creates succefully.' % form.instance.supplier.name
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())
+
+class SupplierPaymentDeleteView(CustomDeleteView):
+    model = SupplierPayment
+    success_url = "/payment/suppliers"
+
+    def delete(self, request, *args, **kwargs):
+        super(SupplierPaymentDeleteView, self).delete(request, *args, **kwargs)
+        self.object.supplier.current_balance += self.object.amount
+        self.object.supplier.save()
+        msg = 'Supplier Payment: [%s] was deleted succfully.' % self.object.supplier.name
+        messages.add_message(self.request, messages.INFO, msg)
+        return HttpResponseRedirect(self.get_success_url())
+
