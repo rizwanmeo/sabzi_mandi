@@ -92,7 +92,7 @@ def get_client_ledger_data(request):
         data[pk]["name"] = name
         data[pk]["payment"] = 0
         data[pk]["billed_amount"] = 0
-        data[pk]["current_balance"] = rows[-1]["balance"]
+        data[pk]["current_balance"] = rows[0]["balance"]
 
         for i, row in enumerate(rows):
             data[pk]["payment"] += row["payment_amount"]
@@ -166,6 +166,10 @@ def clients_ledger_print(request):
     previous_balance2 = 0
     ledger_list1, ledger_list2 = [], []
     def append_page_total():
+        nonlocal payment1, payment2
+        nonlocal billed_amount1, billed_amount2
+        nonlocal current_balance1, current_balance2
+        nonlocal previous_balance1, previous_balance2
         ledger_list1.append({
             "id": "-",
             "name": "Total",
@@ -182,6 +186,14 @@ def clients_ledger_print(request):
             "current_balance": current_balance2,
             "previous_balance": previous_balance2,
         })
+        payment1 = 0
+        payment2 = 0
+        billed_amount1 = 0
+        billed_amount2 = 0
+        current_balance1 = 0
+        current_balance2 = 0
+        previous_balance1 = 0
+        previous_balance2 = 0
 
     for count, i in enumerate(context["ledger_list"]):
         if len(ledger_list1) == 36:
