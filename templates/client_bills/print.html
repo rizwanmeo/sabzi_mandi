@@ -11,13 +11,25 @@
     <!-- Load paper.css for happy printing -->
     <link rel="stylesheet" href="{% static "css/print.css" %}">
     <link href="{% static "css/urdu-lang.css" %}" rel="stylesheet">
-
-    <!-- Set page size here: A5, A4 or A3 -->
-    <!-- Set also "landscape" if you need -->
-    <style>@page { size: A4 }</style>
     <style>
-        .table th {padding: 0.30rem;}
-        .table td {padding: 0.30rem;}
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      table td, table th {
+        border-bottom: 0.1rem solid #ddd;
+        border-top: 0.1rem solid #ddd;
+      }
+
+      table tr:nth-child(even){
+        background-color: #f2f2f2;
+      }
+
+      table th {
+        padding-top: 5px;
+        padding-bottom: 5px;
+      }
     </style>
   </head>
 
@@ -29,37 +41,38 @@
         <div class="row">
           <div class="col-lg-3" style="width: 25%"></div>
           <div class="col-lg-6" style="width: 50%">
-            <table class="table" cellspacing="0" cellpadding="0">
+            <table cellspacing="0" cellpadding="0">
               <tr colspan=5>
                 <img src="/static/img/index.jpeg" width="100%">
               </tr>
               <tr>
-                <th colspan=2>{{ obj.bill_date }}</th>
+                <th colspan=2 style="padding-left: 10px;">{{ obj.bill_date }}</th>
                 <th class="text-right">Code:</th>
                 <th class="text-left">{{ obj.client.id }}</th>
-                <th><div class="text-right">{{ obj.client.name }}</div></th>
+                <th><div class="text-right" style="padding-right: 10px;">{{ obj.client.name }}</div></th>
               </tr>
               <tr>
                 <th class="text-center" width="20%">Amount</th>
                 <th class="text-center" width="20%">Weight</th>
                 <th class="text-center" width="10%">Rate</th>
                 <th class="text-center" width="10%">Qantity</th>
-                <th class="text-right">Item</th>
+                <th class="text-right" style="padding-right: 10px;">Item</th>
               </tr>
               {% for bill_obj in bill_detail_list %}
               <tr>
                 <td class="text-center">{% widthratio bill_obj.rate 1 bill_obj.item_count %}</td>
-                <td class="text-center">{% if bill_obj.unit == 'k' %}{{ bill_obj.item_count }}-KG{% endif %}</td>
+                <td class="text-center">{% if bill_obj.unit == 'k' %}{{ bill_obj.item_count }}-KG{% else %}-{% endif %}</td>
                 <td class="text-center">{{ bill_obj.rate }}</td>
                 <td class="text-center">{% if bill_obj.unit == 'i' %}{{ bill_obj.item_count }}{% endif %}</td>
-                <td><div class="text-right">{{ bill_obj.name }}</div></td>
+                <td><div class="text-right" style="padding-right: 10px;">{{ bill_obj.name }}</div></td>
               </tr>
               {% endfor %}
               <tr>
                 <td class="text-center">{{ obj.billed_amount }}</td>
-                <td class="text-left"colspan=2>Billed Amount</td>
+                <td class="text-center">{% if total_item_weight %}{{total_item_weight}}-KG{% else %}-{% endif %}</td>
+                <td class="text-center">-</td>
                 <td class="text-center">{% if total_item_count %}{{total_item_count}}{% endif %}</td>
-                <td class="text-right">{{total_item_weight}}-KG</td>
+                <td class="text-right" style="padding-right: 10px;">Total</td>
               </tr>
               <tr>
                 <td class="text-center">{{ obj.previous_balance }}</td>
@@ -77,7 +90,7 @@
                 <td colspan="2">Total Amount</td>
               </tr>
               <tr>
-                <td class="text-center">{{ obj.payment.amount }}</td>
+                <td class="text-center">{% if obj.payment %}{{ obj.payment.amount }}{% else %}-{% endif %}</td>
                 <td colspan="2">Paid Amount</td>
               </tr>
               <tr>

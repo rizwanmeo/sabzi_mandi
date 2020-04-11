@@ -216,6 +216,7 @@ class BillDetailCreateView(CustomCreateView):
         object_list = []
         billed_amount = 0
         qs = BillDetail.objects.filter(bill=self.request.bill)
+        qs = qs.order_by("-id")
         vs = list(qs.values("id", "item__name", "unit", "rate", "item_count"))
         for row in vs:
             detail_obj = {}
