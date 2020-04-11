@@ -4,6 +4,24 @@
 {% block css %}
   <!-- Custom styles for this template-->
   <link href="{% static "css/fstdropdown.css" %}" rel="stylesheet">
+  <style>
+    tbody {
+        display:block;
+        height:328px;
+        overflow:auto;
+    }
+    thead, tbody tr {
+        display:table;
+        width:100%;
+        table-layout:auto;
+    }
+    thead {
+        width: calc( 100% - 1em )
+    }
+    table {
+        width:400px;
+    }
+  </style>
 {% endblock %}
 
 {% block breadcrumb %}
@@ -28,169 +46,151 @@
         <h1 class="h4 text-primary-900 mb-4 font-weight-bold">Client Bill Detail</h1>
         {% endif %}
       </div>
-        <table class="table" id="id_bill_detail_form" cellspacing="0">
-          <thead>
-            <tr>
-              <th width="25%">Client Name</th>
-              <th width="20%">Bill Date</th>
-              <th width="15%">Payment</th>
-              <th width="15%">Previous Amount</th>
-              <th width="15%">Billed Amount</th>
-              {% if request.bill.is_draft %}
-              <th width="10%">Action</th>
-              {% endif %}
-            </tr>
-          </thead>
-          <tfoot>
-              <th><input type="text" class="form-control text-right" id="id_client" name="client" value="{{request.bill.client.name}}" readonly></th>
-              <th><input type="text" class="form-control" id="id_client" name="client" value="{{request.bill.bill_date}}" readonly></th>
-              <th><input type="text" class="form-control" id="id_client" name="client" value="{% if request.bill.payment %}{{request.bill.payment.amount}}{% else %}0{% endif %}" readonly></th>
-              <th><input type="text" class="form-control" id="id_client" name="client" value="{{request.bill.client.current_balance}}" readonly></th>
-              <th><input type="text" class="form-control" id="id_billed_amount" name="billed_amount" data-amount="{{billed_amount}}" value="{{billed_amount}}" readonly></th>
-              {% if request.bill.is_draft %}
-              <th>
-                <a href="/client-bills/{{request.bill.id}}/update/" class="btn btn-success btn-icon-split">
-                  <span class="text">Change</span>
-                </a>
-              </th>
-              {% endif %}
-          </tfoot>
-          </div>
-        </div>
-        <div class="col-lg-2">
+
+      <div class="row">
+
+        <div class="col-lg-3">
           <div class="form-group">
-            <label class="col-form-label font-weight-bold"></label>
+            <label class="font-weight-bold">Client Name:</label>
+            <input type="text" class="form-control" id="id_client" name="client" value="{{request.bill.client.name}}" readonly>
           </div>
-        </div>
-        <div class="col-lg-1">
-        </div>
-      </div>
-      <form action="{{request.get_full_path}}" method="POST" enctype="multipart/form-data">
-        {% include "form_non_field_errors.html" %}
-        <table class="table" id="id_bill_detail_form" cellspacing="0">
-          <thead>
-            <tr>
-              <th width="25%">Item Name</th>
-              <th width="20%">Item Count</th>
-              <th width="20%">Rate</th>
-              <th width="10%">Unit</th>
-              <th width="15%">Item Amount</th>
-              {% if request.bill.is_draft %}
-              <th width="10%">Action</th>
-              {% endif %}
-            </tr>
-          </thead>
+          <div class="form-group">
+            <label class="font-weight-bold">Bill Date:</label>
+            <input type="text" class="form-control" id="id_client" name="client" value="{{request.bill.bill_date}}" readonly>
+          </div>
+          <div class="form-group">
+            <label class="font-weight-bold">Payment:</label>
+            <input type="text" class="form-control" id="id_client" name="client" value="{% if request.bill.payment %}{{request.bill.payment.amount}}{% else %}0{% endif %}" readonly>
+          </div>
+          <div class="form-group">
+            <label class="font-weight-bold">Previous Amount:</label>
+              <input type="text" class="form-control" id="id_client" name="client" value="{{request.bill.client.current_balance}}" readonly>
+          </div>
+          <div class="form-group">
+            <label class="font-weight-bold">Billed Amount:</label>
+            <input type="text" class="form-control" id="id_billed_amount" name="billed_amount" data-amount="{{billed_amount}}" value="{{billed_amount}}" readonly>
+          </div>
           {% if request.bill.is_draft %}
-          <tfoot>
-            <tr>
-              <th>
-                <div class="form-group row text-right">
-                  <div class="col-sm-12 is-invalid">
-                    {{ form.item }}
-                  </div>
-                  {% if form.item.errors %}
-                  <div class="col-sm-12">
-                    <div class="text-danger">
-                      <p>{{ form.item.errors }}</p>
-                    </div>
-                  </div>
-                  {% endif %}
-                </div>
-              </th>
-              <th>
-                <div class="form-group">
-                  {% if form.item_count.errors %}
-                    <input type="text" class="form-control is-invalid" id="id_item_count" name="item_count" value="{% if form.item_count.value %}{{ form.item_count.value }}{% endif %}" placeholder="Item total count" oninput="calculate();">
-                    <div class="text-danger" style="margin-left: -25px;">
-                      <p>{{ form.item_count.errors }}</p>
-                    </div>
-                  {% else %}
-                    <input type="text" class="form-control" id="id_item_count" name="item_count" placeholder="Item total count" oninput="{{oninput}}">
-                  {% endif %}
-                </div>
-              </th>
-              <th>
-                <div class="form-group">
-                  {% if form.rate.errors %}
-                    <input type="text" class="form-control is-invalid" id="id_rate" name="rate" value="{% if form.rate.value %}{{ form.rate.value }}{% endif %}" placeholder="Item rate" oninput="calculate();">
-                    <div class="text-danger" style="margin-left: -25px;">
-                      <p>{{ form.rate.errors }}</p>
-                    </div>
-                  {% else %}
-                    <input type="text" class="form-control" id="id_rate" name="rate" placeholder="Item rate" oninput="calculate();">
-                  {% endif %}
-                </div>
-              </th>
-              <th>
-                <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                  <label class="btn btn-info active">
-                    <input type="radio" name="unit" id="id_unit" value="i" autocomplete="off" checked> Unit
-                  </label>
-                  <label class="btn btn-info">
-                    <input type="radio" name="unit" id="id_unit" value="k" autocomplete="off"> KG
-                  </label>
-                </div>
-                {% if form.unit.errors %}
-                <div class="col-sm-12">
-                  <div class="text-danger" style="margin-left: -40px;">
-                    <p>{{ form.unit.errors }}</p>
-                  </div>
-                </div>
-                {% endif %}
-              </th>
-              <th>
-                <input type="text" class="form-control" id="id_item_amount" name="item_amount" value="" placeholder="Item Amount" readonly>
-              </th>
-              <th>
-                <div class="form-group">
-                  <button type="submit" class="btn btn-success btn-block">Add</button>
-                </div>
-              </th>
-            </tr>
-          </tfoot>
+          <a href="/client-bills/{{request.bill.id}}/update/" class="btn btn-success btn-block">Change</a>
           {% endif %}
-          <tbody>
-            {% for obj in object_list %}
-            <tr {% if obj.is_draft %}class="table-danger"{% endif %}>
-              <td>{{ obj.name }}</td>
-              <td>{{ obj.item_count }}</td>
-              <td>{{ obj.rate }}</td>
-              <td>{{ obj.unit }}</td>
-              <td>{{ obj.amount }}</td>
-              {% if request.bill.is_draft %}
-              <td>
-                <a href="/client-bills/{{obj.id}}/bill-detail-delete" class="btn btn-danger btn-block">
-                  <span class="text">Delete</span>
-                </a>
-              </td>
-              {% endif %}
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </form>
-      {% if request.bill.is_draft %}
-      <form action="/client-bills/{{request.bill.id}}/done/?{{request.GET.urlencode}}" method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="form-group row">
-          <div class="col-sm-4">
-            <button type="submit" name="submit" value="1" class="btn btn-primary btn-block">
-              Done and Close
-            </button>
-          </div>
-          <div class="col-sm-4">
-            <button type="submit" name="submit" value="2" class="btn btn-success btn-block">
-              Done and Print
-            </button>
-          </div>
-          <div class="col-sm-4">
-            <button type="submit" name="submit" value="3" class="btn btn-primary btn-block">
-              Done and Add another
-            </button>
-          </div>
         </div>
-      </form>
-      {% endif %}
+
+        <div class="col-lg-3">
+          <form action="{{request.get_full_path}}" method="POST" enctype="multipart/form-data">
+            {% include "form_non_field_errors.html" %}
+            <div class="form-group">
+              <label class="font-weight-bold">Item Name:</label>
+              {{ form.item }}
+              {% if form.item.errors %}
+              <div class="col-sm-12">
+                <div class="text-danger">
+                  <p>{{ form.item.errors }}</p>
+                </div>
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="form-group">
+              <label class="font-weight-bold">Item total count:</label>
+              {% include "render_field.html" with field=form.item_count field_placeholder="Item total count" oninput="calculate();" %}
+            </div>
+
+            <div class="form-group">
+              <label class="font-weight-bold">Item rate:</label>
+              {% include "render_field.html" with field=form.rate field_placeholder="Item rate" oninput="calculate();" %}
+            </div>
+
+            <div class="form-group">
+              <label class="font-weight-bold">Item Unit:</label>
+              <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+                <label class="btn btn-info active">
+                  <input type="radio" name="unit" id="id_unit" value="i" autocomplete="off" checked> Unit
+                </label>
+                <label class="btn btn-info">
+                  <input type="radio" name="unit" id="id_unit" value="k" autocomplete="off"> KG
+                </label>
+              </div>
+              {% if form.unit.errors %}
+              <div class="text-danger">
+                <p>{{ form.unit.errors }}</p>
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="form-group font-weight-bold">
+              <label class="font-weight-bold">Item Amount:</label>
+              <input type="text" class="form-control" id="id_item_amount" name="item_amount" value="" placeholder="Item Amount" readonly>
+            </div>
+
+            <div class="form-group">
+              <button type="submit" class="btn btn-success btn-block">Add</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="text-center font-weight-bold">
+            <label for="email">Billed Items</label>
+          </div>
+          <table class="table" id="id_bill_detail_form" cellspacing="0">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Count</th>
+                <th>Rate</th>
+                <th>Unit</th>
+                <th>Amount</th>
+                {% if request.bill.is_draft %}
+                <th class="text-center">Action</th>
+                {% endif %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for obj in object_list %}
+              <tr>
+                <td>{{ obj.name }}</td>
+                <td>{{ obj.item_count }}</td>
+                <td>{{ obj.rate }}</td>
+                <td>{{ obj.unit }}</td>
+                <td>{{ obj.amount }}</td>
+                {% if request.bill.is_draft %}
+                <td class="text-center">
+                  <a href="/client-bills/{{obj.id}}/bill-detail-delete">
+                    <i class="fas fa-trash text-danger"></i>
+                  </a>
+                </td>
+                {% endif %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% if request.bill.is_draft %}
+          <form action="/client-bills/{{request.bill.id}}/done/?{{request.GET.urlencode}}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group row">
+              <div class="col-sm-4">
+                <button type="submit" name="submit" value="1" class="btn btn-primary btn-block">
+                  Done and Close
+                </button>
+              </div>
+              <div class="col-sm-4">
+                <button type="submit" name="submit" value="2" class="btn btn-success btn-block">
+                  Done and Print
+                </button>
+              </div>
+              <div class="col-sm-4">
+                <button type="submit" name="submit" value="3" class="btn btn-primary btn-block">
+                  Add another Bill
+                </button>
+              </div>
+            </div>
+          </form>
+          {% endif %}
+
+        </div>
+
+      </div>
+
     </div>
   </div>
 </div>
