@@ -65,10 +65,19 @@ def get_client_ledger_data(request):
     total_billed_amount = 0
 
     today = datetime.date.today()
-    kwargs = {"client__shop": request.shop, "tx_date": today}
+    selected_date = request.GET.get("ledger_date", "")
+    if selected_date == "":
+        selected_date = today
+    else:
+        try:
+            selected_date = datetime.datetime.strptime(selected_date, "%Y-%m-%d").date()
+        except ValueError:
+            selected_date = today
+
+    kwargs = {"client__shop": request.shop, "tx_date": selected_date}
     ledger_qs = ClientLedger.objects.filter(**kwargs)
     columns = ["client__id", "client__name", "balance", "payment_amount", "bill_amount"]
-    ledger_qs = ledger_qs.order_by("client", "-tx_date")
+    ledger_qs = ledger_qs.order_by("client", "-tx_time")
     ledger_vs = ledger_qs.values(*columns)
 
     tmp_data = defaultdict(list)
@@ -129,6 +138,7 @@ def get_client_ledger_data(request):
 
     ledger_list = sorted(data.values(), key = lambda i: i['id'])
     context["ledger_list"] = ledger_list
+    context["selected_date"] = selected_date.strftime("%Y-%m-%d")
     context["total_payment"] = total_payment
     context["total_previous_balance"] = total_previous_balance
     context["total_current_balance"] = total_current_balance
@@ -146,21 +156,60 @@ def clients_ledger_view(request):
 def clients_ledger_print(request):
     context = get_client_ledger_data(request)
     data = []
+    payment1 = 0
+    payment2 = 0
+    billed_amount1 = 0
+    billed_amount2 = 0
+    current_balance1 = 0
+    current_balance2 = 0
+    previous_balance1 = 0
+    previous_balance2 = 0
     ledger_list1, ledger_list2 = [], []
+    def append_page_total():
+        ledger_list1.append({
+            "id": "-",
+            "name": "Total",
+            "payment": payment1,
+            "billed_amount": billed_amount1,
+            "current_balance": current_balance1,
+            "previous_balance": previous_balance1,
+        })
+        ledger_list2.append({
+            "id": "-",
+            "name": "Total",
+            "payment": payment2,
+            "billed_amount": billed_amount2,
+            "current_balance": current_balance2,
+            "previous_balance": previous_balance2,
+        })
+
     for count, i in enumerate(context["ledger_list"]):
-        if len(ledger_list1) == 38:
+        if len(ledger_list1) == 36:
+            append_page_total()
             data.append([ledger_list1, ledger_list2])
             ledger_list1, ledger_list2 = [], []
-        elif count == 56:
+        elif count == 54:
+            append_page_total()
             data.append([ledger_list1, ledger_list2])
             ledger_list1, ledger_list2 = [], []
 
         if count % 2 == 1:
             ledger_list1.append(i)
+            payment1 += i["payment"] or 0
+            billed_amount1 += i["billed_amount"] or 0
+            current_balance1 += i["current_balance"] or 0
+            previous_balance1 += i["previous_balance"] or 0
         else:
             ledger_list2.append(i)
+            payment2 += i["payment"] or 0
+            billed_amount2 += i["billed_amount"] or 0
+            current_balance2 += i["current_balance"] or 0
+            previous_balance2 += i["previous_balance"] or 0
 
     today = datetime.date.today()
+    if len(ledger_list1) > 0 or len(ledger_list2) > 0:
+        append_page_total()
+
     data.append([ledger_list1, ledger_list2])
     context["data"] = data
     context["ledger_date"] = today.strftime("%A, %d %B, %Y")

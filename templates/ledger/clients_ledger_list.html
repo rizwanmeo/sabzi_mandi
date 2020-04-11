@@ -1,4 +1,10 @@
 {% extends 'index.html' %}
+{% load static %}
+
+{% block css %}
+  <!-- Custom styles for this template-->
+  <link href="{% static "css/bootstrap-datepicker.css" %}" rel="stylesheet">
+{% endblock %}
 
 {% block breadcrumb %}
 <nav aria-label="breadcrumb" class="p-3">
@@ -25,12 +31,25 @@
             </div>
             <div class="col-lg-6">
               <div class="text-right">
-                  <a href="/ledger/clients/print/?{{ request.GET.urlencode }}" class="btn btn-primary btn-icon-split btn-sm">
-                    <span class="icon text-white-50">
-                      <i class="fa fa-print"></i>
-                    </span>
-                    <span class="text">Print Ladger</span>
-                  </a>
+                <div class="row">
+                  <div class="col-lg-4"></div>
+                  <div class="col-lg-4">
+                    <div class="input-group input-group-sm mb-3">
+                      <input type="text" class="form-control" id="id_ledger_date" name="ledger_date" value="{{selected_date}}" readonly="">
+                      <div class="input-group-append">
+                        <span class="input-group-text fa fa-calendar"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-4">
+                    <a href="/ledger/clients/print/?{{ request.GET.urlencode }}" class="btn btn-primary btn-icon-split btn-sm">
+                      <span class="icon text-white-50">
+                        <i class="fa fa-print"></i>
+                      </span>
+                      <span class="text">Print Ladger</span>
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -72,15 +91,41 @@
 {% block javascript %}
   {% load static %}
   <!-- Page level plugins -->
+  <script src="{% static "js/bootstrap-datepicker.js" %}"></script>
   <script src="{% static "vendor/datatables/jquery.dataTables.js" %}"></script>
   <script src="{% static "vendor/datatables/dataTables.bootstrap4.min.js" %}"></script>
   <script>
+    function onchangeEvent() {
+      var url = "/ledger/clients/?shop_id={{request.shop.id}}";
+      var selectedDate = $('#id_ledger_date').val();
+      if (selectedDate != "") {
+        url = url + "&ledger_date=" + selectedDate;
+      }
+      window.location.href = url
+    }
+
     $(function() {
       $("#dataTable").DataTable({
           "oLanguage": {
             "sLengthMenu": "_MENU_",
             "sSearch": "_INPUT_",
           }
+      });
+      $('#id_ledger_date').datepicker({
+          format: "yyyy-mm-dd",
+          maxViewMode: 0,
+          todayBtn: "linked",
+          clearBtn: true,
+          autoclose: true,
+          setDate: '2020-02-18',
+          datesDisabled: '{{selected_date}}',
+          orientation: "bottom auto",
+          daysOfWeekHighlighted: "0"
+      }).on('changeDate', function (ev) {
+          $('#id_ledger_date').change();
+      });
+      $('#id_ledger_date').change(function () {
+        onchangeEvent();
       });
     });
   </script>
