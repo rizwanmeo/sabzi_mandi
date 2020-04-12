@@ -108,17 +108,18 @@ def get_client_ledger_data(request):
         total_current_balance += data[pk]["current_balance"]
         total_billed_amount += data[pk]["billed_amount"]
 
-    columns = ["t.id", "t.client_id", "tt.name", "t.balance"]
-    temp_table = "SELECT client_id, name, max(tx_time) AS tx_time FROM ledger_clientledger"
-    temp_table += " JOIN clients_client AS c ON(client_id=c.id)"
-    temp_table += " WHERE c.shop_id=%d" % request.shop.id
+    columns = ["t.id", "t.client_id", "tt.name", "t.balance", "t.tx_time"]
+    temp_table = "SELECT client_id, name, max(tx_time) AS tx_time, max(lc.id) AS id"
+    temp_table += " FROM ledger_clientledger AS lc"
+    temp_table += " JOIN clients_client AS cc ON(client_id=cc.id)"
+    temp_table += " WHERE cc.shop_id=%d AND tx_date < '%s'" % (request.shop.id, str(selected_date))
     if len(data) != 0:
-        temp_table += " AND client_id not in (%s) AND tx_date < '%s'"
-        temp_table = temp_table % (", ".join(data.keys()), str(today))
+        temp_table += " AND client_id not in (%s)"
+        temp_table = temp_table % ", ".join(data.keys())
     temp_table += " GROUP BY client_id, name"
 
     query = "SELECT %s FROM ledger_clientledger as t"
-    query += " JOIN (%s) AS tt USING(client_id, tx_time)"
+    query += " JOIN (%s) AS tt USING(id)"
     query = query % (", ".join(columns), temp_table)
 
     rows = ClientLedger.objects.raw(query)
@@ -133,12 +134,13 @@ def get_client_ledger_data(request):
         data[pk]["payment"] = 0
         data[pk]["billed_amount"] = 0
 
+        print("row: ", row.id, row.name, row.balance, row.tx_time)
         total_previous_balance += row.balance
         total_current_balance += row.balance
 
     ledger_list = sorted(data.values(), key = lambda i: i['id'])
     context["ledger_list"] = ledger_list
-    context["selected_date"] = selected_date.strftime("%Y-%m-%d")
+    context["ledger_date"] = selected_date.strftime("%A, %d %B, %Y")
     context["total_payment"] = total_payment
     context["total_previous_balance"] = total_previous_balance
     context["total_current_balance"] = total_current_balance
@@ -218,11 +220,9 @@ def clients_ledger_print(request):
             current_balance2 += i["current_balance"] or 0
             previous_balance2 += i["previous_balance"] or 0
 
-    today = datetime.date.today()
     if len(ledger_list1) > 0 or len(ledger_list2) > 0:
         append_page_total()
 
     data.append([ledger_list1, ledger_list2])
     context["data"] = data
-    context["ledger_date"] = today.strftime("%A, %d %B, %Y")
     return render(request, 'ledger/clients_ledger_print.html', context)
