@@ -60,11 +60,11 @@
                   <td>{{ obj.current_balance }}</td>
                   <td>
                     <div class="btn-group" role="group" aria-label="Basic example">
-                      <button type="button" onclick="showDeleteConfirmation({{obj.id}})" class="btn btn-danger btn-sm">
-                        <i class="fas fa-trash"></i>
+                      <button type="button" onclick="showDeleteConfirmation({{obj.id}})" class="btn btn-light btn-sm">
+                        <i class="fas fa-trash text-danger"></i>
                       </button>
-                      <a href="/suppliers/{{obj.id}}/update/?{{ request.GET.urlencode }}" class="btn btn-sm btn-primary">
-                        <i class="fas fa-edit"></i>
+                      <a href="/suppliers/{{obj.id}}/update/?{{ request.GET.urlencode }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-edit text-primary"></i>
                       </a>
                     </div>
                   </td>

@@ -67,6 +67,16 @@
                   <th class="text-center">Total Amount</th>
                 </tr>
               </thead>
+              <tfoot>
+                <tr>
+                  <th>-</th>
+                  <th>Total</th>
+                  <th class="text-center">{{ total_previous_balance }}</th>
+                  <th class="text-center">{{ total_billed_amount }}</th>
+                  <th class="text-center">{{ total_payment }}</th>
+                  <th class="text-center">{{ total_current_balance }}</th>
+                </tr>
+              </tfoot>
               <tbody>
                 {% for obj in ledger_list %}
                 <tr>

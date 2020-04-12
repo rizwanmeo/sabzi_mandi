@@ -134,13 +134,13 @@ def get_client_ledger_data(request):
         data[pk]["payment"] = 0
         data[pk]["billed_amount"] = 0
 
-        print("row: ", row.id, row.name, row.balance, row.tx_time)
         total_previous_balance += row.balance
         total_current_balance += row.balance
 
     ledger_list = sorted(data.values(), key = lambda i: i['id'])
     context["ledger_list"] = ledger_list
     context["ledger_date"] = selected_date.strftime("%A, %d %B, %Y")
+    context["selected_date"] = selected_date.strftime("%Y-%m-%d")
     context["total_payment"] = total_payment
     context["total_previous_balance"] = total_previous_balance
     context["total_current_balance"] = total_current_balance

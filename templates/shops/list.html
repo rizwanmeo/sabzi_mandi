@@ -64,11 +64,11 @@
                   <td>{% if obj.logo %}<img src="{{ obj.logo_thumbnail.url }}" class="img-thumbnail img-rounded" />{% endif %}</td>
                   <td>
                     <div class="btn-group" role="group" aria-label="Basic example">
-                      <a href="/shops/{{obj.id}}/delete" class="btn btn-danger btn-sm">
-                        <i class="fas fa-trash"></i>
+                      <a href="/shops/{{obj.id}}/delete" class="btn btn-light btn-sm">
+                        <i class="fas fa-trash text-danger"></i>
                       </a>
-                      <a href="/shops/{{obj.id}}/update" class="btn btn-primary btn-sm">
-                        <i class="fas fa-edit"></i>
+                      <a href="/shops/{{obj.id}}/update" class="btn btn-light btn-sm">
+                        <i class="fas fa-edit text-primary"></i>
                       </a>
                     </div>
                   </td>
