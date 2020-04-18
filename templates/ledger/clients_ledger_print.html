@@ -40,14 +40,17 @@
   {% for ledger_list1, ledger_list2 in data %}
   <div class="page">
       <table width="100%">
+        <tr style="height:10px; width: 100%">
+         <td colspan="2"></td>
+        </tr>
         {% if forloop.first %}
-       <tr style="width: 100%">
+        <tr style="width: 100%">
          <td colspan="2"><img src="/static/img/index.jpeg" width="100%"></td>
         </tr>
-       <tr><td colspan="2">{{ ledger_date }}</td></tr>
+        <tr><td colspan="2">{{ ledger_date }}</td></tr>
         {% endif %}
-       <tr height="100px;">
-         <td width="50%">
+        <tr height="100px;">
+          <td width="50%">
             <table class="table" {% if ledger_list2|length > ledger_list1|length %}style="margin-top: -27px;"{% endif %}>
               <thead>
                 <tr>

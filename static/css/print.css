@@ -31,7 +31,6 @@ thead {
 
 	/* Reflect the actual page margin/padding on paper in the screen rendering (must match margin from @page rule) */
 	padding-left: 0.5cm;
-	padding-top: 0.5cm;
 	padding-right: 0.5cm;
 	padding-bottom: 0.5cm;
 }
@@ -44,7 +43,6 @@ thead {
 
 	/* Margin per single side of the page */
 	margin-left: 0.5cm;
-	margin-top: 0.5cm;
 	margin-right: 0.5cm;
 	margin-bottom: 0.5cm;
 }
