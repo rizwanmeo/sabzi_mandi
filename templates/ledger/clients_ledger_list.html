@@ -81,7 +81,11 @@
                 {% for obj in ledger_list %}
                 <tr>
                   <td>{{ obj.id }}</td>
-                  <td>{{ obj.name }}</td>
+                  <td>
+                    <a href="/clients/{{obj.id}}/detail/?{{ request.GET.urlencode }}">
+                      {{ obj.name }}
+                    </a>
+                  </td>
                   <td class="text-center">{{ obj.previous_balance }}</td>
                   <td class="text-center">{% if obj.billed_amount %}{{ obj.billed_amount }}{% else %} - {% endif %}</td>
                   <td class="text-center">{% if obj.payment %}{{ obj.payment }}{% else %} - {% endif %}</td>

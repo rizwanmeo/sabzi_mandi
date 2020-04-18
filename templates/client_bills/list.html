@@ -74,20 +74,24 @@
                   <th>ID</th>
                   <th>Client Name</th>
                   <th>Bill Time</th>
-                  <th>Items #</th>
+                  <th>Items</th>
                   <th>Billed Amount</th>
                   <th>Billed Payment</th>
                   <th>Balance Before</th>
                   <th>Balance After</th>
                   <!-- <th style="width: 120px;padding-top: 30px;">Action</th> -->
-                  <th>Action</th>
+                  <th width="5%">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {% for obj in object_list %}
                 <tr {% if obj.is_draft %}class="table-danger"{% endif %}>
                   <td>{{ obj.id }}</td>
-                  <td>{{ obj.client.name }}</td>
+                  <td>
+                    <a href="/clients/{{obj.id}}/detail/?{{ request.GET.urlencode }}">
+                      {{ obj.client.name }}
+                    </a>
+                  </td>
                   <td>{{ obj.bill_date }}</td>
                   <td>
                     <span onclick="showPopover({{obj.id}})" class="badge badge-info" data-toggle="popover" title="Bill Detail" data-placement="top">{{ obj.total_items }}</span>
@@ -96,19 +100,10 @@
                   <td>{{ obj.payment.amount }}</td>
                   <td>{{ obj.previous_amount }}</td>
                   <td>{{ obj.balance }}</td>
-                  <td>
-                    {% if obj.is_draft %}
-                      <button type="button" onclick="showDeleteConfirmation({{obj.id}})" class="btn btn-danger btn-sm">
-                        <i class="fas fa-trash"></i>
-                      </button>
-                      <a href="/client-bills/{{obj.id}}/update" class="btn btn-primary btn-sm">
-                        <i class="fas fa-edit"></i>
-                      </a>
-                    {% else %}
-                      <a href="/client-bills/{{obj.id}}/print" class="btn btn-primary btn-sm">
-                        <i class="fas fa-print"></i>
-                      </a>
-                    {% endif %}
+                  <td  width="5%">
+                    <a href="/client-bills/{{obj.id}}/print/?{{ request.GET.urlencode }}" class="btn btn-light btn-sm">
+                      <i class="fas fa-print"></i>
+                    </a>
                   </td>
                 </tr>
                 {% endfor %}

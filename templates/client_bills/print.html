@@ -33,7 +33,7 @@
         padding-top: 5px;
         padding-bottom: 5px;
       }
-      @page { margin-top: 0; }
+      @page { margin: 0; }
     </style>
   </head>
 
@@ -46,8 +46,11 @@
           <div class="col-lg-3" style="width: 25%"></div>
           <div class="col-lg-6" style="width: 50%">
             <table cellspacing="0" cellpadding="0">
-              <tr colspan=5>
-                <img src="/static/img/index.jpeg" width="100%">
+              <tr style="height:10px; width: 100%">
+               <td colspan=5></td>
+              </tr>
+              <tr>
+                <td colspan=5><img src="/static/img/index.jpeg" width="100%"></td>
               </tr>
               <tr>
                 <th colspan=2 style="padding-left: 10px;">{{ obj.bill_date }}</th>
