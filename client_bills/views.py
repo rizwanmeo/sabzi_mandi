@@ -263,16 +263,14 @@ def done_drafted_bill(request, bill_obj):
     bill_obj.is_draft = False
     bill_obj.billed_amount = billed_amount
 
-    bill_obj.created_time = now + datetime.timedelta(seconds=1)
-    bill_obj.bill_date = now.date()
+    bill_obj.created_time = now
     create_bill_ledger(bill_obj, bill_obj.client.current_balance)
     bill_obj.client.current_balance += billed_amount
 
     if bill_obj.payment:
         bill_obj.payment.payment_time = now + datetime.timedelta(seconds=1)
-        bill_obj.payment.payment_date = now.date()
         bill_obj.payment.is_draft = False
-        description = "Payment received against bill ID bill-%06d" % bill_obj.id
+        description = "Payment received against bill ID bill-%d" % bill_obj.id
         bill_obj.payment.description = description
         create_payment_ledger(bill_obj.payment, bill_obj.client.current_balance)
         bill_obj.client.current_balance -= bill_obj.payment.amount

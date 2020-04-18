@@ -41,7 +41,6 @@
             <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
               <thead>
                 <tr>
-                  <th hidden>PK</th>
                   <th class="text-center" width="10%">Balance</th>
                   <th class="text-center" width="10%">Payment</th>
                   <th class="text-center" width="10%">Billed</th>
@@ -53,7 +52,6 @@
               <tbody>
                 {% for obj in data %}
                 <tr>
-                  <th hidden>{{obj.id}}</th>
                   <th class="text-center">{{obj.balance}}</th>
                   <th class="text-center">{% if obj.payment_amount %} {{ obj.payment_amount }} {% else %} - {% endif %}</th>
                   <th class="text-center">{% if obj.bill_amount %} {{ obj.bill_amount }} {% else %} - {% endif %}</th>
@@ -80,6 +78,7 @@
   <script>
     $(function() {
       $("#dataTable").DataTable({
+          "order": [],
           "oLanguage": {
             "sLengthMenu": "_MENU_",
             "sSearch": "_INPUT_",

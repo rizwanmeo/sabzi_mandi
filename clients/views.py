@@ -67,9 +67,20 @@ class ClientDetailView(CustomDetailView):
     def get_context_data(self, **kwargs):
         context = super(ClientDetailView, self).get_context_data(**kwargs)
         obj = context["object"]
+
+        columns = ["id", "client__id", "client__name", "tx_id", "tx_time", "tx_date",
+                   "balance", "bill_amount", "payment_amount", "description"]
+
         qs = obj.clientledger_set.all()
-        qs = qs.order_by("id")
-        context["data"] = qs
+        qs = qs.order_by("-id")
+        vs = list(qs.values(*columns))
+
+        data = []
+        for row in vs:
+            row["client"] = {"id": row.pop("client__id"), "name": row.pop("client__name")}
+            data.append(row)
+
+        context["data"] = data
         return context
 
 class ClientDetailPrintView(CustomDetailView):
