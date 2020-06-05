@@ -1,4 +1,11 @@
 {% extends 'index.html' %}
+{% load static %}
+
+{% block css %}
+  <!-- Custom styles for this template-->
+  <link href="{% static "css/bootstrap-datepicker.css" %}" rel="stylesheet">
+{% endblock %}
+
 
 {% block breadcrumb %}
 <nav aria-label="breadcrumb" class="p-3">
@@ -32,9 +39,30 @@
         {% include "fields.html" with field=form.phone field_label="Phone Number" %}
         {% include "text_fields.html" with field=form.address field_label="Client Address" %}
         {% include "fields.html" with field=form.opening_balance field_label="Opening Balance" %}
+        {% include "datetime_field.html" with field=form.created_time field_label="Created Date" %}
         {% include "form_buttons.html" with name="Client" pk=form.instance.pk %}
       </form>
     </div>
   </div>
 </div>
 {% endblock %}
+
+{% block javascript %}
+  <!-- Page level plugins -->
+  <script src="{% static "js/bootstrap-datepicker.js" %}"></script>
+  <script>
+    $(document).ready(function(){
+      $('#id_created_time').datepicker({
+          todayHighlight: true,
+          format: "yyyy-mm-dd",
+          maxViewMode: 0,
+          todayBtn: "linked",
+          clearBtn: true,
+          autoclose: true,
+          orientation: "bottom auto",
+          daysOfWeekHighlighted: "0"
+      });
+    });
+  </script>
+{% endblock %}
+

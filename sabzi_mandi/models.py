@@ -16,7 +16,7 @@ class PaymentValidator(BaseValidator):
 
 
 class UpdatedInfo(models.Model):
-    created_time = models.DateTimeField(default=timezone.now, editable=False)
+    created_time = models.DateTimeField(default=timezone.now)
     last_modified = models.DateTimeField(default=timezone.now, editable=False)
 
     class Meta:

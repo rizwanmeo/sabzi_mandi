@@ -22,7 +22,7 @@ class ClientCreateView(CustomCreateView):
     model = Client
     success_url = "/clients"
     template_name = "clients/form.html"
-    fields = ["name", "address", "cnic", "phone", "opening_balance"]
+    fields = ["name", "address", "cnic", "phone", "opening_balance", "created_time"]
 
     def form_valid(self, form):
         form.instance.shop = self.request.shop
@@ -33,18 +33,31 @@ class ClientCreateView(CustomCreateView):
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())
 
+    def get_context_data(self, **kwargs):
+        context = super(ClientCreateView, self).get_context_data(**kwargs)
+        form = context["form"]
+        created_time = datetime.date.today().strftime("%Y-%m-%d")
+        form.fields["created_time"].initial = created_time
+        return context
+
 class ClientUpdateView(CustomUpdateView):
     model = Client
     success_url = "/clients"
     template_name = "clients/form.html"
-    fields = ["name", "address", "cnic", "phone", "opening_balance"]
+    fields = ["name", "address", "cnic", "phone", "opening_balance", "created_time"]
 
     def form_valid(self, form):
-        form.instance.last_modified = datetime.datetime.now()
         super(ClientUpdateView, self).form_valid(form)
         msg = 'Client: [%s] was updated succfully.' % form.instance.name
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs):
+        context = super(ClientUpdateView, self).get_context_data(**kwargs)
+        form = context["form"]
+        created_time = form.initial["created_time"].date().strftime("%Y-%m-%d")
+        form.initial["created_time"] = created_time
+        return context
 
 class ClientDeleteView(CustomDeleteView):
     model = Client
