@@ -219,14 +219,14 @@
     });
 
     function calculate() {
-      var rate = Number($("#id_rate").val());
-      var billedAmount = Number($("#id_billed_amount").attr("data-amount"));
-      var item_count = Number($("#id_item_count").val());
+      var rate = parseFloat($("#id_rate").val());
+      var billedAmount = parseFloat($("#id_billed_amount").attr("data-amount"));
+      var item_count = parseFloat($("#id_item_count").val());
       var amount = rate * item_count;
-      if (Number.isInteger(amount)) {
+      if (Number(amount) === amount || amount % 1 !== 0) {
         $("#id_item_amount").val(amount);
-        if (Number.isInteger(billedAmount)) {
-          $("#id_billed_amount").attr("value", Number(billedAmount)+amount);
+        if (Number(billedAmount) === billedAmount || billedAmount % 1 !== 0) {
+          $("#id_billed_amount").attr("value", billedAmount+amount);
         } else {
           $("#id_billed_amount").attr("value", amount);
         }

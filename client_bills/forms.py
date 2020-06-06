@@ -3,7 +3,7 @@ from django import forms
 from .models import *
 
 class ClientBillForm(forms.ModelForm):
-    payment = forms.IntegerField()
+    payment = forms.FloatField()
     
     class Meta:
         model = ClientBill

@@ -28,7 +28,7 @@ class ClientBillListView(CustomListView):
         if self.request.GET.get("bill_date") is None:
             today = datetime.date.today().strftime("%Y-%m-%d")
             object_list = object_list.filter(bill_date=today)
-        columns = ["id", "client__name", "created_time", "is_draft", "bill_date",
+        columns = ["id", "client__name", "client__id", "created_time", "is_draft", "bill_date",
                    "balance", "billed_amount", "payment__amount", "billdetail__rate",
                    "billdetail__item__name", "billdetail__unit", "billdetail__item_count"]
         data = {}
@@ -37,7 +37,7 @@ class ClientBillListView(CustomListView):
             row_data = {}
             row_data["id"] = row["id"]
             row_data["pk"] = row["id"]
-            row_data["client"] = {"name": row["client__name"]}
+            row_data["client"] = {"name": row["client__name"], "id": row["client__id"]}
             row_data["created_time"] = row["created_time"]
             row_data["is_draft"] = row["is_draft"]
             row_data["bill_date"] = row["bill_date"]

@@ -88,7 +88,7 @@
                 <tr {% if obj.is_draft %}class="table-danger"{% endif %}>
                   <td>{{ obj.id }}</td>
                   <td>
-                    <a href="/clients/{{obj.id}}/detail/?{{ request.GET.urlencode }}">
+                    <a href="/clients/{{obj.client.id}}/detail/?{{ request.GET.urlencode }}">
                       {{ obj.client.name }}
                     </a>
                   </td>

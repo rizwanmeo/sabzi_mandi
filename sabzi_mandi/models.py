@@ -27,14 +27,14 @@ class BasicInfo(UpdatedInfo):
     cnic = models.CharField(max_length=16, blank=True, null=True)
     phone = models.CharField(max_length=16, blank=True, null=True)
     address = models.CharField(max_length=264, blank=True, null=True)
-    opening_balance = models.IntegerField()
-    current_balance = models.IntegerField()
+    opening_balance = models.FloatField()
+    current_balance = models.FloatField()
 
     class Meta:
         abstract = True
 
 class PaymentMixin(models.Model):
-    amount = models.IntegerField(validators=[PaymentValidator(0)])
+    amount = models.FloatField(validators=[PaymentValidator(0)])
     is_draft = models.BooleanField(default=False)
     payment_date = models.DateField()
     payment_time = models.DateTimeField(default=timezone.now, editable=False)
