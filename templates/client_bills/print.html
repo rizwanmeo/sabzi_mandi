@@ -67,7 +67,7 @@
               </tr>
               {% for bill_obj in bill_detail_list %}
               <tr>
-                <td class="text-center">{% widthratio bill_obj.rate 1 bill_obj.item_count %}</td>
+                <td class="text-center">{{ bill_obj.amount }}</td>
                 <td class="text-center">{% if bill_obj.unit == 'k' %}{{ bill_obj.item_count }}-KG{% else %}-{% endif %}</td>
                 <td class="text-center">{{ bill_obj.rate }}</td>
                 <td class="text-center">{% if bill_obj.unit == 'i' %}{{ bill_obj.item_count }}{% endif %}</td>
