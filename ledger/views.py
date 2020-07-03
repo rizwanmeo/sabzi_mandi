@@ -101,7 +101,7 @@ def get_client_ledger_data(request):
         previous_balance = data[pk]["current_balance"]
         previous_balance += data[pk]["payment"]
         previous_balance -= data[pk]["billed_amount"]
-        data[pk]["previous_balance"] = previous_balance
+        data[pk]["previous_balance"] = round(previous_balance, 2)
 
         total_payment += data[pk]["payment"]
         total_previous_balance += data[pk]["previous_balance"]
@@ -129,8 +129,8 @@ def get_client_ledger_data(request):
         data[pk] = {}
         data[pk]["id"] = pk
         data[pk]["name"] = row.name
-        data[pk]["current_balance"] = row.balance
-        data[pk]["previous_balance"] = row.balance
+        data[pk]["current_balance"] = round(row.balance, 2)
+        data[pk]["previous_balance"] = round(row.balance, 2)
         data[pk]["payment"] = 0
         data[pk]["billed_amount"] = 0
 
@@ -141,10 +141,10 @@ def get_client_ledger_data(request):
     context["ledger_list"] = ledger_list
     context["ledger_date"] = selected_date.strftime("%A, %d %B, %Y")
     context["selected_date"] = selected_date.strftime("%Y-%m-%d")
-    context["total_payment"] = total_payment
-    context["total_previous_balance"] = total_previous_balance
-    context["total_current_balance"] = total_current_balance
-    context["total_billed_amount"] = total_billed_amount
+    context["total_payment"] = round(total_payment, 2)
+    context["total_previous_balance"] = round(total_previous_balance, 2)
+    context["total_current_balance"] = round(total_current_balance, 2)
+    context["total_billed_amount"] = round(total_billed_amount, 2)
     return context
 
 @login_required(login_url='/login/')
@@ -175,18 +175,18 @@ def clients_ledger_print(request):
         ledger_list1.append({
             "id": "-",
             "name": "Total",
-            "payment": payment1,
-            "billed_amount": billed_amount1,
-            "current_balance": current_balance1,
-            "previous_balance": previous_balance1,
+            "payment": round(payment1, 2),
+            "billed_amount": round(billed_amount1, 2),
+            "current_balance": round(current_balance1, 2),
+            "previous_balance": round(previous_balance1, 2),
         })
         ledger_list2.append({
             "id": "-",
             "name": "Total",
-            "payment": payment2,
-            "billed_amount": billed_amount2,
-            "current_balance": current_balance2,
-            "previous_balance": previous_balance2,
+            "payment": round(payment2, 2),
+            "billed_amount": round(billed_amount2, 2),
+            "current_balance": round(current_balance2, 2),
+            "previous_balance": round(previous_balance2, 2),
         })
         payment1 = 0
         payment2 = 0
