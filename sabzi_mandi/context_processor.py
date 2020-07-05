@@ -10,7 +10,7 @@ def default_shop(request):
     shop_id = request.GET.get('shop_id', 0)
     if request.user.is_authenticated:
         shop_qs = request.user.shop_set.all()
-        if shop_id == 0:
+        if not bool(shop_id):
             if shop_qs.count() > 0:
                 try:
                     context['shop'] = shop_qs.get(is_default=True)

@@ -108,11 +108,14 @@ def get_client_ledger_data(request):
         total_current_balance += data[pk]["current_balance"]
         total_billed_amount += data[pk]["billed_amount"]
 
+    # request.shop can be None do need to check first if shop exists
+    shop_id = request.shop.id if request.shop else 0
+
     columns = ["t.id", "t.client_id", "tt.name", "t.balance", "t.tx_time"]
     temp_table = "SELECT client_id, name, max(tx_time) AS tx_time, max(lc.id) AS id"
     temp_table += " FROM ledger_clientledger AS lc"
     temp_table += " JOIN clients_client AS cc ON(client_id=cc.id)"
-    temp_table += " WHERE cc.shop_id=%d AND tx_date < '%s'" % (request.shop.id, str(selected_date))
+    temp_table += " WHERE cc.shop_id=%d AND tx_date < '%s'" % (shop_id, str(selected_date))
     if len(data) != 0:
         temp_table += " AND client_id not in (%s)"
         temp_table = temp_table % ", ".join(data.keys())

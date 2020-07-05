@@ -14,7 +14,10 @@ class SabziMandiMiddleware(MiddlewareMixin):
                     except:
                         request.shop = shop_qs[0]
             else:
-                request.shop = request.user.shop_set.get(id=int(shop_id))
+                if bool(shop_id):
+                    request.shop = request.user.shop_set.get(id=shop_id)
+                else:
+                    request.shop = None
 
         return None
 
