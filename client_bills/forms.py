@@ -10,6 +10,12 @@ class ClientBillForm(forms.ModelForm):
         fields = ["client", "bill_date"]
 
 
+class ClientBillUpdateForm(forms.ModelForm):
+    class Meta:
+        model = ClientBill
+        fields = ["bill_date"]
+
+
 class BillDetailForm(forms.ModelForm):
     class Meta:
         model = BillDetail

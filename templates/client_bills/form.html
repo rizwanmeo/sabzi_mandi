@@ -36,8 +36,17 @@
       </div>
       <form action="{{request.get_full_path}}" method="POST" enctype="multipart/form-data">
         {% include "form_non_field_errors.html" %}
-        {% include "select_field.html" with field=form.client field_label="Client Name" %}
-        {% include "fields.html" with field=form.payment field_label="Payment" %}
+        {% if form.instance.pk %}
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label font-weight-bold">Client Name</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" value="{{ form.instance.client.name }}" disabled>
+            </div>
+          </div>
+        {% else %}
+          {% include "select_field.html" with field=form.client field_label="Client Name" %}
+          {% include "fields.html" with field=form.payment field_label="Payment" %}
+        {% endif %}
         {% include "datetime_field.html" with field=form.bill_date field_label="Bill Date" %}
         {% include "form_buttons.html" with name="New Bill" pk=form.instance.pk %}
       </form>

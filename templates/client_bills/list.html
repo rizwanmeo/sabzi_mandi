@@ -80,7 +80,7 @@
                   <th>Balance Before</th>
                   <th>Balance After</th>
                   <!-- <th style="width: 120px;padding-top: 30px;">Action</th> -->
-                  <th width="5%">Action</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -100,10 +100,17 @@
                   <td>{{ obj.payment.amount }}</td>
                   <td>{{ obj.previous_amount }}</td>
                   <td>{{ obj.balance }}</td>
-                  <td  width="5%">
+                  <td>
+                    <div class="btn-group" role="group" aria-label="Basic example">
                     <a href="/client-bills/{{obj.id}}/print/?{{ request.GET.urlencode }}" class="btn btn-light btn-sm">
                       <i class="fas fa-print"></i>
                     </a>
+                    {% if obj.editable %}
+                      <a href="/client-bills/{{obj.id}}/update/?{{ request.GET.urlencode }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-edit text-primary"></i>
+                      </a>
+                    {% endif %}
+                    </div>
                   </td>
                 </tr>
                 {% endfor %}

@@ -1,6 +1,6 @@
 import datetime
 
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, Max
 from django.shortcuts import render
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -33,7 +33,9 @@ class ClientBillListView(CustomListView):
                    "billdetail__item__name", "billdetail__unit", "billdetail__item_count"]
         data = {}
         vs = list(object_list.values(*columns))
+        client_ids = set([])
         for row in vs:
+            client_ids.add(row["client__id"])
             row_data = {}
             row_data["id"] = row["id"]
             row_data["pk"] = row["id"]
@@ -62,7 +64,19 @@ class ClientBillListView(CustomListView):
             except KeyError:
                 data[row["id"]] = row_data
 
-        context["object_list"] = data.values()
+        editable_bills = dict(ClientBill.objects \
+            .filter(client_id__in=client_ids) \
+            .values_list("client_id") \
+            .annotate(Max('id')))
+
+        object_list = []
+        for pk in data:
+            client_id = data[pk]["client"]["id"]
+            if pk == editable_bills[client_id]:
+                data[pk]["editable"] = True
+            object_list.append(data[pk])
+
+        context["object_list"] = object_list
         client_id = self.request.GET.get("client", "")
         client_id=int(client_id) if client_id.isdigit() else 0
         qs = Client.objects.filter(shop=self.request.shop)
@@ -130,37 +144,28 @@ class ClientBillCreateView(CustomCreateView):
 
 class ClientBillUpdateView(CustomUpdateView):
     model = ClientBill
-    form_class = ClientBillForm
+    form_class = ClientBillUpdateForm
     success_url = "/client-bills"
     template_name = "client_bills/form.html"
 
     def form_valid(self, form):
         super(ClientBillUpdateView, self).form_valid(form)
-        payment_amount = form.cleaned_data.get("payment", 0)
-        if payment_amount > 0:
-            self.object.payment.amount = payment_amount
-            self.object.payment.save()
-        elif self.object.payment is not None:
-            self.object.payment.delete()
-
         msg = 'Client: [%s] bill was updated succfully. Please add bill detail'
         msg %= form.instance.client.name
         messages.add_message(self.request, messages.INFO, msg)
 
-        success_url = "/client-bills/%d/detail-create/?shop_id=%d"
-        return HttpResponseRedirect(success_url % (self.object.pk, self.request.shop.pk))
+        success_url = "/client-bills"
+        return HttpResponseRedirect(success_url+"/?"+self.request.GET.urlencode())
 
     def get_context_data(self, **kwargs):
         context = super(ClientBillUpdateView, self).get_context_data(**kwargs)
-        if self.object.is_draft is False:
-            raise Http404
+        try:
+            last_obj = ClientBill.objects.filter(client=self.object.client).latest('id')
+            if last_obj.pk != self.object.pk:
+                raise Http404
+        except:
+            pass
         form = context["form"]
-        form.fields["client"].widget.attrs["class"] = "fstdropdown-select"
-        form.fields["client"].choices = get_client_choices(form, self.request.shop.id)
-        if self.object.payment:
-            form.initial["payment"] = self.object.payment.amount
-        else:
-            form.initial["payment"] = 0
         form.initial["bill_date"] = form.initial["bill_date"].strftime("%Y-%m-%d")
         return context
 
