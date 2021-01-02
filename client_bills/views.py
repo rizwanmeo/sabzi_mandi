@@ -12,6 +12,7 @@ from .forms import *
 from .models import *
 from sabzi_mandi.views import *
 from clients.models import Client
+from ledger.utils import update_ledger_date
 from ledger.utils import create_bill_ledger, create_payment_ledger
 
 class ClientBillListView(CustomListView):
@@ -150,7 +151,8 @@ class ClientBillUpdateView(CustomUpdateView):
 
     def form_valid(self, form):
         super(ClientBillUpdateView, self).form_valid(form)
-        msg = 'Client: [%s] bill was updated succfully. Please add bill detail'
+        update_ledger_date("bill-%d" % form.instance.pk, form.cleaned_data["bill_date"])
+        msg = 'Client: [%s] bill was updated succfully.'
         msg %= form.instance.client.name
         messages.add_message(self.request, messages.INFO, msg)
 

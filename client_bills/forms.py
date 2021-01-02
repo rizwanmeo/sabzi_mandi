@@ -1,4 +1,6 @@
 from django import forms
+from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 from .models import *
 
@@ -15,6 +17,18 @@ class ClientBillUpdateForm(forms.ModelForm):
         model = ClientBill
         fields = ["bill_date"]
 
+    def clean(self):
+        bill_date = self.cleaned_data['bill_date']
+
+        try:
+            qs = ClientBill.objects.filter(client=self.instance.client)
+            obj = qs.exclude(pk=self.instance.pk).latest('bill_date')
+            if obj.bill_date > bill_date:
+                raise ValidationError({
+                    'bill_date': ValidationError(_('You cannot select less then %s.' % obj.bill_date)),
+                })
+        except ClientBill.DoesNotExist:
+            pass
 
 class BillDetailForm(forms.ModelForm):
     class Meta:
