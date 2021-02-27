@@ -1,7 +1,7 @@
 import datetime
 
 from django import forms
-from django.db.models import Sum, Count
+from django.db.models import Max
 from django.shortcuts import render
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -11,7 +11,8 @@ from django.http import HttpResponseRedirect, Http404, JsonResponse
 from .forms import *
 from .models import *
 from sabzi_mandi.views import *
-from ledger.utils import create_payment_ledger
+from ledger.models import ClientLedgerEditable
+from ledger.utils import create_payment_ledger, update_ledger_date
 
 
 class ClientPaymentListView(CustomListView):
@@ -24,7 +25,34 @@ class ClientPaymentListView(CustomListView):
         context = super(ClientPaymentListView, self).get_context_data(**kwargs)
         qs = context["object_list"]
         qs = qs.filter(is_draft=False)
-        context["object_list"] = qs
+
+
+        ## Getting list of client whose payment can be edit.
+        object_list = []
+        columns = ["id", "client__name", "client__id", "amount", "payment_date",
+                   "payment_time", "description", "is_draft"]
+        editable_payments = dict(ClientLedgerEditable.objects.values_list("client_id", "tx_id"))
+        vs = list(qs.values(*columns))
+        for row in vs:
+            row_data = {}
+            row_data["id"] = row["id"]
+            row_data["pk"] = row["id"]
+            row_data["client"] = {"name": row["client__name"], "id": row["client__id"]}
+            row_data["amount"] = row["amount"]
+            row_data["payment_date"] = row["payment_date"]
+            row_data["payment_time"] = row["payment_time"]
+            row_data["description"] = row["description"]
+            row_data["is_draft"] = row["is_draft"]
+
+            # Checking client payment can be edit or not
+            client_id = row["client__id"]
+            payment_tx_id = "payment-"+str(row["id"])
+            if payment_tx_id == editable_payments.get(client_id, ""):
+                row_data["editable"] = True
+
+            object_list.append(row_data)
+
+        context["object_list"] = object_list
         return context
 
 class ClientPaymentCreateView(CustomCreateView):
@@ -58,12 +86,25 @@ class ClientPaymentUpdateView(CustomUpdateView):
     model = ClientPayment
     success_url = "/payment/clients"
     template_name = "payments/client_payment_form.html"
-    fields = ["client", "amount", "description"]
+    fields = ["description", "payment_date"]
+
+    def get_context_data(self, **kwargs):
+        context = super(ClientPaymentUpdateView, self).get_context_data(**kwargs)
+        try:
+            payment_tx_id = "payment-"+str(self.object.pk)
+            ClientLedgerEditable.objects.get(tx_id=payment_tx_id)
+        except:
+            raise Http404
+
+        form = context["form"]
+        form.initial["payment_date"] = form.initial["payment_date"].strftime("%Y-%m-%d")
+        return context
 
     def form_valid(self, form):
         super(ClientPaymentUpdateView, self).form_valid(form)
-        #form.instance.client.current_balance -= form.instance.amount
-        #form.instance.client.save()
+        date = form.cleaned_data["payment_date"]
+        description = form.cleaned_data["description"]
+        update_ledger_date("payment-%d" % form.instance.pk, date, description)
         msg = 'Client Payment: [%s] was updated succefully.' % form.instance.client.name
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())
@@ -71,6 +112,15 @@ class ClientPaymentUpdateView(CustomUpdateView):
 class ClientPaymentDeleteView(CustomDeleteView):
     model = ClientPayment
     success_url = "/payment/clients"
+
+    def get_context_data(self, **kwargs):
+        context = super(ClientPaymentDeleteView, self).get_context_data(**kwargs)
+        try:
+            payment_tx_id = "payment-"+str(self.object.pk)
+            ClientLedgerEditable.objects.get(tx_id=payment_tx_id)
+        except:
+            raise Http404
+        return context
 
     def delete(self, request, *args, **kwargs):
         super(ClientPaymentDeleteView, self).delete(request, *args, **kwargs)

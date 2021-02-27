@@ -22,15 +22,26 @@
   <div class="col-lg-9">
     <div class="p-5">
       <div class="text-center text-primary">
-        <h1 class="h4 text-primary-900 mb-4 font-weight-bold">Create New Client Payment</h1>
+        <h1 class="h4 text-primary-900 mb-4 font-weight-bold">
+          {% if form.instance.pk %}Update{% else %}Create New{% endif %} Client Payment
+          </h1>
       </div>
       <form action="{{request.get_full_path}}" method="POST" enctype="multipart/form-data">
         {% include "form_non_field_errors.html" %}
-        {% include "select_field.html" with field=form.client field_label="Client Name" %}
-        {% include "fields.html" with field=form.amount field_label="Amount" %}
+        {% if form.instance.pk %}
+          <div class="form-group row">
+            <label class="col-sm-3 col-form-label font-weight-bold">Client Name</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" value="{{ form.instance.client.name }}" disabled>
+            </div>
+          </div>
+        {% else %}
+          {% include "select_field.html" with field=form.client field_label="Client Name" %}
+          {% include "fields.html" with field=form.amount field_label="Amount" %}
+        {% endif %}
         {% include "text_fields.html" with field=form.description field_label="Description" %}
         {% include "datetime_field.html" with field=form.payment_date field_label="Payment Date" %}
-        {% include "form_buttons.html" with name="Client Payment" %}
+        {% include "form_buttons.html" with name="Client Payment" pk=form.instance.pk %}
       </form>
     </div>
   </div>

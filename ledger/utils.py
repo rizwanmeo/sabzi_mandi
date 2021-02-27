@@ -46,10 +46,12 @@ def create_payment_ledger(payment_obj, balance):
     ledger.save()
     return ledger
 
-def update_ledger_date(tx_id, tx_date):
+def update_ledger_date(tx_id, tx_date, description=""):
     try:
         ledger = ClientLedger.objects.get(tx_id=tx_id)
         ledger.tx_date = tx_date
+        if len(description) > 0:
+            ledger.description = description
         ledger.save()
     except ClientBill.DoesNotExist:
         pass

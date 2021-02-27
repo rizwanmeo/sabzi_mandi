@@ -40,21 +40,34 @@
             <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
               <thead>
                 <tr>
-                  <th>Payment Time</th>
-                  <th>Description</th>
-                  <th>Amount</th>
-                  <th>Client Name</th>
                   <th>ID</th>
+                  <th>Client Name</th>
+                  <th>Amount</th>
+                  <th>Date</th>
+                  <th>Description</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {% for obj in object_list %}
                 <tr>
-                  <td>{{ obj.payment_time }}</td>
-                  <td>{{ obj.description }}</td>
-                  <td>{{ obj.amount }}</td>
-                  <td>{{ obj.client.name }}</td>
                   <td>{{ obj.id }}</td>
+                  <td>{{ obj.client.name }}</td>
+                  <td>{{ obj.amount }}</td>
+                  <td>{{ obj.payment_date }}</td>
+                  <td>{{ obj.description }}</td>
+                  <td>
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                    {% if obj.editable %}
+                      <a href="/payment/clients/{{obj.id}}/update/?{{ request.GET.urlencode }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-edit text-primary"></i>
+                      </a>
+                      <a href="/payment/clients/{{obj.id}}/delete/?{{ request.GET.urlencode }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-trash text-danger"></i>
+                      </a>
+                    {% endif %}
+                    </div>
+                  </td>
                 </tr>
                 {% endfor %}
               </tbody>

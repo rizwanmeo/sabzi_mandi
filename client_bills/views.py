@@ -1,6 +1,6 @@
 import datetime
 
-from django.db.models import Sum, Count, Max
+from django.db.models import Max
 from django.shortcuts import render
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -12,6 +12,7 @@ from .forms import *
 from .models import *
 from sabzi_mandi.views import *
 from clients.models import Client
+from ledger.models import ClientLedgerEditable
 from ledger.utils import update_ledger_date
 from ledger.utils import create_bill_ledger, create_payment_ledger
 
@@ -32,11 +33,12 @@ class ClientBillListView(CustomListView):
         columns = ["id", "client__name", "client__id", "created_time", "is_draft", "bill_date",
                    "balance", "billed_amount", "payment__amount", "billdetail__rate",
                    "billdetail__item__name", "billdetail__unit", "billdetail__item_count"]
+
+        editable_bills = dict(ClientLedgerEditable.objects.values_list("client_id", "tx_id"))
+
         data = {}
         vs = list(object_list.values(*columns))
-        client_ids = set([])
         for row in vs:
-            client_ids.add(row["client__id"])
             row_data = {}
             row_data["id"] = row["id"]
             row_data["pk"] = row["id"]
@@ -59,25 +61,19 @@ class ClientBillListView(CustomListView):
 
             row_data["billdetail"].append(detail)
 
+            # Checking client payment can be edit or not
+            client_id = row["client__id"]
+            bill_tx_id = "bill-"+str(row["id"])
+            if bill_tx_id == editable_bills.get(client_id, ""):
+                row_data["editable"] = True
+
             try:
                 data[row["id"]]["billdetail"].append(detail)
                 data[row["id"]]["total_items"] += 1
             except KeyError:
                 data[row["id"]] = row_data
 
-        editable_bills = dict(ClientBill.objects \
-            .filter(client_id__in=client_ids) \
-            .values_list("client_id") \
-            .annotate(Max('id')))
-
-        object_list = []
-        for pk in data:
-            client_id = data[pk]["client"]["id"]
-            if pk == editable_bills[client_id]:
-                data[pk]["editable"] = True
-            object_list.append(data[pk])
-
-        context["object_list"] = object_list
+        context["object_list"] = data.values()
         client_id = self.request.GET.get("client", "")
         client_id=int(client_id) if client_id.isdigit() else 0
         qs = Client.objects.filter(shop=self.request.shop)
@@ -162,11 +158,11 @@ class ClientBillUpdateView(CustomUpdateView):
     def get_context_data(self, **kwargs):
         context = super(ClientBillUpdateView, self).get_context_data(**kwargs)
         try:
-            last_obj = ClientBill.objects.filter(client=self.object.client).latest('id')
-            if last_obj.pk != self.object.pk:
-                raise Http404
+            bill_tx_id = "bill-"+str(self.object.pk)
+            ClientLedgerEditable.objects.get(tx_id=bill_tx_id)
         except:
-            pass
+            raise Http404
+
         form = context["form"]
         form.initial["bill_date"] = form.initial["bill_date"].strftime("%Y-%m-%d")
         return context
