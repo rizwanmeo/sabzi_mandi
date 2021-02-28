@@ -33,5 +33,10 @@ class CustomDeleteView(CustomLoginRequiredMixin, CustomViewMixin, DeleteView):
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
 
+    def delete(self, request, *args, **kwargs):
+        super(CustomDeleteView, self).delete(request, *args, **kwargs)
+        self.object.pk = kwargs.get("pk")
+
+
 class CustomDetailView(CustomLoginRequiredMixin, DetailView):
     pass

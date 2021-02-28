@@ -53,7 +53,14 @@ def update_ledger_date(tx_id, tx_date, description=""):
         if len(description) > 0:
             ledger.description = description
         ledger.save()
-    except ClientBill.DoesNotExist:
+    except ClientLedger.DoesNotExist:
+        pass
+
+def delete_ledger(tx_id):
+    try:
+        ledger = ClientLedger.objects.get(tx_id=tx_id)
+        ledger.delete()
+    except ClientLedger.DoesNotExist:
         pass
 
 def migrate_client_ledger(client_obj):

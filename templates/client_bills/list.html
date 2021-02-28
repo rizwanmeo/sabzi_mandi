@@ -109,6 +109,9 @@
                       <a href="/client-bills/{{obj.id}}/update/?{{ request.GET.urlencode }}" class="btn btn-light btn-sm">
                         <i class="fas fa-edit text-primary"></i>
                       </a>
+                      <a href="/client-bills/{{obj.id}}/delete/?{{ request.GET.urlencode }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-trash text-danger"></i>
+                      </a>
                     {% endif %}
                     </div>
                   </td>

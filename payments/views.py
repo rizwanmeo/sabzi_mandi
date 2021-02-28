@@ -12,6 +12,7 @@ from .forms import *
 from .models import *
 from sabzi_mandi.views import *
 from ledger.models import ClientLedgerEditable
+from ledger.utils import delete_ledger
 from ledger.utils import create_payment_ledger, update_ledger_date
 
 
@@ -124,8 +125,10 @@ class ClientPaymentDeleteView(CustomDeleteView):
 
     def delete(self, request, *args, **kwargs):
         super(ClientPaymentDeleteView, self).delete(request, *args, **kwargs)
-        #self.object.client.current_balance += self.object.amount
-        #self.object.client.save()
+        payment_tx_id = "payment-"+str(self.object.pk)
+        delete_ledger(payment_tx_id)
+        self.object.client.current_balance += self.object.amount
+        self.object.client.save()
         msg = 'Client Payment: [%s] was deleted succfully.' % self.object.client.name
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())

@@ -13,7 +13,7 @@ from .models import *
 from sabzi_mandi.views import *
 from clients.models import Client
 from ledger.models import ClientLedgerEditable
-from ledger.utils import update_ledger_date
+from ledger.utils import update_ledger_date, delete_ledger
 from ledger.utils import create_bill_ledger, create_payment_ledger
 
 class ClientBillListView(CustomListView):
@@ -171,10 +171,26 @@ class ClientBillDeleteView(CustomDeleteView):
     model = ClientBill
     success_url = "/client-bills"
 
-    def delete(self, request, *args, **kwargs):
-        if not self.get_object().is_draft:
+    def get_context_data(self, **kwargs):
+        context = super(ClientBillDeleteView, self).get_context_data(**kwargs)
+        if self.object.is_draft:
+            return context
+
+        try:
+            bill_tx_id = "bill-"+str(self.object.pk)
+            ClientLedgerEditable.objects.get(tx_id=bill_tx_id)
+        except:
             raise Http404
+        return context
+
+    def delete(self, request, *args, **kwargs):
         super(ClientBillDeleteView, self).delete(request, *args, **kwargs)
+        if not self.object.is_draft:
+            bill_tx_id = "bill-"+str(self.object.pk)
+            delete_ledger(bill_tx_id)
+            self.object.client.current_balance -= self.object.billed_amount
+            self.object.client.save()
+
         msg = 'Client: [%s] bill was delete succfully.' % self.object.client.name
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())
