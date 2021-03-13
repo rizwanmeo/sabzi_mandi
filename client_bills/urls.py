@@ -1,6 +1,7 @@
 from django.urls import re_path
 
 from . import views
+from ledger import views as ledger_views
 
 urlpatterns = [
     # all list view urls
@@ -8,6 +9,7 @@ urlpatterns = [
 
     # all client-bills related urls
     re_path(r'^create/$', views.ClientBillCreateView.as_view(), name='client_bills_create'),
+    re_path(r'^print/$', ledger_views.ClientLedgerListView.as_view(), name='client_bills_print'),
     re_path(r'^(?P<bill_id>\d+)/detail-create/$', views.BillDetailCreateView.as_view(), name='client_bills_detail_create'),
     re_path(r'^(?P<bill_id>\d+)/done/$', views.done_bill, name='client_bill_done'),
     re_path(r'^(?P<bill_id>\d+)/print/$', views.print_bill, name='print_bill'),

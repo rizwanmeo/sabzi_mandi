@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Client Ledger</title>
+  {% load static %}
+
+  <!-- Load paper.css for happy printing -->
+  <link rel="stylesheet" href="{% static "css/print.css" %}">
+  <link href="{% static "css/urdu-lang.css" %}" rel="stylesheet">
+  <style>
+    .table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    .table td, .table th {
+      border-bottom: 0.1rem solid #ddd;
+      border-top: 0.1rem solid #ddd;
+    }
+
+    .table tr:nth-child(even){
+      background-color: #f2f2f2;
+    }
+
+    .table th {
+      padding-top: 5px;
+      padding-bottom: 5px;
+    }
+    @page { margin-top: 0; }
+  </style>
+</head>
+
+<!-- Set "A5", "A4" or "A3" for class name -->
+<!-- Set also "landscape" if you need -->
+
+<body class="document">
+  {% for object_list in data %}
+  <div class="page">
+      <table>
+          <tr style="height:20px"><td></td></tr>
+          {% if forloop.first %}
+          <tr><td><img src="/static/img/index.jpeg" width="100%"></td></tr>
+          <tr><td>Date: {{ bill_date }}</td></tr>
+          {% endif %}
+       <tr height="100px;">
+         <td>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th align="left">Amount</th>
+                  <th align="right">Detail</th>
+                  <th align="right">Name</th>
+                  <th align="right">ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for obj in object_list %}
+                <tr>
+                  <td align="left">{{ obj.bill_amount }}</td>
+                  <td align="right">{{ obj.description }}</td>
+                  <td align="right">{{ obj.client.name }}</td>
+                  <td align="right">{{ obj.tx_id }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+         </td>
+       </tr>
+      </table>
+  </div>
+  {% endfor %}
+</body>
+</html>

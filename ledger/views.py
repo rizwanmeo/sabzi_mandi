@@ -7,11 +7,63 @@ from django.contrib.auth.decorators import login_required
 from django_filters.filterset import filterset_factory
 from django.views.decorators.http import require_http_methods
 
+from sabzi_mandi.views import *
+from ledger.models import ClientLedger
 from clients.models import Client
 from suppliers.models import Supplier
 from ledger.models import ClientLedger
 from payments.models import SupplierPayment
 
+
+class ClientLedgerListView(CustomListView):
+    model = ClientLedger
+    template_name = "client_bills/detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(ClientLedgerListView, self).get_context_data(**kwargs)
+        bill_date = self.request.GET.get("bill_date")
+
+        data = []
+        total_amount = 0
+        vs = context["object_list"]
+        vs = vs.filter(tx_id__startswith="bill")
+        #vs = vs.filter(tx_id__startswith="bill", tx_date=bill_date)
+
+        data = []
+        object_list = []
+        first_page_rows = 28
+        rest_page_rows = 35
+        for count, obj in enumerate(vs):
+            row = {}
+            row["tx_id"] = obj.tx_id
+            row["description"] = obj.description
+
+            if len(obj.description) > 80:
+                if count < first_page_rows:
+                    first_page_rows -= int(len(obj.description) / 80)
+                else:
+                    rest_page_rows -= int(len(obj.description) / 80)
+
+            row["bill_amount"] = obj.bill_amount
+            row["client"] = {"name": obj.client.name, "id": obj.client.id}
+            total_amount += total_amount
+
+            if count == first_page_rows:
+                data.append(object_list)
+                object_list = []
+            elif count > first_page_rows and len(object_list) == rest_page_rows:
+                data.append(object_list)
+                object_list = []
+                rest_page_rows = 35
+
+            object_list.append(row)
+
+        if len(object_list) > 0:
+            data.append(object_list)
+
+        context["data"] = data
+        context["bill_date"] = bill_date
+        return context
 
 def get_suppliers_ledger_data(request):
     data = []
@@ -170,6 +222,7 @@ def clients_ledger_print(request):
     previous_balance1 = 0
     previous_balance2 = 0
     ledger_list1, ledger_list2 = [], []
+
     def append_page_total():
         nonlocal payment1, payment2
         nonlocal billed_amount1, billed_amount2

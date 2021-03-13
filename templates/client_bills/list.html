@@ -33,7 +33,7 @@
             <div class="col-lg-6">
               <div class="text-right">
                 <div class="row">
-                  <div class="col-lg-4">
+                  <div class="col-lg-5">
                     <div class="input-group input-group-sm mb-3">
                       <input type="text" class="form-control" id="id_bill_date" name="bill_date" value="{{selected_date}}" readonly="">
                       <div class="input-group-append">
@@ -41,7 +41,7 @@
                       </div>
                     </div>
                   </div>
-                  <div class="col-lg-4">
+                  <div class="col-lg-5">
                     <select name="client" class="fstdropdown-select form-control-sm" id="id_client" onChange="onchangeEvent();">
                       <option value="" {% if selected_supplier <= 0 %}selected=""{% endif %}>Select a Client</option>
                       {% for obj in client_list %}
@@ -53,13 +53,15 @@
                       {% endfor %}
                     </select>
                   </div>
-                  <div class="col-lg-4">
-                    <a href="/client-bills/create/?{{ request.GET.urlencode }}" class="btn btn-success btn-icon-split btn-sm">
-                      <span class="icon text-white-50">
-                        <i class="fa fa-plus"></i>
-                      </span>
-                      <span class="text">Add New Bill</span>
-                    </a>
+                  <div class="col-lg-2">
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                      <a href="/client-bills/create/?{{ request.GET.urlencode }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-plus"></i>
+                      </a>
+                      <a href="/client-bills/print/?{{ request.GET.urlencode }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-print"></i>
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
