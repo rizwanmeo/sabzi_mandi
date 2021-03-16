@@ -61,12 +61,15 @@
                   <td align="left">{{ obj.bill_amount }}</td>
                   <td align="right">{{ obj.description }}</td>
                   <td align="right">{{ obj.client.name }}</td>
-                  <td align="right">{{ obj.tx_id }}</td>
+                  <td align="right">{{ obj.client.id }}</td>
                 </tr>
                 {% endfor %}
               </tbody>
             </table>
          </td>
+       </tr>
+       <tr>
+          <td>{{ total_amount }}</td>
        </tr>
       </table>
   </div>

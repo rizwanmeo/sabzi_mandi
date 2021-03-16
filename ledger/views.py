@@ -26,8 +26,8 @@ class ClientLedgerListView(CustomListView):
         data = []
         total_amount = 0
         vs = context["object_list"]
-        vs = vs.filter(tx_id__startswith="bill")
-        #vs = vs.filter(tx_id__startswith="bill", tx_date=bill_date)
+        #vs = vs.filter(tx_id__startswith="bill")
+        vs = vs.filter(tx_id__startswith="bill", tx_date=bill_date)
 
         data = []
         object_list = []
@@ -46,7 +46,7 @@ class ClientLedgerListView(CustomListView):
 
             row["bill_amount"] = obj.bill_amount
             row["client"] = {"name": obj.client.name, "id": obj.client.id}
-            total_amount += total_amount
+            total_amount += obj.bill_amount
 
             if count == first_page_rows:
                 data.append(object_list)
@@ -63,6 +63,7 @@ class ClientLedgerListView(CustomListView):
 
         context["data"] = data
         context["bill_date"] = bill_date
+        context["total_amount"] = total_amount
         return context
 
 def get_suppliers_ledger_data(request):
