@@ -276,7 +276,7 @@ class BillDetailCreateView(CustomCreateView):
 def done_drafted_bill(request, bill_obj):
     billed_amount = 0
     now = datetime.datetime.now()
-    billdetail_vs = bill_obj.billdetail_set.values("rate", "item_count")
+    billdetail_vs = list(bill_obj.billdetail_set.values("rate", "item_count"))
     for detail_obj in billdetail_vs:
         billed_amount += detail_obj["rate"] * detail_obj["item_count"]
     bill_obj.is_draft = False

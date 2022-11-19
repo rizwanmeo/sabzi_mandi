@@ -141,7 +141,7 @@ def get_client_ledger_data(request):
 
     for (pk, name), rows in tmp_data.items():
         data[pk] = {}
-        data[pk]["id"] = pk
+        data[pk]["id"] = int(pk)
         data[pk]["name"] = name
         data[pk]["payment"] = 0
         data[pk]["billed_amount"] = 0
@@ -183,7 +183,7 @@ def get_client_ledger_data(request):
         if row.balance == 0: continue
         pk = str(row.client_id)
         data[pk] = {}
-        data[pk]["id"] = pk
+        data[pk]["id"] = int(pk)
         data[pk]["name"] = row.name
         data[pk]["current_balance"] = round(row.balance, 2)
         data[pk]["previous_balance"] = round(row.balance, 2)

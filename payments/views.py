@@ -25,15 +25,15 @@ class ClientPaymentListView(CustomListView):
     def get_context_data(self, **kwargs):
         context = super(ClientPaymentListView, self).get_context_data(**kwargs)
         qs = context["object_list"]
-        qs = qs.filter(is_draft=False)
-
-
+        distinct_client_payments = list(qs.values('client').annotate(id=Max('id')))
+        distinct_ids = [k['id'] for k in distinct_client_payments]
+        qs = qs.filter(is_draft=False, id__in=distinct_ids)
         ## Getting list of client whose payment can be edit.
         object_list = []
         columns = ["id", "client__name", "client__id", "amount", "payment_date",
                    "payment_time", "description", "is_draft"]
         editable_payments = dict(ClientLedgerEditable.objects.values_list("client_id", "tx_id"))
-        vs = list(qs.values(*columns))
+        vs = list(qs.order_by("-id").values(*columns))
         for row in vs:
             row_data = {}
             row_data["id"] = row["id"]

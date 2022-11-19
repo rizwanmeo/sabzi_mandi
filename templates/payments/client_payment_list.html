@@ -40,6 +40,7 @@
             <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
               <thead>
                 <tr>
+                  <td style="display:none;">Count</td>
                   <th>ID</th>
                   <th>Client Name</th>
                   <th>Amount</th>
@@ -51,6 +52,7 @@
               <tbody>
                 {% for obj in object_list %}
                 <tr>
+                  <td style="display:none;">{{ forloop.counter }}</td>
                   <td>{{ obj.id }}</td>
                   <td>{{ obj.client.name }}</td>
                   <td>{{ obj.amount }}</td>
