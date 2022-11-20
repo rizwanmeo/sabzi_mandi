@@ -27,10 +27,11 @@ class Migration(migrations.Migration):
                 ('address', models.CharField(blank=True, max_length=264, null=True)),
                 ('opening_balance', sabzi_mandi.models.CustomFloatField()),
                 ('current_balance', sabzi_mandi.models.CustomFloatField()),
+                ('identifier', models.IntegerField()),
                 ('shop', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='shops.Shop')),
             ],
             options={
-                'unique_together': {('shop', 'name')},
+                'unique_together': {('shop', 'name'), ('shop', 'identifier')},
             },
         ),
     ]

@@ -7,4 +7,4 @@ class Supplier(BasicInfo):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = [('shop', 'name')]
+        unique_together = [('shop', 'name'), ('shop', 'identifier')]

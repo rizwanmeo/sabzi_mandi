@@ -27,6 +27,9 @@ class ClientCreateView(CustomCreateView):
     def form_valid(self, form):
         form.instance.shop = self.request.shop
         form.instance.current_balance = form.instance.opening_balance
+        last_client = Client.objects.filter(shop=self.request.shop).order_by("-identifier").first() 
+        form.instance.identifier = last_client.identifier + 1
+
         super(ClientCreateView, self).form_valid(form)
         create_opening_ledger(form.instance)
         msg = 'Client: [%s] was created succfully.' % form.instance.name

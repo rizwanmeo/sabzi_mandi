@@ -164,15 +164,15 @@ def get_client_ledger_data(request):
     # request.shop can be None do need to check first if shop exists
     shop_id = request.shop.id if request.shop else 0
 
-    columns = ["t.id", "t.client_id", "tt.name", "t.balance", "t.tx_time"]
-    temp_table = "SELECT client_id, name, max(tx_time) AS tx_time, max(lc.id) AS id"
+    columns = ["t.id", "t.client_id", "tt.identifier", "tt.name", "t.balance", "t.tx_time"]
+    temp_table = "SELECT client_id, name, identifier, max(tx_time) AS tx_time, max(lc.id) AS id"
     temp_table += " FROM ledger_clientledger AS lc"
     temp_table += " JOIN clients_client AS cc ON(client_id=cc.id)"
     temp_table += " WHERE cc.shop_id=%d AND tx_date < '%s'" % (shop_id, str(selected_date))
     if len(data) != 0:
         temp_table += " AND client_id not in (%s)"
         temp_table = temp_table % ", ".join(data.keys())
-    temp_table += " GROUP BY client_id, name"
+    temp_table += " GROUP BY client_id, identifier, name"
 
     query = "SELECT %s FROM ledger_clientledger as t"
     query += " JOIN (%s) AS tt USING(id)"
@@ -185,6 +185,7 @@ def get_client_ledger_data(request):
         data[pk] = {}
         data[pk]["id"] = int(pk)
         data[pk]["name"] = row.name
+        data[pk]["identifier"] = row.identifier
         data[pk]["current_balance"] = round(row.balance, 2)
         data[pk]["previous_balance"] = round(row.balance, 2)
         data[pk]["payment"] = 0
@@ -193,7 +194,7 @@ def get_client_ledger_data(request):
         total_previous_balance += row.balance
         total_current_balance += row.balance
 
-    ledger_list = sorted(data.values(), key = lambda i: i['id'])
+    ledger_list = sorted(data.values(), key = lambda i: i['identifier'])
     context["ledger_list"] = ledger_list
     context["ledger_date"] = selected_date.strftime("%A, %d %B, %Y")
     context["selected_date"] = selected_date.strftime("%Y-%m-%d")
@@ -282,4 +283,4 @@ def clients_ledger_print(request):
 
     data.append([ledger_list1, ledger_list2])
     context["data"] = data
-    return render(request, 'ledger/clients_ledger_print.html', context)
+    return render(request, 'ledger/clients_ledger_print.html', context)	

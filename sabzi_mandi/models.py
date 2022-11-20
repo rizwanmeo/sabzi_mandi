@@ -39,6 +39,7 @@ class BasicInfo(UpdatedInfo):
     address = models.CharField(max_length=264, blank=True, null=True)
     opening_balance = CustomFloatField()
     current_balance = CustomFloatField()
+    identifier = models.IntegerField()
 
     class Meta:
         abstract = True
