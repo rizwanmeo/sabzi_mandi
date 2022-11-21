@@ -129,7 +129,7 @@ def get_client_ledger_data(request):
 
     kwargs = {"client__shop": request.shop, "tx_date": selected_date}
     ledger_qs = ClientLedger.objects.filter(**kwargs)
-    columns = ["client__id", "client__name", "balance", "payment_amount", "bill_amount"]
+    columns = ["client__id", "client__name", "client__identifier", "balance", "payment_amount", "bill_amount"]
     ledger_qs = ledger_qs.order_by("client", "-tx_time")
     ledger_vs = ledger_qs.values(*columns)
 
@@ -137,12 +137,14 @@ def get_client_ledger_data(request):
     for row in ledger_vs:
         pk = str(row["client__id"])
         name = row["client__name"]
-        tmp_data[(pk, name)].append(row)
+        identifier = row["client__identifier"]
+        tmp_data[(pk, identifier, name)].append(row)
 
-    for (pk, name), rows in tmp_data.items():
+    for (pk, identifier, name), rows in tmp_data.items():
         data[pk] = {}
         data[pk]["id"] = int(pk)
         data[pk]["name"] = name
+        data[pk]["identifier"] = int(identifier)
         data[pk]["payment"] = 0
         data[pk]["billed_amount"] = 0
         data[pk]["current_balance"] = rows[0]["balance"]
@@ -185,7 +187,7 @@ def get_client_ledger_data(request):
         data[pk] = {}
         data[pk]["id"] = int(pk)
         data[pk]["name"] = row.name
-        data[pk]["identifier"] = row.identifier
+        data[pk]["identifier"] = int(row.identifier)
         data[pk]["current_balance"] = round(row.balance, 2)
         data[pk]["previous_balance"] = round(row.balance, 2)
         data[pk]["payment"] = 0
@@ -195,6 +197,7 @@ def get_client_ledger_data(request):
         total_current_balance += row.balance
 
     ledger_list = sorted(data.values(), key = lambda i: i['identifier'])
+    context["logo_path"] = request.shop.logo.url
     context["ledger_list"] = ledger_list
     context["ledger_date"] = selected_date.strftime("%A, %d %B, %Y")
     context["selected_date"] = selected_date.strftime("%Y-%m-%d")

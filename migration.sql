@@ -5,10 +5,16 @@ SELECT DISTINCT shop_id FROM clients_client;
 SELECT DISTINCT shop_id FROM suppliers_supplier;
 
 WITH v_table_name AS
-(SELECT id, row_number() OVER () AS ident FROM clients_client WHERE shop_id=2 ORDER BY id)
+(SELECT id, row_number() OVER () AS ident FROM clients_client WHERE shop_id=1 ORDER BY id)
 UPDATE clients_client set identifier = v_table_name.ident
 FROM v_table_name
 WHERE clients_client.id = v_table_name.id;
+
+WITH v_table_name AS
+(SELECT id, row_number() OVER () AS ident FROM suppliers_supplier WHERE shop_id=1 ORDER BY id)
+UPDATE suppliers_supplier set identifier = v_table_name.ident
+FROM v_table_name
+WHERE suppliers_supplier.id = v_table_name.id;
 
 
 ALTER TABLE clients_client ALTER COLUMN identifier SET NOT NULL;

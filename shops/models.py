@@ -32,7 +32,7 @@ def content_file_name(instance, filename):
 
     shop_path = os.path.join(settings.MEDIA_ROOT, 'shops')
     if not path.exists(shop_path):
-        os.mkdir(shop_path)
+        os.makedirs(shop_path)
 
     ext = filename.split('.')[-1]
     filename = "%s.%s" % (datetime.datetime.now().strftime('%Y%m%d%H%M%S'), ext)
