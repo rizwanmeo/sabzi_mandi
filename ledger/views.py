@@ -45,7 +45,7 @@ class ClientLedgerListView(CustomListView):
                     rest_page_rows -= int(len(obj.description) / 80)
 
             row["bill_amount"] = obj.bill_amount
-            row["client"] = {"name": obj.client.name, "id": obj.client.id}
+            row["client"] = {"name": obj.client.name, "id": obj.client.id, "identifier": obj.client.identifier}
             total_amount += obj.bill_amount
 
             if count == first_page_rows:
