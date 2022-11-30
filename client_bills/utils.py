@@ -112,12 +112,13 @@ def get_bill_data(request, client_obj, date):
     if len(calculated_payment_ids) > 0:
         payment_qs = payment_qs.exclude(id__in=calculated_payment_ids)
     payment_vs = payment_qs.aggregate(amount=Sum('amount'))
-    paid_amount += payment_vs['amount'] or 0
+
+    bill_obj.previous_balance = bill_obj.balance - bill_obj.billed_amount
+    bill_obj.payment = ClientPayment(amount=paid_amount + (payment_vs['amount'] or 0))
+    bill_obj.after_bill_balance = bill_obj.previous_balance + billed_amount
     bill_obj.billed_amount = billed_amount
-    bill_obj.payment = ClientPayment(amount=paid_amount)
-    bill_obj.previous_balance = bill_obj.balance - billed_amount
-    bill_obj.after_bill_balance = bill_qs[-1].balance
-    bill_obj.balance = bill_qs[-1].balance - payment_vs['amount'] or 0
+
+    bill_obj.balance = bill_obj.after_bill_balance - bill_obj.payment.amount
 
     context["obj"] = bill_obj
     context["bill_detail_list"] = data

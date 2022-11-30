@@ -104,7 +104,7 @@
                   <td>{{ obj.balance }}</td>
                   <td>
                     <div class="btn-group" role="group" aria-label="Basic example">
-                    <a href="/client-bills/{{obj.id}}/print/?{{ request.GET.urlencode }}" class="btn btn-light btn-sm">
+                    <a href="/client-bills/{{obj.client.id}}/print/?{{ request.GET.urlencode }}" class="btn btn-light btn-sm">
                       <i class="fas fa-print"></i>
                     </a>
                     {% if obj.editable %}
