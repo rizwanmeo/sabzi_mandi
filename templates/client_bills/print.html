@@ -46,7 +46,7 @@
           <div class="col-lg-3" style="width: 25%"></div>
           <div class="col-lg-6" style="width: 50%">
             <table cellspacing="0" cellpadding="0">
-              <tr style="height:10px; width: 100%">
+              <tr style="height:20px; width: 100%">
                <td colspan=5></td>
               </tr>
               <tr>
@@ -67,42 +67,42 @@
               </tr>
               {% for bill_obj in bill_detail_list %}
               <tr>
-                <td class="text-center">{{ bill_obj.amount }}</td>
-                <td class="text-center">{% if bill_obj.unit == 'k' %}{{ bill_obj.item_count }}-KG{% else %}-{% endif %}</td>
-                <td class="text-center">{{ bill_obj.rate }}</td>
-                <td class="text-center">{% if bill_obj.unit == 'i' %}{{ bill_obj.item_count }}{% endif %}</td>
-                <td><div class="text-right" style="padding-right: 10px;">{{ bill_obj.name }}</div></td>
+                <th class="text-center">{{ bill_obj.amount }}</th>
+                <th class="text-center">{% if bill_obj.unit == 'k' %}{{ bill_obj.item_count }}-KG{% else %}-{% endif %}</th>
+                <th class="text-center">{{ bill_obj.rate }}</th>
+                <th class="text-center">{% if bill_obj.unit == 'i' %}{{ bill_obj.item_count }}{% endif %}</th>
+                <th><div class="text-right" style="padding-right: 10px;">{{ bill_obj.name }}</div></th>
               </tr>
               {% endfor %}
               <tr>
-                <td class="text-center">{{ obj.billed_amount }}</td>
-                <td class="text-center">{% if total_item_weight %}{{total_item_weight}}-KG{% else %}-{% endif %}</td>
-                <td class="text-center">-</td>
-                <td class="text-center">{% if total_item_count %}{{total_item_count}}{% endif %}</td>
-                <td class="text-right" style="padding-right: 10px;">Total</td>
+                <th class="text-center">{{ obj.billed_amount }}</th>
+                <th class="text-center">{% if total_item_weight %}{{total_item_weight}}-KG{% else %}-{% endif %}</th>
+                <th class="text-center">-</th>
+                <th class="text-center">{% if total_item_count %}{{total_item_count}}{% endif %}</th>
+                <th class="text-right" style="padding-right: 10px;">Total</th>
               </tr>
               <tr>
-                <td class="text-center">{{ obj.previous_balance }}</td>
-                <td colspan="2">Previous Amount</td>
-                <td rowspan="4" colspan="2" style="vertical-align: middle;">
+                <th class="text-center">{{ obj.previous_balance }}</th>
+                <th colspan="2">Previous Amount</th>
+                <th rowspan="4" colspan="2" style="vertical-align: middle;">
                   <div class="text-center h-10">
                     Develop By</br>
                     Ahmed Faraz Arain</br>
                     0346-2073561
                   </div>
-                </td>
+                </th>
               </tr>
               <tr>
-                <td class="text-center">{{ obj.after_bill_balance }}</td>
-                <td colspan="2">Total Amount</td>
+                <th class="text-center">{{ obj.after_bill_balance }}</th>
+                <th colspan="2">Total Amount</th>
               </tr>
               <tr>
-                <td class="text-center">{% if obj.payment %}{{ obj.payment.amount }}{% else %}-{% endif %}</td>
-                <td colspan="2">Paid Amount</td>
+                <th class="text-center">{% if obj.payment %}{{ obj.payment.amount }}{% else %}-{% endif %}</th>
+                <th colspan="2">Paid Amount</th>
               </tr>
               <tr>
-                <td class="text-center">{{ obj.balance }}</td>
-                <td colspan="2">Total</td>
+                <th class="text-center">{{ obj.balance }}</th>
+                <th colspan="2">Total</th>
               </tr>
             </table>
           </div>

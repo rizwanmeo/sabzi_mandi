@@ -31,11 +31,11 @@ class ClientBillListView(CustomListView):
         if self.request.GET.get("bill_date") is None:
             today = datetime.date.today().strftime("%Y-%m-%d")
             object_list = object_list.filter(bill_date=today)
-        columns = ["id", "client__name", "client__id", "created_time", "is_draft", "bill_date",
+        columns = ["id", "client__name", "client__identifier", "client__id", "created_time", "is_draft", "bill_date",
                    "balance", "billed_amount", "payment__amount", "billdetail__rate",
                    "billdetail__item__name", "billdetail__unit", "billdetail__item_count"]
 
-        editable_bills = dict(ClientLedgerEditable.objects.values_list("client_id", "tx_id"))
+        editable_bills = dict(ClientLedgerEditable.objects.filter(client__shop=self.request.shop).values_list("client_id", "tx_id"))
 
         data = {}
         vs = list(object_list.values(*columns))
@@ -43,7 +43,7 @@ class ClientBillListView(CustomListView):
             row_data = {}
             row_data["id"] = row["id"]
             row_data["pk"] = row["id"]
-            row_data["client"] = {"name": row["client__name"], "id": row["client__id"]}
+            row_data["client"] = {"name": row["client__name"], "identifier": row["client__identifier"], "id": row["client__id"]}
             row_data["created_time"] = row["created_time"]
             row_data["is_draft"] = row["is_draft"]
             row_data["bill_date"] = row["bill_date"]
@@ -111,7 +111,7 @@ class ClientBillCreateView(CustomCreateView):
             payment_obj.client = form.instance.client
             payment_obj.payment_date = today
             payment_obj.amount = payment_amount
-            payment_obj.is_draft = False
+            payment_obj.is_draft = True
             payment_obj.save()
             form.instance.payment = payment_obj
 
@@ -289,6 +289,7 @@ def print_bill(request, client_id):
         date = ''
 
     context = get_bill_data(request, client_obj, date)
+    context["logo_path"] = client_obj.shop.logo.url
     return render(request, 'client_bills/print.html', context)
 
 @login_required(login_url='/login/')
