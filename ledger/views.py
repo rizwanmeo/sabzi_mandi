@@ -27,7 +27,7 @@ class ClientLedgerListView(CustomListView):
         total_amount = 0
         vs = context["object_list"]
         #vs = vs.filter(tx_id__startswith="bill")
-        vs = vs.filter(tx_id__startswith="bill", tx_date=bill_date).order_by("client__identifier")
+        vs = vs.filter(client__shop=self.request.shop, tx_id__startswith="bill", tx_date=bill_date).order_by("client__identifier")
 
         data = []
         object_list = []

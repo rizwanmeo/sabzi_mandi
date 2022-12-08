@@ -2,7 +2,9 @@ import datetime
 
 from django.db.models import Sum
 from clients.models import Client
+from ledger.models import ClientLedger
 from payments.models import ClientPayment
+from client_bills.models import ClientBill, BillDetail
 from ledger.utils import create_bill_ledger, create_payment_ledger
 
 
@@ -66,7 +68,6 @@ def get_print_bill_data(request, bill_obj):
 
     return context
 
-
 def get_bill_data(request, client_obj, date):
     data = []
     context = {}
@@ -78,47 +79,44 @@ def get_bill_data(request, client_obj, date):
     total_item_weight = 0
     calculated_payment_ids = []
 
-    bill_qs = list(client_obj.clientbill_set.filter(bill_date=date, is_draft=False).order_by('id'))
-    for obj in bill_qs:
-        if bill_obj is None:
-            bill_obj = obj
+    qs = BillDetail.objects.filter(bill__client=client_obj, bill__bill_date=date, bill__is_draft=False).order_by('id')
+    vs = list(qs.values("item__name", "unit", "rate", "item_count"))
+    for row in vs:
+        detail_obj = {}
+        detail_obj["name"] = row["item__name"]
+        detail_obj["rate"] = row["rate"]
+        detail_obj["item_count"] = row["item_count"]
+        detail_obj["amount"] = row["rate"] * row["item_count"]
+        detail_obj["unit"] = row["unit"]
+        if row["unit"] == 'k':
+            total_item_weight += row["item_count"]
+        else:
+            total_item_count += row["item_count"]
 
-        billed_amount += obj.billed_amount
-        if obj.payment:
-            paid_amount += obj.payment.amount
-            calculated_payment_ids.append(obj.payment.id)           
+        data.append(detail_obj)
 
-        qs = obj.billdetail_set.all()
-        vs = list(qs.values("item__name", "unit", "rate", "item_count"))
-        for row in vs:
-            detail_obj = {}
-            detail_obj["name"] = row["item__name"]
-            detail_obj["rate"] = row["rate"]
-            detail_obj["item_count"] = row["item_count"]
-            detail_obj["amount"] = row["rate"] * row["item_count"]
-            detail_obj["unit"] = row["unit"]
-            if row["unit"] == 'k':
-                total_item_weight += row["item_count"]
+
+
+    qs = ClientLedger.objects.filter(client=client_obj, tx_date=date).order_by('id')
+    vs = list(qs.values('tx_id', 'balance', 'bill_amount', 'payment_amount'))
+
+    bill_obj = ClientBill(client=client_obj)
+    bill_obj.previous_balance = 0
+    for i, v in enumerate(vs):
+        print(v)
+        if i == 0:
+            if v['tx_id'].startswith('bill'):
+                bill_obj.previous_balance = v['balance'] - v['bill_amount']
             else:
-                total_item_count += row["item_count"]
+                bill_obj.previous_balance = v['balance'] + v['payment_amount']
 
-            data.append(detail_obj)
-
-    if len(data) == 0:
-        return context
-
-    
-    payment_qs = client_obj.clientpayment_set.filter(payment_date=date, is_draft=False)
-    if len(calculated_payment_ids) > 0:
-        payment_qs = payment_qs.exclude(id__in=calculated_payment_ids)
-    payment_vs = payment_qs.aggregate(amount=Sum('amount'))
-
-    bill_obj.previous_balance = bill_obj.balance - bill_obj.billed_amount
-    bill_obj.payment = ClientPayment(amount=paid_amount + (payment_vs['amount'] or 0))
+        billed_amount += v['bill_amount']
+        paid_amount += v['payment_amount']
+    if len(vs)>0:
+        bill_obj.balance = vs[-1]['balance']
+    bill_obj.payment = ClientPayment(amount=paid_amount)
     bill_obj.after_bill_balance = bill_obj.previous_balance + billed_amount
     bill_obj.billed_amount = billed_amount
-
-    bill_obj.balance = bill_obj.after_bill_balance - bill_obj.payment.amount
 
     context["obj"] = bill_obj
     context["bill_detail_list"] = data
@@ -126,4 +124,3 @@ def get_bill_data(request, client_obj, date):
     context["total_item_weight"] = total_item_weight
 
     return context
-
