@@ -103,7 +103,6 @@ def get_bill_data(request, client_obj, date):
     bill_obj = ClientBill(client=client_obj)
     bill_obj.previous_balance = 0
     for i, v in enumerate(vs):
-        print(v)
         if i == 0:
             if v['tx_id'].startswith('bill'):
                 bill_obj.previous_balance = v['balance'] - v['bill_amount']

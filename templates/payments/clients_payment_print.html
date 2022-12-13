@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Client Ledger</title>
+  {% load static %}
+
+  <!-- Load paper.css for happy printing -->
+  <link rel="stylesheet" href="{% static "css/print.css" %}">
+  <link href="{% static "css/urdu-lang.css" %}" rel="stylesheet">
+  <style>
+    .table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    .table td, .table th {
+      border-bottom: 0.1rem solid #ddd;
+      border-top: 0.1rem solid #ddd;
+    }
+
+    .table tr:nth-child(even){
+      background-color: #f2f2f2;
+    }
+
+    .table th {
+      padding-top: 5px;
+      padding-bottom: 5px;
+    }
+    @page { margin-top: 0; }
+  </style>
+</head>
+
+<!-- Set "A5", "A4" or "A3" for class name -->
+<!-- Set also "landscape" if you need -->
+
+<body class="document">
+  {{object_list}}
+  {% for ledger_list1, ledger_list2 in object_list %}
+  <div class="page">
+      <table width="100%">
+        <tr style="height:20px; width: 100%">
+         <td colspan="2"></td>
+        </tr>
+        {% if forloop.first %}
+        <tr style="width: 100%">
+         <td colspan="2"><img src="{{logo_path}}" width="100%" height="170px"></td>
+        </tr>
+        <tr><td colspan="2">{{ ledger_date }}</td></tr>
+        {% endif %}
+        <tr height="100px;">
+          <td width="50%">
+            <table class="table" {% if ledger_list2|length > ledger_list1|length %}style="margin-top: -27px;"{% endif %}>
+              <thead>
+                <tr>
+                  <th align="center">Payment</th>
+                  <th align="center">Total</th>
+                  <th align="center">New</th>
+                  <th align="center">Previous</th>
+                  <th align="right">Name</th>
+                  <th align="right">ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for obj in ledger_list1 %}
+                <tr>
+                  <td align="center">{% if obj.payment %}{{ obj.payment }}{% endif %}</td>
+                  <td align="center">{{ obj.current_balance }}</td>
+                  <td align="center">{% if obj.billed_amount %}{{ obj.billed_amount }}{% endif %}</td>
+                  <td align="center">{{ obj.previous_balance }}</td>
+                  <td align="right">{{ obj.name }}</td>
+                  <td align="right">{{ obj.identifier }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+         </td>
+         <td width="50%">
+            <table class="table" {% if ledger_list1|length > ledger_list2|length %}style="margin-top: -27px;"{% endif %}>
+              <thead>
+                <tr>
+                  <th align="center">Payment</th>
+                  <th align="center">Total</th>
+                  <th align="center">New</th>
+                  <th align="center">Previous</th>
+                  <th align="right">Name</th>
+                  <th align="right">ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for obj in ledger_list2 %}
+                <tr>
+                  <td align="center">{% if obj.payment %}{{ obj.payment }}{% endif %}</td>
+                  <td align="center">{{ obj.current_balance }}</td>
+                  <td align="center">{% if obj.billed_amount %}{{ obj.billed_amount }}{% endif %}</td>
+                  <td align="center">{{ obj.previous_balance }}</td>
+                  <td align="right">{{ obj.name }}</td>
+                  <td align="right">{{ obj.identifier }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+         </td>
+       </tr>
+        {% if forloop.last %}
+       <tr>
+         <td colspan="2">
+            <table class="table">
+              <tbody>
+                <tr>
+                  <th style="width: 70%" align="right">{{total_previous_balance}}</th>
+                  <th style="width: 30%"align="right">Total Amount Before Bill</th>
+                </tr>
+                <tr>
+                  <th style="width: 70%"align="right">{{total_billed_amount}}</th>
+                  <th style="width: 30%" align="right">Billed Total Amount</th>
+                </tr>
+                <tr>
+                  <th style="width: 70%"align="right">{{total_payment}}</th>
+                  <th style="width: 30%" align="right">Total Payment Received</th>
+                </tr>
+                <tr>
+                  <th style="width: 70%"align="right">{{total_current_balance}}</th>
+                  <th style="width: 30%" align="right">Total Amount After Bill</th>
+                </tr>
+              </tbody>
+            </table>
+         </td>
+       </tr>
+        {% endif %}
+      </table>
+  </div>
+  {% endfor %}
+</body>
+</html>

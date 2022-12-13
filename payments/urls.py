@@ -7,6 +7,9 @@ urlpatterns = [
     re_path(r'^clients/$', views.ClientPaymentListView.as_view(), name='clients_payment_list'),
 
     # clients payment list view url
+    re_path(r'^clients/print/$', views.clients_payment_print, name='clients_payment_print'),
+
+    # clients payment list view url
     re_path(r'^clients/create/$', views.ClientPaymentCreateView.as_view(), name='clients_payment_create'),
 
     # clients payment update view url

@@ -1,9 +1,9 @@
 import datetime
 
 from django import forms
-from django.db.models import Max
 from django.shortcuts import render
 from django.contrib import messages
+from django.db.models import Max, Sum
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, Http404, JsonResponse
@@ -173,4 +173,27 @@ class SupplierPaymentDeleteView(CustomDeleteView):
         msg = 'Supplier Payment: [%s] was deleted succfully.' % self.object.supplier.name
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())
+
+def clients_payment_print(request):
+    data = [[], []]
+    context = {}
+    if request.method == "GET":
+        payment_date = request.GET.get("payment_date", "")
+        if not payment_date:
+            payment_date = datetime.datetime.today()
+
+        qs = ClientPayment.objects.filter(client__shop=request.shop, payment_date=payment_date, is_draft=False)
+        vs = list(qs.values('client__identifier', 'client__name').annotate(amount=Sum('amount')))
+
+        for i, obj in enumerate(vs):
+            row = {}
+            row["client"] = {'id': obj["client__identifier"], 'name': obj["client__name"]}
+            row["amount"] = obj["amount"]
+            index = i % 2
+            data[index].append(row)
+        print('i', data)
+        context["object_list"] = data
+        return render(request, 'payments/clients_payment_print.html', context)
+
+    return context
 
