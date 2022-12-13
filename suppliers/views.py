@@ -54,3 +54,8 @@ class SupplierDeleteView(CustomDeleteView):
         msg = 'Supplier: [%s] was delete succfully.' % self.object.name
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())
+
+class SupplierBillCreateView(CustomCreateView):
+    model = SupplierBill
+    success_url = "/suppliers"
+    template_name = "suppliers/bill_form.html"
