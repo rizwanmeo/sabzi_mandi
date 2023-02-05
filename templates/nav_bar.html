@@ -39,6 +39,14 @@
 
   <!-- Nav Item - Pages Collapse Menu -->
   <li class="nav-item">
+    <a class="nav-link" href="/shops/cashbook/?shop_id={{ request.shop.id }}">
+      <i class="fas fa-fw fa-cog"></i>
+      <span>Cashbook</span>
+    </a>
+  </li>
+
+  <!-- Nav Item - Pages Collapse Menu -->
+  <li class="nav-item">
     <a class="nav-link" href="/suppliers/?shop_id={{ request.shop.id }}">
       <i class="fas fa-fw fa-cog"></i>
       <span>Supplier</span>
@@ -58,10 +66,16 @@
 
   <!-- Nav Item - Pages Collapse Menu -->
   <li class="nav-item">
-    <a class="nav-link" href="/client-bills/?shop_id={{ request.shop.id }}&bill_date={{today}}">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseBill" aria-expanded="true" aria-controls="collapseBill">
       <i class="fas fa-file-invoice"></i>
-      <span>Bill To Client</span>
+      <span>Bill</span>
     </a>
+    <div id="collapseBill" class="collapse" aria-labelledby="headingBill" data-parent="#accordionSidebar">
+      <div class="py-2 collapse-inner rounded">
+        <a class="collapse-item" href="/bills/supplier/?shop_id={{ request.shop.id }}&bill_date={{today}}">Supplier</a>
+        <a class="collapse-item" href="/bills/client/?shop_id={{ request.shop.id }}&bill_date={{today}}">Client</a>
+      </div>
+    </div>
   </li>
 
   <!-- Nav Item - Pages Collapse Menu -->

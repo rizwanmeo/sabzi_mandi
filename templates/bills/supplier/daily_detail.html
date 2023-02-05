@@ -1,0 +1,190 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block css %}
+  <!-- Custom styles for this template-->
+  <link href="{% static "css/bootstrap-datepicker.css" %}" rel="stylesheet">
+{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="p-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/?{{ request.GET.urlencode }}">Dashboard</a></li>
+    <li class="breadcrumb-item active" aria-current="page"><a href="/suppliers/?{{ request.GET.urlencode }}">Suppliers</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{object.name}}</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block base_container %}
+<div class="row">
+  <div class="col-lg-12">
+    <div class="p-3">
+      {% include "alert.html" %}
+      <!-- DataTales -->
+      <div class="card shadow mb-4">
+        <div class="card-header">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="text-left">
+                <h4 class="font-weight-bold text-primary">{{object.name}}</h4>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="text-right">
+                <div class="row">
+                  <div class="col-lg-1">
+                  </div>
+                  <div class="col-lg-4">
+                    <div class="input-group input-group-sm mb-3">
+                      <input type="text" class="form-control" id="id_start_date" name="start_date" value="{{ start_date }}" readonly="">
+                      <div class="input-group-append">
+                        <span class="input-group-text fa fa-calendar"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-4">
+                    <div class="input-group input-group-sm mb-3">
+                      <input type="text" class="form-control" id="id_end_date" name="id_end_date" value="{{ end_date }}" readonly="">
+                      <div class="input-group-append">
+                        <span class="input-group-text fa fa-calendar"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-3">
+                    <a href="/bills/supplier/daily-detail-print/?{{ request.GET.urlencode }}" class="btn btn-primary btn-icon-split btn-sm">
+                      <span class="icon text-white-50">
+                        <i class="fa fa-print"></i>
+                      </span>
+                      <span class="text">Print Detail</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
+              <thead>
+                <tr>
+                  <th width="15%" align="center">جمع</th>
+                  <th width="15%" align="center">بھگتان</th>
+                  <th width="15%" align="center">مزدوری</th>
+                  <th width="15%" align="center">کمیشن</th>
+                  <th width="15%" align="center">خام بکری</th>
+                  <th width="15%" align="center">نقدی</th>
+                  <th width="15%" align="center">نام</th>
+                  <th width="15%" align="center">کوڈ</th>
+                  <th width="15%" align="center">Actoion</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for object_list in data %}
+                {% for obj in object_list %}
+                <tr>
+                  <th>{{ obj.billed_amount }}</th>
+                  <th>{{ obj.total_expense }}</th>
+                  <th>{{ obj.unloading_cost }}</th>
+                  <th>{{ obj.commission_amount }}</th>
+                  <th>{{ obj.actual_billed_amount }}</th>
+                  <th>{{ obj.cash }}</th>
+                  <th>{{ obj.supplier.name }}</th>
+                  <th>{{ obj.supplier.identifier }}</th>
+                  <th>
+					{% if not forloop.last %}
+					<a href="/bills/supplier/daily-detail/{{obj.id}}/cash/?{{ request.GET.urlencode }}" class="btn btn-outline-secondary btn-icon-split btn-sm">
+						<span class="icon text-white-50">
+						  <i class="fa fa-plus"></i>
+						</span>
+					</a>
+					{% endif %}
+                  </th>
+                </tr>
+                {% endfor %}
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+  {% load static %}
+  <!-- Page level plugins -->
+  <script src="{% static "js/bootstrap-datepicker.js" %}"></script>
+  <script src="{% static "vendor/datatables/jquery.dataTables.js" %}"></script>
+  <script src="{% static "vendor/datatables/dataTables.bootstrap4.min.js" %}"></script>
+  <script>
+
+    function onchangeEvent() {
+      var url = "/bills/supplier/daily-detail/?shop_id={{request.shop.id}}";
+      var startDate = $('#id_start_date').val();
+      if (startDate != "") {
+        url = url + "&start_date=" + startDate;
+      }
+      var endDate = $('#id_end_date').val();
+      if (startDate != "") {
+        url = url + "&end_date=" + endDate;
+      }
+      window.location.href = url
+    }
+
+    $(function() {
+      $("#dataTable").DataTable({
+          "order": [],
+          "oLanguage": {
+            "sLengthMenu": "_MENU_",
+            "sSearch": "_INPUT_",
+          },
+          "aoColumnDefs": [
+              { 
+                "bSortable": false,
+              },
+              { 
+                "bSearchable": false,
+              }
+          ]
+      });
+
+      $('#id_start_date').datepicker({
+          format: "yyyy-mm-dd",
+          maxViewMode: 0,
+          todayBtn: "linked",
+          clearBtn: true,
+          autoclose: true,
+          setDate: '2020-02-18',
+          datesDisabled: '{{ start_date }}',
+          orientation: "bottom auto",
+          daysOfWeekHighlighted: "0"
+      }).on('changeDate', function (ev) {
+          $('#id_start_date').change();
+      });
+
+      $('#id_end_date').datepicker({
+          format: "yyyy-mm-dd",
+          maxViewMode: 0,
+          todayBtn: "linked",
+          clearBtn: true,
+          autoclose: true,
+          setDate: '2020-02-18',
+          datesDisabled: '{{ end_date }}',
+          orientation: "bottom auto",
+          daysOfWeekHighlighted: "0"
+      }).on('changeDate', function (ev) {
+          $('#id_end_date').change();
+      });
+      $('#id_start_date').change(function () {
+        onchangeEvent();
+      });
+      $('#id_end_date').change(function () {
+        onchangeEvent();
+      });
+    });
+  </script>
+{% endblock %}

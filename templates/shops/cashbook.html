@@ -1,0 +1,145 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block css %}
+  <!-- Custom styles for this template-->
+  <link href="{% static "css/bootstrap-datepicker.css" %}" rel="stylesheet">
+{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="p-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Shops</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block base_container %}
+<div class="row">
+  <div class="col-lg-12">
+    <div class="p-3">
+      {% include "alert.html" %}
+      <!-- DataTales -->
+      <div class="card shadow mb-4">
+        <div class="card-header">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="text-left">
+                <h4 class="font-weight-bold text-primary">Shops Cashbook</h4>
+              </div>
+            </div>
+            <div class="col-lg-6">
+				<div class="row">
+                  <div class="col-lg-4">
+                  </div>
+                  <div class="col-lg-4">
+                    <div class="input-group input-group-sm mb-3">
+                      <input type="text" class="form-control" id="id_date" name="date" value="{{date}}" readonly="">
+                      <div class="input-group-append">
+                        <span class="input-group-text fa fa-calendar"></span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-4">
+					  <div class="text-right">
+						  <a href="/shops/cashbook/create/?{{ request.GET.urlencode }}" class="btn btn-success btn-icon-split btn-sm">
+							<span class="icon text-white-50">
+							  <i class="fa fa-plus"></i>
+							</span>
+							<span class="text">Add New cash</span>
+						  </a>
+					  </div>
+				  </div>
+			  </div>
+            </div>
+          </div>
+        </div>
+
+		<div class="row">
+		  <div class="col-lg-12">
+			<div class="card-body">
+				<div class="card">
+				  <ul class="list-group list-group-flush">
+					<li class="list-group-item">Date: {{cashbook_date}}</li>
+					<li class="list-group-item">Remaining Cash: {{remaining_amount}}</li>
+				  </ul>
+				</div>
+			</div>
+          </div>
+        </div>
+
+		<div class="row">
+		  <div class="col-lg-6">
+			<div class="card-body">
+				<div class="card">
+				  <ul class="list-group list-group-flush">
+					<li class="list-group-item">Bahtaan: {{expense_amount}}</li>
+					{% for obj in object_list2 %} 
+						<li class="list-group-item">{{obj.name}}: {{obj.amount}}</li>
+					{% endfor %}
+					<li class="list-group-item">Total: {{total_expense_amount}}</li>
+				  </ul>
+				</div>
+			</div>
+          </div>
+
+		  <div class="col-lg-6">
+			<div class="card-body">
+				<div class="card">
+				  <ul class="list-group list-group-flush">
+					<li class="list-group-item">Baqaya: {{init_amount}}</li>
+					<li class="list-group-item">Naqad: {{supplier_cash_amount}}</li>
+					<li class="list-group-item">Wasooli: {{payment_amount}}</li>
+					{% for obj in object_list1 %} 
+						<li class="list-group-item">{{obj.name}}: {{obj.amount}}</li>
+					{% endfor %}
+					<li class="list-group-item">Total: {{total_income_amount}}</li>
+				  </ul>
+				</div>
+			</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+  <!-- Page level plugins -->
+  <script src="{% static "js/bootstrap-datepicker.js" %}"></script>
+  <script>
+
+    function onchangeEvent() {
+      var url = "/shops/cashbook/?shop_id={{request.shop.id}}";
+      var selectedDate = $('#id_date').val();
+      if (selectedDate != "") {
+        url = url + "&date=" + selectedDate;
+      }
+      window.location.href = url
+    }
+
+    $(function() {
+      $('#id_date').datepicker({
+          format: "yyyy-mm-dd",
+          maxViewMode: 0,
+          todayBtn: "linked",
+          clearBtn: true,
+          autoclose: true,
+          setDate: '2020-02-18',
+          datesDisabled: '{{date}}',
+          orientation: "bottom auto",
+          daysOfWeekHighlighted: "0"
+      }).on('changeDate', function (ev) {
+          $('#id_date').change();
+      });
+
+      $('#id_date').change(function () {
+        onchangeEvent();
+      });
+
+    });
+  </script>
+{% endblock %}

@@ -31,6 +31,9 @@
                     </span>
                     <span class="text">Add New Supplier</span>
                   </a>
+                  <a href="/bills/supplier/daily-detail/?{{ request.GET.urlencode }}" class="btn btn-success btn-icon-split btn-sm">
+                    <span class="text">Supplier Report</span>
+                  </a>
               </div>
             </div>
           </div>
@@ -46,25 +49,29 @@
                   <th>Phone</th>
                   <th>Opening Balance</th>
                   <th>Current Balance</th>
-                  <th>Action</th>
+                  <th class="text-right">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {% for obj in object_list %}
                 <tr>
-                  <td>{{ obj.id }}</td>
-                  <td>{{ obj.name }}</td>
+                  <td>{{ obj.identifier }}</td>
+                  <td>
+                    <a href="/suppliers/{{obj.id}}/detail/?{{ request.GET.urlencode }}">
+                      {{ obj.name }}
+                    </a>
+                  </td>
                   <td>{% if obj.cnic %}{{ obj.cnic }}{% endif %}</td>
                   <td>{% if obj.phone %}{{ obj.phone }}{% endif %}</td>
                   <td>{{ obj.opening_balance }}</td>
                   <td>{{ obj.current_balance }}</td>
-                  <td>
+                  <td class="text-right">
                     <div class="btn-group" role="group" aria-label="Basic example">
-                      <button type="button" onclick="showDeleteConfirmation({{obj.id}})" class="btn btn-light btn-sm">
-                        <i class="fas fa-trash text-danger"></i>
-                      </button>
                       <a href="/suppliers/{{obj.id}}/update/?{{ request.GET.urlencode }}" class="btn btn-light btn-sm">
                         <i class="fas fa-edit text-primary"></i>
+                      </a>
+                      <a href="/suppliers/{{obj.id}}/detail-print/?{{ request.GET.urlencode }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-print text-primary"></i>
                       </a>
                     </div>
                   </td>

@@ -11,8 +11,8 @@ from sabzi_mandi.views import *
 from ledger.models import ClientLedger
 from clients.models import Client
 from suppliers.models import Supplier
-from ledger.models import ClientLedger
 from payments.models import SupplierPayment
+from ledger.models import ClientLedger, SupplierLedgerEditable
 
 
 class ClientLedgerListView(CustomListView):
@@ -71,27 +71,35 @@ def get_suppliers_ledger_data(request):
     data = []
     context = {}
     if request.method == "GET":
+        total_received_amount = 0
+        total_receivable_amount = 0
         supplier_id = request.GET.get("supplier", "")
         supplier_id=int(supplier_id) if supplier_id.isdigit() else 0
-        if supplier_id == 0:
-            qs = SupplierPayment.objects.none()
-        else:
-            qs = SupplierPayment.objects.filter(supplier__shop=request.shop)
+        qs = SupplierLedgerEditable.objects.filter(supplier__shop=request.shop)
 
-        SupplierPaymentFilter = filterset_factory(model=SupplierPayment, fields=["supplier"])
-        f = SupplierPaymentFilter(request.GET, queryset=qs)
-        columns = ['supplier__name', 'payment_type', 'payment_date', 'description', 'amount']
-        vs = list(f.qs.values(*columns))
+        SupplierLedgerFilter = filterset_factory(model=SupplierLedgerEditable, fields=["supplier"])
+        f = SupplierLedgerFilter(request.GET, queryset=qs)
+        columns = ['supplier__name', 'supplier__id', 'supplier__identifier', 'balance', 'bill_amount', 'payment_amount', 'tx_date', 'tx_id']
+        vs = list(f.qs.values(*columns).order_by('supplier__identifier'))
         for obj in vs:
+            if obj["balance"] == 0:
+                continue
             row = {}
-            row["name"] = obj["supplier__name"]
-            row["amount"] = obj["amount"]
-            row["pament_type"] = obj["payment_type"]
-            row["pament_date"] = obj["payment_time"]
-            row["description"] = obj["description"]
-            row["remaining_amount"] = ""
+            row["supplier"] = {"id": obj["supplier__identifier"], "pk": obj["supplier__id"], "name": obj["supplier__name"]}
+            row["balance"] = obj["balance"]
+            row["received_amount"] = round(obj["balance"], 2) if obj["balance"] > 0 else ""
+            row["receivable_amount"] = round(-1*obj["balance"], 2) if obj["balance"] < 0 else ""
+            row["bill_amount"] = round(obj["bill_amount"], 2)
+            row["payment_amount"] = round(obj["payment_amount"], 2)
+            row["tx_date"] = obj["tx_date"]
+            row["tx_id"] = obj["tx_id"]
             data.append(row)
+            total_received_amount += row["received_amount"] if row["received_amount"] else 0
+            total_receivable_amount += row["receivable_amount"] if row["receivable_amount"] else 0
+
         context["ledger_list"] = data
+        context["total_received_amount"] = round(total_received_amount, 2)
+        context["total_receivable_amount"] = round(total_receivable_amount, 2)
         context["selected_supplier"] = supplier_id
     return context
 
@@ -108,6 +116,41 @@ def suppliers_ledger_view(request):
 @login_required(login_url='/login/')
 def suppliers_ledger_print(request):
     context = get_suppliers_ledger_data(request)
+
+    data = []
+    received_amount = 0
+    receiveable_amount = 0
+    ledger_list1, ledger_list2 = [], []
+
+    for count, i in enumerate(context["ledger_list"]):
+        if len(ledger_list1) == 36:
+            data.append([ledger_list1, ledger_list2])
+            ledger_list1, ledger_list2 = [], []
+        elif count == 54:
+            data.append([ledger_list1, ledger_list2])
+            ledger_list1, ledger_list2 = [], []
+
+        if count % 2 == 1:
+            ledger_list1.append(i)
+        else:
+            ledger_list2.append(i)
+
+    data.append([ledger_list1, ledger_list2])
+    context["data"] = data
+
+    today = datetime.date.today()
+    selected_date = request.GET.get("ledger_date", "")
+    if selected_date == "":
+        selected_date = today
+    else:
+        try:
+            selected_date = datetime.datetime.strptime(selected_date, "%Y-%m-%d").date()
+        except ValueError:
+            selected_date = today
+
+    context["logo_path"] = request.shop.logo.url
+    context["ledger_date"] = selected_date.strftime("%A, %d %B, %Y")
+    context["selected_date"] = selected_date.strftime("%Y-%m-%d")
     return render(request, 'ledger/suppliers_ledger_print.html', context)
 
 def get_client_ledger_data(request):
@@ -287,4 +330,4 @@ def clients_ledger_print(request):
 
     data.append([ledger_list1, ledger_list2])
     context["data"] = data
-    return render(request, 'ledger/clients_ledger_print.html', context)	
+    return render(request, 'ledger/clients_ledger_print.html', context) 

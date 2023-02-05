@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     'suppliers',
     'payments',
     'clients',
-    'client_bills',
+    'bills',
     'ledger',
 ]
 

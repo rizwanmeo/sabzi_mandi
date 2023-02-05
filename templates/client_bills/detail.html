@@ -49,10 +49,10 @@
             <table class="table">
               <thead>
                 <tr>
-                  <th align="left">Amount</th>
-                  <th align="right">Detail</th>
-                  <th align="right">Name</th>
-                  <th align="right">ID</th>
+                  <th align="left">بنام رقم</th>
+                  <th align="right">تفصیل</th>
+                  <th align="right">نام</th>
+                  <th align="right">کوڈ</th>
                 </tr>
               </thead>
               <tbody>
@@ -68,9 +68,11 @@
             </table>
          </td>
        </tr>
+        {% if forloop.last %}
        <tr>
           <td>{{ total_amount }}</td>
        </tr>
+		{% endif %}
       </table>
   </div>
   {% endfor %}

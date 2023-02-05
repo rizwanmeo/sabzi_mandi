@@ -1,0 +1,174 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block css %}
+  <!-- Custom styles for this template-->
+  <link href="{% static "css/bootstrap-datepicker.css" %}" rel="stylesheet">
+{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="p-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/?{{ request.GET.urlencode }}">Dashboard</a></li>
+    <li class="breadcrumb-item active" aria-current="page"><a href="/suppliers/?{{ request.GET.urlencode }}">Suppliers</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{object.name}}</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block base_container %}
+<div class="row">
+  <div class="col-lg-12">
+    <div class="p-3">
+      {% include "alert.html" %}
+      <!-- DataTales -->
+      <div class="card shadow mb-4">
+        <div class="card-header">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="text-left">
+                <h4 class="font-weight-bold text-primary">{{object.name}}</h4>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="text-right">
+                <div class="row">
+                  <div class="col-lg-4">
+                    <div class="input-group input-group-sm mb-3">
+                      <input type="text" class="form-control" id="id_start_date" name="start_date" value="{{ start_date }}" readonly="">
+                      <div class="input-group-append">
+                        <span class="input-group-text fa fa-calendar"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-4">
+                    <div class="input-group input-group-sm mb-3">
+                      <input type="text" class="form-control" id="id_end_date" name="end_date" value="{{ end_date }}" readonly="">
+                      <div class="input-group-append">
+                        <span class="input-group-text fa fa-calendar"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-4">
+                    <a href="/suppliers/{{object.id}}/detail-print/?{{ request.GET.urlencode }}" class="btn btn-primary btn-icon-split btn-sm">
+                      <span class="icon text-white-50">
+                        <i class="fa fa-print"></i>
+                      </span>
+                      <span class="text">Print Detail</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
+              <thead>
+                <tr>
+                  <th width="10%" align="center">بیلنس</th>
+                  <th width="10%" align="center">جمع رقم</th>
+                  <th width="10%" align="center">بنام رقم</th>
+                  <th width="40%" align="right">تفصیل</th>
+                  <th width="15%" align="center">تاریخ</th>
+                  <th width="15%" align="center">کوڈ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for object_list in data %}
+					{% for obj in object_list %}
+					<tr>
+					  <th>{{obj.normalized_balance}}</th>
+					  <th>{% if obj.bill_amount %} {{ obj.bill_amount }} {% else %} - {% endif %}</th>
+					  <th>{% if obj.payment_amount %} {{ obj.payment_amount }} {% else %} - {% endif %}</th>
+					  <th align="right">{{obj.description}}</th>
+					  <th>{{obj.tx_date}}</th>
+					  <th align="center">{{obj.tx_id}}</th>
+					</tr>
+					{% endfor %}
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+  {% load static %}
+  <!-- Page level plugins -->
+  <script src="{% static "js/bootstrap-datepicker.js" %}"></script>
+  <script src="{% static "vendor/datatables/jquery.dataTables.js" %}"></script>
+  <script src="{% static "vendor/datatables/dataTables.bootstrap4.min.js" %}"></script>
+  <script>
+
+    function onchangeEvent() {
+      var url = "/suppliers/{{ object.id }}/detail/?shop_id={{request.shop.id}}";
+      var startDate = $('#id_start_date').val();
+      if (startDate != "") {
+        url = url + "&start_date=" + startDate;
+      }
+      var endDate = $('#id_end_date').val();
+      if (startDate != "") {
+        url = url + "&end_date=" + endDate;
+      }
+      window.location.href = url
+    }
+
+    $(function() {
+      $("#dataTable").DataTable({
+          "order": [],
+          "oLanguage": {
+            "sLengthMenu": "_MENU_",
+            "sSearch": "_INPUT_",
+          },
+          "aoColumnDefs": [
+              { 
+                "bSortable": false,
+              },
+              { 
+                "bSearchable": false,
+              }
+          ]
+      });
+
+      $('#id_start_date').datepicker({
+          format: "yyyy-mm-dd",
+          maxViewMode: 0,
+          todayBtn: "linked",
+          clearBtn: true,
+          autoclose: true,
+          setDate: '2020-02-18',
+          datesDisabled: '{{ start_date }}',
+          orientation: "bottom auto",
+          daysOfWeekHighlighted: "0"
+      }).on('changeDate', function (ev) {
+          $('#id_start_date').change();
+      });
+
+      $('#id_end_date').datepicker({
+          format: "yyyy-mm-dd",
+          maxViewMode: 0,
+          todayBtn: "linked",
+          clearBtn: true,
+          autoclose: true,
+          setDate: '2020-02-18',
+          datesDisabled: '{{ end_date }}',
+          orientation: "bottom auto",
+          daysOfWeekHighlighted: "0"
+      }).on('changeDate', function (ev) {
+          $('#id_end_date').change();
+      });
+      $('#id_start_date').change(function () {
+        onchangeEvent();
+      });
+      $('#id_end_date').change(function () {
+        onchangeEvent();
+      });
+    });
+  </script>
+{% endblock %}

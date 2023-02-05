@@ -13,6 +13,7 @@ from django.core.exceptions import ValidationError
 from PIL import Image
 
 from sabzi_mandi import settings
+from sabzi_mandi.models import CustomFloatField
 from sabzi_mandi.models import UpdatedInfo, BasicInfo
 
 class Item(models.Model):
@@ -90,3 +91,23 @@ class Shop(UpdatedInfo):
         temp_thumb.close()
 
         return True
+
+class ShopCashbook(UpdatedInfo):
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
+    amount = CustomFloatField()
+    time = models.DateTimeField(default=timezone.now, editable=False)
+    cash_type = models.CharField(max_length=1, default="i", choices=[("e", "Expense"), ("i", "Income")])
+
+    class Meta:
+        db_table = "shop_cashbook"
+
+class ShopDailyRemainingCash(UpdatedInfo):
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
+    amount = CustomFloatField()
+    date = models.DateField(default=timezone.now, editable=False)
+
+    class Meta:
+        db_table = "shop_daily_remaining_cash"
+  

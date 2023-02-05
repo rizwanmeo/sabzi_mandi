@@ -54,16 +54,16 @@
               </tr>
               <tr>
                 <th colspan=2 style="padding-left: 10px;">{{ obj.bill_date }}</th>
-                <th class="text-right">Code:</th>
-                <th class="text-left">{{ obj.client.identifier }}</th>
+                <th class="text-right">{{ obj.client.identifier }}</th>
+                <th class="text-left">:کوڈ</th>
                 <th><div class="text-right" style="padding-right: 10px;">{{ obj.client.name }}</div></th>
               </tr>
               <tr>
-                <th class="text-center" width="20%">Amount</th>
-                <th class="text-center" width="20%">Weight</th>
-                <th class="text-center" width="10%">Rate</th>
-                <th class="text-center" width="10%">Qantity</th>
-                <th class="text-right" style="padding-right: 10px;">Item</th>
+                <th class="text-center" width="20%">بنام رقم</th>
+                <th class="text-center" width="20%">وزن</th>
+                <th class="text-center" width="10%">ریٹ</th>
+                <th class="text-center" width="10%">نگ</th>
+                <th class="text-right" style="padding-right: 10px;">جنس</th>
               </tr>
               {% for bill_obj in bill_detail_list %}
               <tr>
@@ -79,11 +79,11 @@
                 <th class="text-center">{% if total_item_weight %}{{total_item_weight}}-KG{% else %}-{% endif %}</th>
                 <th class="text-center">-</th>
                 <th class="text-center">{% if total_item_count %}{{total_item_count}}{% endif %}</th>
-                <th class="text-right" style="padding-right: 10px;">Total</th>
+                <th class="text-right" style="padding-right: 10px;">ٹوٹل</th>
               </tr>
               <tr>
                 <th class="text-center">{{ obj.previous_balance }}</th>
-                <th colspan="2">Previous Amount</th>
+                <th colspan="2">سابقہ رقم</th>
                 <th rowspan="4" colspan="2" style="vertical-align: middle;">
                   <div class="text-center h-10">
                     Develop By</br>
@@ -94,15 +94,15 @@
               </tr>
               <tr>
                 <th class="text-center">{{ obj.after_bill_balance }}</th>
-                <th colspan="2">Total Amount</th>
+                <th colspan="2">ٹوٹل رقم</th>
               </tr>
               <tr>
                 <th class="text-center">{% if obj.payment %}{{ obj.payment.amount }}{% else %}-{% endif %}</th>
-                <th colspan="2">Paid Amount</th>
+                <th colspan="2">وصولی</th>
               </tr>
               <tr>
                 <th class="text-center">{{ obj.balance }}</th>
-                <th colspan="2">Total</th>
+                <th colspan="2">بنام رقم</th>
               </tr>
             </table>
           </div>

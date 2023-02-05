@@ -63,28 +63,23 @@
             <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
               <thead>
                 <tr>
-                  <th>Remaining Amount</th>
+                  <th>Balance</th>
                   <th>Jama</th>
                   <th>Naam</th>
-                  <th>Description</th>
                   <th>Date</th>
                   <th>Name</th>
+                  <th>ID</th>
                 </tr>
               </thead>
               <tbody>
                 {% for obj in ledger_list %}
                 <tr>
-                  <td>{{ obj.remaining_amount }}</td>
-                  {% if obj.pament_type == i %}
-                    <td>{{ obj.amount }}</td>
-                    <td></td>
-                  {% else %}
-                    <td></td>
-                    <td>{{ obj.amount }}</td>
-                  {% endif %}
-                  <td>{{ obj.description }}</td>
-                  <td>{{ obj.pament_date }}</td>
-                  <td>{{ obj.name }}</td>
+    			  <td>{{ obj.balance }}</td>
+                  <td>{{ obj.bill_amount }}</td>
+                  <td>{{ obj.payment_amount }}</td>
+                  <td>{{ obj.tx_date }}</td>
+                  <td>{{ obj.supplier.name }}</td>
+                  <td>{{ obj.tx_id }}</td>
                 </tr>
                 {% endfor %}
               </tbody>

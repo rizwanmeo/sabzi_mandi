@@ -1,0 +1,351 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block css %}
+  <!-- Custom styles for this template-->
+  <link href="{% static "css/bootstrap-datepicker.css" %}" rel="stylesheet">
+  <link href="{% static "css/fstdropdown.css" %}" rel="stylesheet">
+{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="p-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+    <li class="breadcrumb-item"><a href="/bills/supplier/?{{request.GET.urlencode}}">Supplier Bills</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{% if form.instance.pk %}Update {% else %}Create {% endif %} Supplier Bill</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block base_container %}
+<div class="row">
+  <div class="col-lg-12">
+    <div class="pl-3 pr-3">
+      {% include "alert.html" %}
+      <div class="text-center text-primary">
+        {% if request.bill.is_draft %}
+        <h1 class="h4 text-primary-900 font-weight-bold">Create Supplier Bill Detail</h1>
+        {% else %}
+        <h1 class="h4 text-primary-900 font-weight-bold">Supplier Bill Detail</h1>
+        {% endif %}
+      </div>
+
+      <div class="row">
+        <div class="col-lg-3">
+          <form action="{{request.get_full_path}}" method="POST" enctype="multipart/form-data">
+            {% include "form_non_field_errors.html" %}
+			{% include "select_field.html" with field=form.supplier %}
+			{% include "fields.html" with field=form.farmer_name field_placeholder="Farmer name" %}
+			<div class="form-group row">
+			  <div class="col-sm-6">
+				{% include "render_field.html" with field=form.commission_amount field_placeholder="Commission amount" %}
+			  </div>
+			  <div class="col-sm-6">
+				<input type="text" class="form-control form-control-sm" id="id_commission_const" name="commission_const" value="{{commission_amount}}" placeholder="Commission Percentage" readonly>
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <div class="col-sm-6">
+				{% include "render_field.html" with field=form.unloading_cost field_placeholder="Unloading cost" %}
+			  </div>
+			  <div class="col-sm-6">
+				<input type="text" class="form-control form-control-sm" id="id_unloading_rate" name="unloading_rate" value="{{unloading_amount}}" placeholder="Unloading rate" readonly>
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <div class="col-sm-6">
+				{% include "render_field.html" with field=form.vahicle_rent field_placeholder="Vahicle rent" %}
+			  </div>
+			  <div class="col-sm-6">
+				{% include "render_field.html" with field=form.farmer_wages field_placeholder="Farmer wages" %}
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <div class="col-sm-6">
+				{% include "render_field.html" with field=form.labour_cost field_placeholder="labour cost" %}
+			  </div>
+			  <div class="col-sm-6">
+				{% include "render_field.html" with field=form.begs_amount field_placeholder="Begs amount" %}
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <div class="col-sm-6">
+				{% include "render_field.html" with field=form.market_tax field_placeholder="Marke tax" %}
+			  </div>
+			  <div class="col-sm-6">
+				{% include "render_field.html" with field=form.beg_rope field_placeholder="Beg rope" %}
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <div class="col-sm-6">
+				  <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+					{% if form.is_cash.value %}
+					<label class="btn btn-sm btn-info {% if form.is_cash.value == "y" %}active{% endif %}">
+					  <input type="radio" name="is_cash" id="id_is_cash" value="y" autocomplete="off" {% if form.is_cash.value == "y" %}checked{% endif %}> Cash
+					</label>
+					<label class="btn btn-sm btn-info {% if form.is_cash.value == "n" %}active{% endif %}">
+					  <input type="radio" name="is_cash" id="id_is_cash" value="n" autocomplete="off" {% if form.is_cash.value == "n" %}checked{% endif %}> Credit
+					</label>
+					{% else %}
+					<label class="btn btn-sm btn-info active">
+					  <input type="radio" name="is_cash" id="id_is_cash" value="y" autocomplete="off" checked> Cash
+					</label>
+					<label class="btn btn-sm btn-info">
+					  <input type="radio" name="is_cash" id="id_is_cash" value="n" autocomplete="off"> Credit
+					</label>
+					{% endif %}		
+				  </div>
+			  </div>
+			  <div class="col-sm-6">
+				{% include "render_field.html" with field=form.cash_amount field_placeholder="Cash amount" %}
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <div class="col-sm-6">
+				<input type="text" class="form-control form-control-sm" id="id_total_amount" name="total_amount" value="{{ total_amount }}" placeholder="Billed amount"  title="Total amount" readonly>
+			  </div>
+			  <div class="col-sm-6">
+				<input type="text" class="form-control form-control-sm" id="id_billed_amount" name="billed_amount" value="{{ billed_amount }}" placeholder="Billed amount" title="Billed amount" readonly>
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <div class="col-sm-6">
+				<input type="text" class="form-control form-control-sm" id="id_total_expense" name="total_expense" value="{{ total_expense }}" placeholder="Final amount" title="Total expense" readonly>
+			  </div>
+			  <div class="col-sm-6">
+				<input type="text" class="form-control form-control-sm" id="id_final_amount" name="final_amount" value="{{ final_amount }}" placeholder="Final amount" title="Final amount" readonly>
+			  </div>
+			</div>
+
+			<div class="form-group row">
+			  <div class="col-sm-12">
+				<input type="text" class="form-control form-control-sm" id="id_remaining_amount" name="remaining_amount" value="{{ remaining_amount }}" placeholder="Final amount" readonly>
+			  </div>
+			</div>
+
+            {% include "datetime_field.html" with field=form.bill_date field_placeholder="Bill Date" %}
+			{% if object %}
+			    {% if object.is_draft %}
+					<button type="submit" name="update_bill" class="btn btn-sm btn-success btn-block">Update</button>
+					<input type="submit" style="position: absolute; left: -9999px"/>
+				{% endif %}
+			{% else %}
+				<button type="submit" name="update_bill" class="btn btn-sm btn-success btn-block">Add</button>
+				<input type="submit" style="position: absolute; left: -9999px"/>
+			{% endif %}
+          </form>
+        </div>
+
+        <div class="col-lg-9">
+          <div class="text-center font-weight-bold">
+            <label for="email">Billed Items</label>
+          </div>
+          <table class="table" id="id_bill_detail_form" cellspacing="0">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th width="15%">Unit</th>
+                <th width="15%">Count</th>
+                <th width="15%">Weight</th>
+                <th width="15%">Rate</th>
+                <th width="15%">Amount</th>
+				{% if object and object.is_draft %}
+                <th width="10%" class="text-center">Action</th>
+                {% endif %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for obj in object_list %}
+              <tr>
+                <td>{{ obj.name }}</td>
+                <td width="15%">{{ obj.unit }}</td>
+                <td width="15%">{{ obj.item_count }}</td>
+                <td width="15%">{{ obj.weight }}</td>
+                <td width="15%">{{ obj.rate }}</td>
+                <td width="15%">{{ obj.amount }}</td>
+				{% if object and object.is_draft %}
+                <td  width="10%" class="text-center">
+                  <a href="/bills/supplier/{{obj.id}}/delete-bill-detail/?{{request.GET.urlencode}}">
+                    <i class="fas fa-trash text-danger"></i>
+                  </a>
+                </td>
+                {% endif %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+		{% if object and object.is_draft %}
+          <form action="/bills/supplier/{{object.id}}/?{{request.GET.urlencode}}" method="POST" enctype="multipart/form-data">
+            {% include "form_non_field_errors.html" %}
+			  <div class="form-row">
+				<div class="col-md-3 mb-3">
+				  {{ bill_detail_form.item }}
+				  {% if bill_detail_form.item.errors %}
+				  <div class="col-sm-12">
+					<div class="text-danger">
+					  <p>{{ bill_detail_form.item.errors }}</p>
+					</div>
+				  </div>
+				  {% endif %}
+				</div>
+				<div class="col-md-2 mb-3">
+				  <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+					<label class="btn btn-sm btn-info active">
+					  <input type="radio" name="unit" id="id_unit" value="i" autocomplete="off" checked> Unit
+					</label>
+					<label class="btn btn-sm btn-info">
+					  <input type="radio" name="unit" id="id_unit" value="k" autocomplete="off"> KG
+					</label>
+				  </div>
+				  {% if form.unit.errors %}
+				  <div class="text-danger">
+					<p>{{ form.unit.errors }}</p>
+				  </div>
+				  {% endif %}
+				</div>
+				<div class="col-md-1 mb-3">
+				  {% include "render_field.html" with field=bill_detail_form.item_count field_placeholder="Count" oninput="calculate();" %}
+				</div>
+				<div class="col-md-1 mb-3">
+				  {% include "render_field.html" with field=bill_detail_form.weight field_placeholder="Weight" oninput="calculate();" %}
+				</div>
+				<div class="col-md-2 mb-3">
+				  {% include "render_field.html" with field=bill_detail_form.rate field_placeholder="Rate" oninput="calculate();" %}
+				</div>
+
+				<div class="col-md-2 mb-3">
+				  <input type="text" class="form-control form-control-sm" id="id_item_amount" name="item_amount" value="" placeholder="Item Amount" readonly>
+				</div>
+				<div class="col-md-1 mb-3">
+					<button type="submit" name="add_detail" class="btn btn-sm btn-success btn-block">Add</button>
+				</div>
+			  </div>
+          </form>
+		{% endif %}
+
+		{% if object and object.is_draft %}
+          <form action="/bills/supplier/{{object.id}}/done/?{{request.GET.urlencode}}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group row">
+              <div class="col-sm-4">
+                <button type="submit" name="submit" value="1" class="btn btn-primary btn-block">
+                  Done
+                </button>
+              </div>
+              <div class="col-sm-4">
+                <button type="submit" name="submit" value="2" class="btn btn-success btn-block">
+                  Print
+                </button>
+              </div>
+              <div class="col-sm-4">
+                <button type="submit" name="submit" value="3" class="btn btn-primary btn-block">
+                  Add another
+                </button>
+              </div>
+            </div>
+          </form>
+		{% elif object %}
+            <div class="form-group row">
+              <div class="col-sm-6">
+				<a href="/bills/supplier/{{ object.pk }}/print/?{{request.GET.urlencode}}">
+					<button class="btn btn-success btn-block">Print</button>
+				</a>
+              </div>
+              <div class="col-sm-6">
+				<a href="/bills/supplier/?{{request.GET.urlencode}}">
+					<button class="btn btn-primary btn-block">Add another</button>
+				</a>
+			  </div>
+            </div>
+		{% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+  <!-- Page level plugins -->
+  <script src="{% static "js/bootstrap-datepicker.js" %}"></script>
+  <script src="{% static "js/fstdropdown.js" %}"></script>
+  <script>
+	$(function() {
+		$('form').each(function() {
+			$(this).find('input').keypress(function(e) {
+				// Enter pressed?
+				if(e.which == 10 || e.which == 13) {
+					this.form.submit();
+				}
+			});
+
+			$(this).find('input[type=submit]').hide();
+		});
+	});
+
+	var itemunit =  "i"
+    function calculate() {
+      var rate = parseFloat($("#id_rate").val());
+      var billedAmount = parseFloat($("#id_billed_amount").attr("data-amount"));
+      var item_count = parseFloat($("#id_item_count").val());
+	  console.log("itemunit", itemunit)
+	  if (itemunit == 'k') {
+		item_count = parseFloat($("#id_weight").val());
+	  }
+
+      var amount = rate * item_count;
+      if (Number(amount) === amount || amount % 1 !== 0) {
+        $("#id_item_amount").val(amount);
+        if (Number(billedAmount) === billedAmount || billedAmount % 1 !== 0) {
+          $("#id_billed_amount").attr("value", billedAmount+amount);
+        } else {
+          $("#id_billed_amount").attr("value", amount);
+        }
+      }
+    }
+
+    $(document).ready(function(){
+      $("#id_supplier").removeAttr("required");
+      {% if request.GET.supplier %}
+        var displayText = $( "#id_supplier option:selected").text();
+        var displayVal = $( "#id_supplier option:selected").val();
+        $(".fstlist").find('.selected').removeClass("selected");
+        $(".fstlist").find("[data-value='{{ request.GET.supplier }}']").addClass("selected")
+        $(".fstselected").text(displayText)
+      {% endif %}
+
+      $('#id_bill_date').datepicker({
+          todayHighlight: true,
+          format: "yyyy-mm-dd",
+          maxViewMode: 0,
+          todayBtn: "linked",
+          clearBtn: true,
+          autoclose: true,
+          orientation: "bottom auto",
+          daysOfWeekHighlighted: "0"
+      });
+
+	{% if object %}
+	$('#id_weight').parent().hide();
+	$('#id_item_count').parent().removeClass("col-md-1");
+	$('#id_item_count').parent().addClass("col-md-2");
+	$('input[type=radio][name=unit]').change(function() {
+		itemunit = this.value
+		if (this.value == 'i') {
+			$('#id_item_count').parent().removeClass("col-md-1");
+			$('#id_item_count').parent().addClass("col-md-2");
+			$('#id_item_count').parent().addClass("col-md-2");
+			$('#id_weight').parent().hide();
+		}
+		else {
+			$('#id_item_count').parent().removeClass("col-md-2");
+			$('#id_item_count').parent().addClass("col-md-1");
+			$('#id_weight').parent().show();
+		}
+	});
+	{% endif %}
+    });
+  </script>
+{% endblock %}

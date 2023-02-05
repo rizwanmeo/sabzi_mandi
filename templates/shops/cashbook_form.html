@@ -1,0 +1,31 @@
+{% extends 'index.html' %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="p-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+    <li class="breadcrumb-item"><a href="/shops">Shops</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Create Shop Cash</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block base_container %}
+<div class="row">
+  <div class="col-lg-8">
+    <div class="p-5">
+      <div class="text-center">
+        <h1 class="h4 text-gray-900 mb-4">{% if form.instance.pk %}Update{% else %}Create{% endif %} New Shop Cash</h1>
+      </div>
+      <form action="{{request.get_full_path}}" method="POST" enctype="multipart/form-data">
+        {% include "form_non_field_errors.html" %}
+        {% include "fields.html" with field=form.name field_label="Title" %}
+        {% include "fields.html" with field=form.amount field_label="Amount" %}
+        {% include "text_fields.html" with field=form.description field_label="Detail" %}
+        {% include "radio_field.html" with field=form.cash_type field_label="Cash Type" %}
+        {% include "form_buttons.html" with name="Supplier" pk=form.instance.pk %}
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

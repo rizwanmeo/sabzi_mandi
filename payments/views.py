@@ -11,10 +11,8 @@ from django.http import HttpResponseRedirect, Http404, JsonResponse
 from .forms import *
 from .models import *
 from sabzi_mandi.views import *
+from ledger.utils import *
 from ledger.models import ClientLedgerEditable
-from ledger.utils import delete_ledger
-from ledger.utils import create_payment_ledger, update_ledger_date
-
 
 class ClientPaymentListView(CustomListView):
     model = ClientPayment
@@ -139,6 +137,41 @@ class SupplierPaymentListView(CustomListView):
     filterset_fields = ["supplier__name"]
     shop_lookup = "supplier__shop"
 
+    def get_context_data(self, **kwargs):
+        context = super(SupplierPaymentListView, self).get_context_data(**kwargs)
+        qs = context["object_list"]
+        distinct_supplier_payments = list(qs.values('supplier').annotate(id=Max('id')))
+        distinct_ids = [k['id'] for k in distinct_supplier_payments]
+        qs = qs.filter(is_draft=False, id__in=distinct_ids)
+        ## Getting list of supplier whose payment can be edit.
+        object_list = []
+        columns = ["id", "supplier__name", "supplier__id", "amount", "payment_date",
+                   "payment_time", "description", "is_draft"]
+        editable_payments = dict(SupplierLedgerEditable.objects.values_list("supplier_id", "tx_id"))
+        vs = list(qs.order_by("id").values(*columns))
+        for row in vs:
+            row_data = {}
+            row_data["id"] = row["id"]
+            row_data["pk"] = row["id"]
+            row_data["supplier"] = {"name": row["supplier__name"], "id": row["supplier__id"]}
+            row_data["amount"] = row["amount"]
+            row_data["payment_date"] = row["payment_date"]
+            row_data["payment_time"] = row["payment_time"]
+            row_data["description"] = row["description"]
+            row_data["is_draft"] = row["is_draft"]
+
+            # Checking supplier payment can be edit or not
+            supplier_id = row["supplier__id"]
+            payment_tx_id = "payment-"+str(row["id"])
+            if payment_tx_id == editable_payments.get(supplier_id, ""):
+                row_data["editable"] = True
+
+            object_list.append(row_data)
+
+        context["object_list"] = object_list
+        return context
+
+
 class SupplierPaymentCreateView(CustomCreateView):
     model = SupplierPayment
     success_url = "/payment/suppliers"
@@ -158,6 +191,14 @@ class SupplierPaymentCreateView(CustomCreateView):
 
     def form_valid(self, form):
         super(SupplierPaymentCreateView, self).form_valid(form)
+        if form.instance.payment_type == "i":
+            form.instance.supplier.current_balance += form.instance.amount
+        else:
+            form.instance.supplier.current_balance -= form.instance.amount
+
+        create_supplier_payment_ledger(form.instance, form.instance.supplier.current_balance)
+        form.instance.supplier.save()
+
         msg = 'Supplier Payment: [%s] was creates succefully.' % form.instance.supplier.name
         messages.add_message(self.request, messages.INFO, msg)
         return HttpResponseRedirect(self.get_success_url())
@@ -166,9 +207,23 @@ class SupplierPaymentDeleteView(CustomDeleteView):
     model = SupplierPayment
     success_url = "/payment/suppliers"
 
+    def get_context_data(self, **kwargs):
+        context = super(SupplierPaymentDeleteView, self).get_context_data(**kwargs)
+        try:
+            payment_tx_id = "payment-"+str(self.object.pk)
+            SupplierLedgerEditable.objects.get(tx_id=payment_tx_id)
+        except:
+            raise Http404
+        return context
+
     def delete(self, request, *args, **kwargs):
         super(SupplierPaymentDeleteView, self).delete(request, *args, **kwargs)
-        self.object.supplier.current_balance += self.object.amount
+        payment_tx_id = "payment-"+str(self.object.pk)
+        delete_supplier_ledger(payment_tx_id)
+        if self.object.payment_type == "o":
+            self.object.supplier.current_balance += self.object.amount
+        else:
+            self.object.supplier.current_balance -= self.object.amount
         self.object.supplier.save()
         msg = 'Supplier Payment: [%s] was deleted succfully.' % self.object.supplier.name
         messages.add_message(self.request, messages.INFO, msg)

@@ -45,6 +45,7 @@
                   <th>Amount</th>
                   <th>Supplier Name</th>
                   <th>ID</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -55,6 +56,15 @@
                   <td>{{ obj.amount }}</td>
                   <td>{{ obj.supplier.name }}</td>
                   <td>{{ obj.id }}</td>
+                  <td>
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                    {% if obj.editable %}
+                      <a href="/payment/suppliers/{{obj.id}}/delete/?{{ request.GET.urlencode }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-trash text-danger"></i>
+                      </a>
+                    {% endif %}
+                    </div>
+                  </td>
                 </tr>
                 {% endfor %}
               </tbody>

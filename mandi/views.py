@@ -10,7 +10,7 @@ from django.views.generic import CreateView, UpdateView, DeleteView
 from django_filters.views import FilterView
 
 from .models import *
-from client_bills.models import ClientBill
+from bills.models import ClientBill
 
 @login_required(login_url='/login/')
 def index(request):

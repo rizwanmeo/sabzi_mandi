@@ -11,7 +11,7 @@
 <nav aria-label="breadcrumb" class="p-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Client Bills</li>
+    <li class="breadcrumb-item active" aria-current="page">Supplier Bills</li>
   </ol>
 </nav>
 {% endblock %}
@@ -27,12 +27,14 @@
           <div class="row">
             <div class="col-lg-6">
               <div class="text-left">
-                <h4 class="font-weight-bold text-primary">Client Bill list</h4>
+                <h4 class="font-weight-bold text-primary">Supplier Bill list</h4>
               </div>
             </div>
             <div class="col-lg-6">
               <div class="text-right">
                 <div class="row">
+                  <div class="col-lg-1">
+                  </div>
                   <div class="col-lg-5">
                     <div class="input-group input-group-sm mb-3">
                       <input type="text" class="form-control" id="id_bill_date" name="bill_date" value="{{selected_date}}" readonly="">
@@ -42,10 +44,10 @@
                     </div>
                   </div>
                   <div class="col-lg-5">
-                    <select name="client" class="fstdropdown-select form-control-sm" id="id_client" onChange="onchangeEvent();">
-                      <option value="" {% if selected_supplier <= 0 %}selected=""{% endif %}>Select a Client</option>
-                      {% for obj in client_list %}
-                        {% if obj.id == selected_client %}
+                    <select name="supplier" class="fstdropdown-select form-control-sm" id="id_supplier" onChange="onchangeEvent();">
+                      <option value="" {% if selected_supplier <= 0 %}selected=""{% endif %}>Select a Supplier</option>
+                      {% for obj in supplier_list %}
+                        {% if obj.id == selected_supplier %}
                           <option value="{{ obj.id }}" selected="">{{ obj.name }}</option>
                         {% else %}
                           <option value="{{ obj.id }}">{{ obj.name }}</option>
@@ -53,13 +55,10 @@
                       {% endfor %}
                     </select>
                   </div>
-                  <div class="col-lg-2">
+                  <div class="col-lg-1">
                     <div class="btn-group" role="group" aria-label="Basic example">
-                      <a href="/bills/client/create/?{{ request.GET.urlencode }}" class="btn btn-light btn-sm">
+                      <a href="/bills/supplier/create/?{{ request.GET.urlencode }}" class="btn btn-light btn-sm">
                         <i class="fas fa-plus"></i>
-                      </a>
-                      <a href="/bills/client/print/?{{ request.GET.urlencode }}" class="btn btn-light btn-sm">
-                        <i class="fas fa-print"></i>
                       </a>
                     </div>
                   </div>
@@ -73,7 +72,7 @@
             <table class="table table-striped" id="dataTable" width="100%" cellspacing="0">
               <thead>
                 <tr>
-                  <th>Client Name</th>
+                  <th>Supplier Name</th>
                   <th>Balance Before</th>
                   <th>Billed Amount</th>
                   <th>Billed Payment</th>
@@ -86,8 +85,8 @@
                 {% for obj in object_list %}
                 <tr {% if obj.is_draft %}class="table-danger"{% endif %}>
                   <td>
-                    <a href="/clients/{{obj.client.id}}/detail/?{{ request.GET.urlencode }}">
-                      {{ obj.client.name }}
+                    <a href="/suppliers/{{obj.supplier.id}}/detail/?{{ request.GET.urlencode }}">
+                      {{ obj.supplier.name }}
                     </a>
                   </td>
                   <td>{{ obj.previous_amount }}</td>
@@ -96,11 +95,11 @@
                   <td>{{ obj.balance }}</td>
                   <td>
                     <div class="btn-group" role="group" aria-label="Basic example">
-                    <a href="/bills/client/{{obj.client.id}}/print/?{{ request.GET.urlencode }}" class="btn btn-light btn-sm">
+                    <a href="/bills/supplier/{{obj.id}}/print/?{{ request.GET.urlencode }}" class="btn btn-light btn-sm">
                       <i class="fas fa-print"></i>
                     </a>
                     {% if obj.editable %}
-                      <a href="/bills/client/{{obj.id}}/delete/?{{ request.GET.urlencode }}" class="btn btn-light btn-sm">
+                      <a href="/bills/supplier/{{obj.id}}/delete-bill/?{{ request.GET.urlencode }}" class="btn btn-light btn-sm">
                         <i class="fas fa-trash text-danger"></i>
                       </a>
                     {% endif %}
@@ -156,7 +155,7 @@
   <script>
     function showDeleteConfirmation(billId) {
       $("#id_delete_confirmation").modal('show');
-      $("#id_delete").attr('href', "/bills/client/"+billId+"/delete/");
+      $("#id_delete").attr('href', "/bills/supplier/"+billId+"/delete/");
     }
 
     function showPopover(detailID) {
@@ -170,11 +169,11 @@
       });
     }
     function onchangeEvent() {
-      var url = "/bills/client/?shop_id={{request.shop.id}}";
+      var url = "/bills/supplier/?shop_id={{request.shop.id}}";
       var selectedDate = $('#id_bill_date').val();
-      var selectedClient = $(".fstlist").children(".selected").attr("data-value");
-      if (selectedClient != "") {
-        url = url + "&client=" + selectedClient;
+      var selectedSupplier = $(".fstlist").children(".selected").attr("data-value");
+      if (selectedSupplier != "") {
+        url = url + "&Supplier=" + selectedSupplier;
       }
       if (selectedDate != "") {
         url = url + "&bill_date=" + selectedDate;

@@ -1,22 +1,44 @@
 <div class="form-group row">
-  <label class="col-sm-3 col-form-label font-weight-bold">{{ field_label }}</label>
-  <div class="col-sm-9">
-    {% if field.errors %}
-      <input type="text" class="form-control is-invalid" id="id_{{field.name}}" name="{{field.name}}" value="{% if field.value %}{{ field.value }}{% endif %}" readonly>
-      <div class="text-danger">
-        <p>{{ field.errors }}</p>
-      </div>
-    {% else %}
-      <div class="input-group mb-3">
-      {% if field.value is not None %}
-        <input type="text" class="form-control" id="id_{{ field.name }}" name="{{ field.name }}" value="{{ field.value }}" readonly>
-      {% else %}
-        <input type="text" class="form-control" id="id_{{ field.name }}" name="{{ field.name }}" value="{% if field.initial is not None %}{{ field.initial }}{% endif %}" readonly>
-      {% endif %}
-        <div class="input-group-append">
-          <span class="input-group-text fa fa-calendar"></span>
-        </div>
-      </div>
-    {% endif %}
-  </div>
+  {% if field_label %}
+	  <label class="col-sm-3 col-form-label font-weight-bold">{{ field_label }}</label>
+	  <div class="col-sm-9">
+		{% if field.errors %}
+		  <input type="text" class="form-control is-invalid" id="id_{{field.name}}" name="{{field.name}}" value="{% if field.value %}{{ field.value }}{% endif %}" readonly>
+		  <div class="text-danger">
+			<p>{{ field.errors }}</p>
+		  </div>
+		{% else %}
+		  <div class="input-group mb-3">
+		  {% if field.value is not None %}
+			<input type="text" class="form-control" id="id_{{ field.name }}" name="{{ field.name }}" value="{{ field.value }}" readonly>
+		  {% else %}
+			<input type="text" class="form-control" id="id_{{ field.name }}" name="{{ field.name }}" value="{% if field.initial is not None %}{{ field.initial }}{% endif %}" readonly>
+		  {% endif %}
+			<div class="input-group-append">
+			  <span class="input-group-text fa fa-calendar"></span>
+			</div>
+		  </div>
+		{% endif %}
+	  </div>
+  {% else %}
+	  <div class="col-sm-12">
+		{% if field.errors %}
+		  <input type="text" class="form-control is-invalid" id="id_{{field.name}}" name="{{field.name}}" value="{% if field.value %}{{ field.value }}{% endif %}" readonly>
+		  <div class="text-danger">
+			<p>{{ field.errors }}</p>
+		  </div>
+		{% else %}
+		  <div class="input-group mb-3">
+		  {% if field.value is not None %}
+			<input type="text" class="form-control" id="id_{{ field.name }}" name="{{ field.name }}" value="{{ field.value|date:"Y-m-d" }}" readonly>
+		  {% else %}
+			<input type="text" class="form-control" id="id_{{ field.name }}" name="{{ field.name }}" value="{% if field.initial is not None %}{{ field.initial|date:"Y-m-d" }}{% endif %}" readonly>
+		  {% endif %}
+			<div class="input-group-append">
+			  <span class="input-group-text fa fa-calendar"></span>
+			</div>
+		  </div>
+		{% endif %}
+	  </div>  
+  {% endif %}
 </div>

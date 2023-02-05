@@ -4,7 +4,7 @@ from django.db.models import Sum
 from clients.models import Client
 from ledger.models import ClientLedger
 from payments.models import ClientPayment
-from client_bills.models import ClientBill, BillDetail
+from bills.models import ClientBill, BillDetail
 from ledger.utils import create_bill_ledger, create_payment_ledger
 
 
@@ -65,7 +65,6 @@ def get_print_bill_data(request, bill_obj):
     context["bill_detail_list"] = data
     context["total_item_count"] = total_item_count
     context["total_item_weight"] = total_item_weight
-
     return context
 
 def get_bill_data(request, client_obj, date):
@@ -101,6 +100,7 @@ def get_bill_data(request, client_obj, date):
     vs = list(qs.values('tx_id', 'balance', 'bill_amount', 'payment_amount'))
 
     bill_obj = ClientBill(client=client_obj)
+    bill_obj.bill_date = date
     bill_obj.previous_balance = 0
     for i, v in enumerate(vs):
         if i == 0:

@@ -1,0 +1,29 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="p-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+    <li class="breadcrumb-item"><a href="/suppliers">Suppliers</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Update Supplier's cash</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block base_container %}
+<div class="row">
+  <div class="col-lg-9">
+    <div class="p-5">
+      <div class="text-center text-primary">
+        <h1 class="h4 text-primary-900 mb-4 font-weight-bold">Update Supplier's cash: {{form.instance.supplier.name}}</h1>
+      </div>
+      <form action="{{request.get_full_path}}" method="POST" enctype="multipart/form-data">
+        {% include "form_non_field_errors.html" %}
+        {% include "fields.html" with field=form.cash field_label="Cash Amount" %}
+        {% include "form_buttons.html" with name="Cash" pk=form.instance.pk %}
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

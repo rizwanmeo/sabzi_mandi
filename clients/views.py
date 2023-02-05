@@ -9,7 +9,7 @@ from django.http import HttpResponseRedirect, Http404, JsonResponse
 
 from .models import *
 from sabzi_mandi.views import *
-from client_bills.models import ClientBill
+from bills.models import ClientBill
 from ledger.utils import create_opening_ledger
 
 class ClientListView(CustomListView):
@@ -28,7 +28,7 @@ class ClientCreateView(CustomCreateView):
         form.instance.shop = self.request.shop
         form.instance.current_balance = form.instance.opening_balance
         last_client = Client.objects.filter(shop=self.request.shop).order_by("-identifier").first() 
-        form.instance.identifier = last_client.identifier + 1
+        form.instance.identifier = 1 if last_client is None else (last_client.identifier + 1)
 
         super(ClientCreateView, self).form_valid(form)
         create_opening_ledger(form.instance)
@@ -175,5 +175,6 @@ class ClientDetailPrintView(CustomDetailView):
         if len(object_list) > 0:
             data.append(object_list)
 
+        context["logo_path"] = self.request.shop.logo.url
         context["data"] = data
         return context

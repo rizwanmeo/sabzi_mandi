@@ -54,12 +54,12 @@
             <table class="table" {% if ledger_list2|length > ledger_list1|length %}style="margin-top: -27px;"{% endif %}>
               <thead>
                 <tr>
-                  <th align="center">Payment</th>
-                  <th align="center">Total</th>
-                  <th align="center">New</th>
-                  <th align="center">Previous</th>
-                  <th align="right">Name</th>
-                  <th align="right">ID</th>
+                  <th align="center">وصولی</th>
+                  <th align="center">ٹوٹل رقم</th>
+                  <th align="center">امروزہ</th>
+                  <th align="center">سابقہ رقم</th>
+                  <th align="right">نام</th>
+                  <th align="right">کوڈ</th>
                 </tr>
               </thead>
               <tbody>
@@ -80,12 +80,12 @@
             <table class="table" {% if ledger_list1|length > ledger_list2|length %}style="margin-top: -27px;"{% endif %}>
               <thead>
                 <tr>
-                  <th align="center">Payment</th>
-                  <th align="center">Total</th>
-                  <th align="center">New</th>
-                  <th align="center">Previous</th>
-                  <th align="right">Name</th>
-                  <th align="right">ID</th>
+                  <th align="center">وصولی</th>
+                  <th align="center">ٹوٹل رقم</th>
+                  <th align="center">امروزہ</th>
+                  <th align="center">سابقہ رقم</th>
+                  <th align="right">نام</th>
+                  <th align="right">کوڈ</th>
                 </tr>
               </thead>
               <tbody>
@@ -110,19 +110,19 @@
               <tbody>
                 <tr>
                   <th style="width: 70%" align="right">{{total_previous_balance}}</th>
-                  <th style="width: 30%"align="right">Total Amount Before Bill</th>
+                  <th style="width: 30%"align="right">ٹوٹل سابقہ رقم</th>
                 </tr>
                 <tr>
                   <th style="width: 70%"align="right">{{total_billed_amount}}</th>
-                  <th style="width: 30%" align="right">Billed Total Amount</th>
+                  <th style="width: 30%" align="right">امروزہ</th>
                 </tr>
                 <tr>
                   <th style="width: 70%"align="right">{{total_payment}}</th>
-                  <th style="width: 30%" align="right">Total Payment Received</th>
+                  <th style="width: 30%" align="right">وصولی</th>
                 </tr>
                 <tr>
                   <th style="width: 70%"align="right">{{total_current_balance}}</th>
-                  <th style="width: 30%" align="right">Total Amount After Bill</th>
+                  <th style="width: 30%" align="right">ٹوٹل رقم</th>
                 </tr>
               </tbody>
             </table>
