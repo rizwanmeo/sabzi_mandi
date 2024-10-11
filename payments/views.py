@@ -48,7 +48,6 @@ class ClientPaymentListView(CustomListView):
             payment_tx_id = "payment-"+str(row["id"])
             if payment_tx_id == editable_payments.get(client_id, ""):
                 row_data["editable"] = True
-
             object_list.append(row_data)
 
         context["object_list"] = object_list

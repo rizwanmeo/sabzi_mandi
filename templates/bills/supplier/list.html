@@ -1,6 +1,8 @@
 {% extends 'index.html' %}
 {% load static %}
 
+{% block title %}Supplier bill list{% endblock %}
+
 {% block css %}
   <!-- Custom styles for this template-->
   <link href="{% static "css/bootstrap-datepicker.css" %}" rel="stylesheet">
@@ -73,7 +75,7 @@
               <thead>
                 <tr>
                   <th>Supplier Name</th>
-                  <th>Balance Before</th>
+                  <th>Farmer Name</th>
                   <th>Billed Amount</th>
                   <th>Billed Payment</th>
                   <th>Balance After</th>
@@ -89,7 +91,7 @@
                       {{ obj.supplier.name }}
                     </a>
                   </td>
-                  <td>{{ obj.previous_amount }}</td>
+                  <td>{{ obj.farmer_name }}</td>
                   <td>{{ obj.billed_amount }}</td>
                   <td>{{ obj.payment.amount }}</td>
                   <td>{{ obj.balance }}</td>

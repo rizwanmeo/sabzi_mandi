@@ -28,7 +28,10 @@ def create_bill_ledger(bill_obj, balance):
     ledger.balance = balance + bill_obj.billed_amount
     description = []
     for obj in list(bill_obj.billdetail_set.all()):
-        s = "%s[%.2f][%.2f]" % (obj.item.name, obj.item_count, obj.rate)
+        if obj.weight and obj.weight > 0:
+            s = "%s[%.2f][%.2f][%.2f]" % (obj.item.name, obj.item_count, obj.weight, obj.rate)
+        else:
+            s = "%s[%.2f][%.2f]" % (obj.item.name, obj.item_count, obj.rate)
         description.append(s)
     ledger.description = ", ".join(description)
     ledger.save()

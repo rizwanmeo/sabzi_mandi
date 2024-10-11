@@ -1,6 +1,8 @@
 {% extends 'index.html' %}
 {% load static %}
 
+{% block title %}Client bill detail create{% endblock %}
+
 {% block css %}
   <!-- Custom styles for this template-->
   <link href="{% static "css/fstdropdown.css" %}" rel="stylesheet">
@@ -91,22 +93,12 @@
             </div>
 
             <div class="form-group">
-              <label class="font-weight-bold">Item total count:</label>
-              {% include "render_field.html" with field=form.item_count field_placeholder="Item total count" oninput="calculate();" %}
-            </div>
-
-            <div class="form-group">
-              <label class="font-weight-bold">Item rate:</label>
-              {% include "render_field.html" with field=form.rate field_placeholder="Item rate" oninput="calculate();" %}
-            </div>
-
-            <div class="form-group">
               <label class="font-weight-bold">Item Unit:</label>
               <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
-                <label class="btn btn-info active">
+                <label class="btn btn-sm btn-info active">
                   <input type="radio" name="unit" id="id_unit" value="i" autocomplete="off" checked> Unit
                 </label>
-                <label class="btn btn-info">
+                <label class="btn btn-sm btn-info">
                   <input type="radio" name="unit" id="id_unit" value="k" autocomplete="off"> KG
                 </label>
               </div>
@@ -117,9 +109,22 @@
               {% endif %}
             </div>
 
+            <div class="form-group">
+              <label class="font-weight-bold">Item total count:</label>
+              {% include "render_field.html" with field=form.item_count field_placeholder="Item total count" oninput="calculate();" %}
+            </div>
+            <div class="form-group">
+              <label class="font-weight-bold">Item total weight:</label>
+			  {% include "render_field.html" with field=form.weight field_placeholder="Weight" oninput="calculate();" %}
+			</div>
+            <div class="form-group">
+              <label class="font-weight-bold">Item rate:</label>
+              {% include "render_field.html" with field=form.rate field_placeholder="Item rate" oninput="calculate();" %}
+            </div>
+
             <div class="form-group font-weight-bold">
               <label class="font-weight-bold">Item Amount:</label>
-              <input type="text" class="form-control" id="id_item_amount" name="item_amount" value="" placeholder="Item Amount" readonly>
+              <input type="text" class="form-control form-control-sm" id="id_item_amount" name="item_amount" value="" placeholder="Item Amount" readonly>
             </div>
 
             <div class="form-group">
@@ -136,9 +141,10 @@
             <thead>
               <tr>
                 <th>Name</th>
-                <th width="15%">Count</th>
+                <th width="10%">Count</th>
+                <th width="10%">Weight</th>
                 <th width="15%">Rate</th>
-                <th width="15%">Unit</th>
+                <th width="10%">Unit</th>
                 <th width="15%">Amount</th>
                 {% if request.bill.is_draft %}
                 <th width="10%" class="text-center">Action</th>
@@ -149,9 +155,10 @@
               {% for obj in object_list %}
               <tr>
                 <td>{{ obj.name }}</td>
-                <td width="15%">{{ obj.item_count }}</td>
+                <td width="10%">{{ obj.item_count }}</td>
+                <td width="10%">{{ obj.weight }}</td>
                 <td width="15%">{{ obj.rate }}</td>
-                <td width="15%">{{ obj.unit }}</td>
+                <td width="10%">{{ obj.unit }}</td>
                 <td width="15%">{{ obj.amount }}</td>
                 {% if request.bill.is_draft %}
                 <td  width="10%" class="text-center">
@@ -202,7 +209,10 @@
   <script src="{% static "vendor/datatables/dataTables.bootstrap4.min.js" %}"></script>
   <script src="{% static "js/fstdropdown.js" %}"></script>
   <script>
+    var itemunit =  "i"
     $(document).ready(function(){
+	  $('#id_weight').parent().hide();
+
       $("#id_item").removeAttr("required");
       $(".alert-success").fadeTo(2000, 500).slideUp(500, function(){
           $(".alert-success").slideUp(500);
@@ -210,6 +220,16 @@
       $(".alert-danger").fadeTo(2000, 500).slideUp(500, function(){
           $(".alert-success").slideUp(500);
       });
+
+      $('input[type=radio][name=unit]').change(function() {
+		itemunit = this.value
+		if (this.value == 'i') {
+			$('#id_weight').parent().hide();
+		}
+		else {
+			$('#id_weight').parent().show();
+		}
+	  });
 
       $('#id_bill_detail_form').DataTable({
         "bPaginate": false,
@@ -222,6 +242,10 @@
       var rate = parseFloat($("#id_rate").val());
       var billedAmount = parseFloat($("#id_billed_amount").attr("data-amount"));
       var item_count = parseFloat($("#id_item_count").val());
+	  if (itemunit == 'k') {
+		item_count = parseFloat($("#id_weight").val());
+	  }
+
       var amount = rate * item_count;
       if (Number(amount) === amount || amount % 1 !== 0) {
         $("#id_item_amount").val(amount);

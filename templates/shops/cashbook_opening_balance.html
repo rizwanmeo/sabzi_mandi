@@ -1,0 +1,28 @@
+{% extends 'index.html' %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="p-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+    <li class="breadcrumb-item"><a href="/shops">Shops</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Set cashbook opening balance</li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block base_container %}
+<div class="row">
+  <div class="col-lg-8">
+    <div class="p-5">
+      <div class="text-center">
+        <h1 class="h4 text-gray-900 mb-4">Set cashbook opening balance</h1>
+      </div>
+      <form action="{{request.get_full_path}}" method="POST" enctype="multipart/form-data">
+        {% include "form_non_field_errors.html" %}
+        {% include "fields.html" with field=form.amount field_label="Amount" %}
+        {% include "form_buttons.html" with name="Opening Balance" %}
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

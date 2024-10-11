@@ -31,17 +31,24 @@
             </div>
             <div class="col-lg-6">
 				<div class="row">
-                  <div class="col-lg-4">
-                  </div>
-                  <div class="col-lg-4">
+                  <div class="col-lg-3">
                     <div class="input-group input-group-sm mb-3">
-                      <input type="text" class="form-control" id="id_date" name="date" value="{{date}}" readonly="">
+                      <input type="text" class="form-control" id="id_date" name="date" value="{{cashbook_date}}" readonly="">
                       <div class="input-group-append">
                         <span class="input-group-text fa fa-calendar"></span>
                       </div>
                     </div>
                   </div>
-
+                  <div class="col-lg-5">
+					  <div class="text-right">
+						  <a href="/shops/cashbook/opening-balance/?{{ request.GET.urlencode }}" class="btn btn-success btn-icon-split btn-sm">
+							<span class="icon text-white-50">
+							  <i class="fa fa-plus"></i>
+							</span>
+							<span class="text">Set opening balance</span>
+						  </a>
+					  </div>
+                  </div>
                   <div class="col-lg-4">
 					  <div class="text-right">
 						  <a href="/shops/cashbook/create/?{{ request.GET.urlencode }}" class="btn btn-success btn-icon-split btn-sm">
@@ -75,11 +82,26 @@
 			<div class="card-body">
 				<div class="card">
 				  <ul class="list-group list-group-flush">
-					<li class="list-group-item">Bahtaan: {{expense_amount}}</li>
+					<li class="list-group-item">
+						<div class="d-flex justify-content-between">
+							<div>{{expense_amount}}</div>
+							<div>بھگتان</div>
+						</div>
+					</li>
 					{% for obj in object_list2 %} 
-						<li class="list-group-item">{{obj.name}}: {{obj.amount}}</li>
+						<li class="list-group-item"> 
+							<div class="d-flex justify-content-between">
+								<div>{{obj.amount}}</div>
+								<div>{{obj.name}}</div>
+							</div>
+						</li>
 					{% endfor %}
-					<li class="list-group-item">Total: {{total_expense_amount}}</li>
+					<li class="list-group-item">
+						<div class="d-flex justify-content-between">
+							<div>{{total_expense_amount}}</div>
+							<div>ٹوٹل</div>
+						</div>
+					</li>
 				  </ul>
 				</div>
 			</div>
@@ -89,13 +111,38 @@
 			<div class="card-body">
 				<div class="card">
 				  <ul class="list-group list-group-flush">
-					<li class="list-group-item">Baqaya: {{init_amount}}</li>
-					<li class="list-group-item">Naqad: {{supplier_cash_amount}}</li>
-					<li class="list-group-item">Wasooli: {{payment_amount}}</li>
+					<li class="list-group-item">
+						<div class="d-flex justify-content-between">
+							<div>{{init_amount}}</div>
+							<div>بقایا کیش</div>
+						</div>
+					</li>
+					<li class="list-group-item">
+						<div class="d-flex justify-content-between">
+							<div>{{supplier_cash_amount}}</div>
+							<div>نقدی مال</div>
+						</div>
+					</li>
+					<li class="list-group-item">
+						<div class="d-flex justify-content-between">
+							<div>{{payment_amount}}</div>
+							<div>وصولی</div>
+						</div>
+					</li>
 					{% for obj in object_list1 %} 
-						<li class="list-group-item">{{obj.name}}: {{obj.amount}}</li>
+						<li class="list-group-item">
+							<div class="d-flex justify-content-between">
+								<div>{{obj.amount}}</div>
+								<div>{{obj.name}}</div>
+							</div>
+						</li>
 					{% endfor %}
-					<li class="list-group-item">Total: {{total_income_amount}}</li>
+					<li class="list-group-item">
+						<div class="d-flex justify-content-between">
+							<div>{{total_income_amount}}</div>
+							<div>ٹوٹل:</div>
+						</div>
+					</li>
 				  </ul>
 				</div>
 			</div>
@@ -129,7 +176,7 @@
           clearBtn: true,
           autoclose: true,
           setDate: '2020-02-18',
-          datesDisabled: '{{date}}',
+          datesDisabled: '{{cashbook_date}}',
           orientation: "bottom auto",
           daysOfWeekHighlighted: "0"
       }).on('changeDate', function (ev) {

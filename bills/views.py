@@ -1,5 +1,5 @@
 import datetime
-
+from shops import utils as shop_utils
 from django.db.models import Max
 from django.shortcuts import render
 from django.contrib import messages
@@ -32,7 +32,7 @@ class ClientBillListView(CustomListView):
             today = datetime.date.today().strftime("%Y-%m-%d")
             object_list = object_list.filter(bill_date=today)
         columns = ["id", "client__name", "client__identifier", "client__id", "created_time", "is_draft", "bill_date",
-                   "balance", "billed_amount", "payment__amount", "billdetail__rate",
+                   "balance", "billed_amount", "payment__amount", "billdetail__rate", "billdetail__weight",
                    "billdetail__item__name", "billdetail__unit", "billdetail__item_count"]
 
         editable_bills = dict(ClientLedgerEditable.objects.filter(client__shop=self.request.shop).values_list("client_id", "tx_id"))
@@ -59,6 +59,7 @@ class ClientBillListView(CustomListView):
             detail["rate"] = row["billdetail__rate"]
             detail["unit"] = "KG" if row["billdetail__unit"] == "k" else "Count"
             detail["item_count"] = row["billdetail__item_count"]
+            detail["weight"] = row["billdetail__weight"]
 
             row_data["billdetail"].append(detail)
 
@@ -138,6 +139,7 @@ class ClientBillCreateView(CustomCreateView):
         if self.request.GET.get("bill_date"):
             bill_date = self.request.GET.get("bill_date")
         form.fields["bill_date"].initial = bill_date
+        form.fields["payment"].initial = 0
         return context
 
 class ClientBillUpdateView(CustomUpdateView):
@@ -214,7 +216,7 @@ class ClientBillDetailDeleteView(CustomDeleteView):
 class BillDetailCreateView(CustomCreateView):
     model = BillDetail
     template_name = "client_bills/bill_detail_form.html"
-    fields = ["item", "unit", "rate", "item_count"]
+    fields = ["item", "unit", "rate", "item_count", "weight"]
 
     def get_success_url(self):
         return ""
@@ -237,15 +239,20 @@ class BillDetailCreateView(CustomCreateView):
         billed_amount = 0
         qs = BillDetail.objects.filter(bill=self.request.bill)
         qs = qs.order_by("-id")
-        vs = list(qs.values("id", "item__name", "unit", "rate", "item_count"))
+        vs = list(qs.values("id", "item__name", "unit", "rate", "item_count", "weight"))
         for row in vs:
             detail_obj = {}
             detail_obj["id"] = row["id"]
             detail_obj["name"] = row["item__name"]
-            detail_obj["unit"] = "KG" if row["unit"] == 'k' else "Count"
             detail_obj["rate"] = row["rate"]
+            detail_obj["weight"] = row["weight"]
             detail_obj["item_count"] = row["item_count"]
-            detail_obj["amount"] = row["rate"] * row["item_count"]
+            if row["unit"] == 'k':
+                detail_obj["unit"] = "KG" 
+                detail_obj["amount"] = row["rate"] * row["weight"]
+            else:
+                detail_obj["unit"] = "Count"
+                detail_obj["amount"] = row["rate"] * row["item_count"]
             billed_amount += detail_obj["amount"]
             object_list.append(detail_obj)
 
@@ -361,6 +368,8 @@ class SupplierBillListView(CustomListView):
             row_data["is_draft"] = row["is_draft"]
             row_data["bill_date"] = row["bill_date"]
             row_data["balance"] = row["balance"]
+            row_data["farmer_name"] = row["other_expence"].get("farmer_name", "")
+
             row_data["billed_amount"] = row["billed_amount"]
             row_data["total_items"] = 1
             row_data["billdetail"] = []
@@ -589,7 +598,7 @@ class SupplierBillUpdateView(CustomUpdateView):
         final_amount = total_amount
         if final_amount > 0:
             if "commission_amount" in self.object.other_expence:
-                commission_amount = supplier_utils.percentage(self.object.other_expence["commission_amount"], total_amount)
+                commission_amount = shop_utils.percentage(self.object.other_expence["commission_amount"], total_amount)
                 final_amount -= commission_amount
 
             if "unloading_cost" in self.object.other_expence:

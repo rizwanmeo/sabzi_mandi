@@ -41,6 +41,7 @@ class ClientCreateView(CustomCreateView):
         form = context["form"]
         created_time = datetime.date.today().strftime("%Y-%m-%d")
         form.fields["created_time"].initial = created_time
+        form.fields["opening_balance"].initial = 0
         return context
 
 class ClientUpdateView(CustomUpdateView):
@@ -164,10 +165,10 @@ class ClientDetailPrintView(CustomDetailView):
         data = []
         object_list = []
         for count, row in enumerate(vs):
-            if count == 28:
+            if count == 20:
                 data.append(object_list)
                 object_list = []
-            elif count > 28 and len(object_list) == 38:
+            elif count > 20 and len(object_list) == 25:
                 data.append(object_list)
                 object_list = []
             object_list.append(row)

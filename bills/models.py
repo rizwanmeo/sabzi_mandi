@@ -7,7 +7,6 @@ from clients.models import Client
 from suppliers.models import Supplier
 from payments.models import ClientPayment
 
-
 class ClientBill(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     created_time = models.DateTimeField(default=timezone.now, editable=False)
@@ -26,6 +25,7 @@ class BillDetail(models.Model):
     unit = models.CharField(max_length=1, choices=[("k", "KG"), ("i", "Count")])
     rate = CustomFloatField()
     item_count = CustomFloatField()
+    weight = CustomFloatField(null=True, blank=True)
 
     class Meta:
         db_table = "client_bill_detail"

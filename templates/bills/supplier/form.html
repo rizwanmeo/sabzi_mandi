@@ -1,6 +1,8 @@
 {% extends 'index.html' %}
 {% load static %}
 
+{% block title %}Create supplier bill{% endblock %}
+
 {% block css %}
   <!-- Custom styles for this template-->
   <link href="{% static "css/bootstrap-datepicker.css" %}" rel="stylesheet">
@@ -213,7 +215,6 @@
 				<div class="col-md-2 mb-3">
 				  {% include "render_field.html" with field=bill_detail_form.rate field_placeholder="Rate" oninput="calculate();" %}
 				</div>
-
 				<div class="col-md-2 mb-3">
 				  <input type="text" class="form-control form-control-sm" id="id_item_amount" name="item_amount" value="" placeholder="Item Amount" readonly>
 				</div>
@@ -290,7 +291,6 @@
       var rate = parseFloat($("#id_rate").val());
       var billedAmount = parseFloat($("#id_billed_amount").attr("data-amount"));
       var item_count = parseFloat($("#id_item_count").val());
-	  console.log("itemunit", itemunit)
 	  if (itemunit == 'k') {
 		item_count = parseFloat($("#id_weight").val());
 	  }

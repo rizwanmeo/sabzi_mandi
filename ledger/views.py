@@ -241,7 +241,7 @@ def get_client_ledger_data(request):
         total_current_balance += row.balance
 
     ledger_list = sorted(data.values(), key = lambda i: i['identifier'])
-    context["logo_path"] = request.shop.logo.url
+    context["logo_path"] = request.shop.logo.url if request.shop.logo else ""
     context["ledger_list"] = ledger_list
     context["ledger_date"] = selected_date.strftime("%A, %d %B, %Y")
     context["selected_date"] = selected_date.strftime("%Y-%m-%d")

@@ -12,8 +12,12 @@ urlpatterns = [
 
     # all create view urls
     re_path(r'^cashbook/$', views.shop_cashbook_view, name='shops_cashbook'),
+    # all create view urls
+    re_path(r'^cashbook/print/$', views.shop_cashbook_print, name='shops_cashbook'),
     # all update view urls
     re_path(r'^cashbook/create/$', views.ShopCashbookCreateView.as_view(), name='shops_cashbook_create'),
+    # all update view urls
+    re_path(r'^cashbook/opening-balance/$', views.ShopCashOpeningBalanceView.as_view(), name='shops_cashbook_create'),
     # all update view urls
     re_path(r'^cashbook/(?P<pk>\d+)/update/$', views.ShopCashbookUpdateView.as_view(), name='^shops_cashbook_update'),
 

@@ -110,4 +110,3 @@ class ShopDailyRemainingCash(UpdatedInfo):
 
     class Meta:
         db_table = "shop_daily_remaining_cash"
-  

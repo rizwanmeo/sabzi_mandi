@@ -33,7 +33,7 @@ class ClientBillUpdateForm(forms.ModelForm):
 class BillDetailForm(forms.ModelForm):
     class Meta:
         model = BillDetail
-        fields = ['item', 'unit', 'rate', 'item_count']
+        fields = ['item', 'unit', 'rate', 'item_count', 'weight']
 
     def __init__(self, *args, **kwargs):
         super(BillDetailForm, self).__init__(*args, **kwargs)

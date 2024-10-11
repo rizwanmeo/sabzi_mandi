@@ -5,6 +5,7 @@ from ledger.models import SupplierLedger
 from payments.models import SupplierPayment
 from .models import SupplierBill, SupplierBillDetail
 from ledger.utils import create_supplier_bill_ledger
+from shops import utils as shop_utils
 
 def done_drafted_bill(request, bill_obj):
     now = datetime.datetime.now()
@@ -24,7 +25,7 @@ def done_drafted_bill(request, bill_obj):
 
     bill_obj.is_draft = False
     if "commission_amount" in bill_obj.other_expence:
-        total_expense += percentage(bill_obj.other_expence["commission_amount"], total_amount)
+        total_expense += shop_utils.percentage(bill_obj.other_expence["commission_amount"], total_amount)
     if "unloading_cost" in bill_obj.other_expence:
         total_expense += float(bill_obj.other_expence["unloading_cost"])*total_item_count
     if "vahicle_rent" in bill_obj.other_expence:
@@ -90,7 +91,7 @@ def get_print_bill_data(request, bill_obj):
     unloading_cost = 0
     commission_amount = 0
     if "commission_amount" in bill_obj.other_expence:
-        commission_amount = percentage(bill_obj.other_expence["commission_amount"], total_amount)
+        commission_amount = shop_utils.percentage(bill_obj.other_expence["commission_amount"], total_amount)
         total_expense += commission_amount
     if "unloading_cost" in bill_obj.other_expence:
         unloading_cost = float(bill_obj.other_expence["unloading_cost"])*total_item_count
@@ -181,10 +182,6 @@ def get_bill_data(request, supplier_obj, date):
     context["total_item_weight"] = total_item_weight
 
     return context
-
-def percentage(part, whole):
-  return (float(part) / 100 )* float(whole)
-
 
 def get_supplier_detail(request, context, is_reverse=False):
     obj = context["object"]
@@ -339,7 +336,7 @@ def get_supplier_daily_detail(request, context):
 
         other_expence = row["other_expence"]
         if "commission_amount" in other_expence:
-            commission_amount = percentage(other_expence["commission_amount"], actual_billed_amount)
+            commission_amount = shop_utils.percentage(other_expence["commission_amount"], actual_billed_amount)
         if "unloading_cost" in other_expence:
             unloading_cost = float(other_expence["unloading_cost"])*total_item_count
 

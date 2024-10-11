@@ -41,4 +41,36 @@ class Migration(migrations.Migration):
                 ('item', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='shops.Item')),
             ],
         ),
+        migrations.CreateModel(
+            name='SupplierBill',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('created_time', models.DateTimeField(default=django.utils.timezone.now, editable=False)),
+                ('is_draft', models.BooleanField(default=False)),
+                ('bill_date', models.DateField()),
+                ('balance', sabzi_mandi.models.CustomFloatField(default=0)),
+                ('billed_amount', sabzi_mandi.models.CustomFloatField(default=0)),
+                ('other_expence', models.JSONField(default=dict)),
+                ('cash', sabzi_mandi.models.CustomFloatField(default=0)),
+                ('supplier', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='suppliers.supplier')),
+            ],
+            options={
+                'db_table': 'supplier_bill',
+            },
+        ),
+        migrations.CreateModel(
+            name='SupplierBillDetail',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('unit', models.CharField(choices=[('k', 'KG'), ('i', 'Count')], max_length=1)),
+                ('rate', sabzi_mandi.models.CustomFloatField()),
+                ('item_count', sabzi_mandi.models.CustomFloatField()),
+                ('weight', sabzi_mandi.models.CustomFloatField(blank=True, null=True)),
+                ('bill', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='bills.supplierbill')),
+                ('item', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='shops.item')),
+            ],
+            options={
+                'db_table': 'supplier_bill_detail',
+            },
+        ),
     ]

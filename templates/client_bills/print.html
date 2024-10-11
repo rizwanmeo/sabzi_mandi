@@ -68,9 +68,9 @@
               {% for bill_obj in bill_detail_list %}
               <tr>
                 <th class="text-center">{{ bill_obj.amount }}</th>
-                <th class="text-center">{% if bill_obj.unit == 'k' %}{{ bill_obj.item_count }}-KG{% else %}-{% endif %}</th>
+                <th class="text-center">{% if bill_obj.unit == 'k' %}{{ bill_obj.weight }}-KG{% else %}-{% endif %}</th>
                 <th class="text-center">{{ bill_obj.rate }}</th>
-                <th class="text-center">{% if bill_obj.unit == 'i' %}{{ bill_obj.item_count }}{% endif %}</th>
+                <th class="text-center">{{ bill_obj.item_count }}</th>
                 <th><div class="text-right" style="padding-right: 10px;">{{ bill_obj.name }}</div></th>
               </tr>
               {% endfor %}

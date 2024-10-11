@@ -28,5 +28,22 @@ class Migration(migrations.Migration):
                 ('description', models.TextField(blank=True, null=True)),
                 ('client', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='clients.Client')),
             ],
+        ),        
+        migrations.CreateModel(
+            name='SupplierLedger',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('tx_id', models.CharField(max_length=64)),
+                ('tx_time', models.DateTimeField(default=django.utils.timezone.now, editable=False)),
+                ('tx_date', models.DateField()),
+                ('balance', sabzi_mandi.models.CustomFloatField(default=0)),
+                ('bill_amount', sabzi_mandi.models.CustomFloatField(default=0)),
+                ('payment_amount', sabzi_mandi.models.CustomFloatField(default=0)),
+                ('description', models.TextField(blank=True, null=True)),
+                ('supplier', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='suppliers.supplier')),
+            ],
+            options={
+                'db_table': 'supplier_ledger',
+            },
         ),
     ]
