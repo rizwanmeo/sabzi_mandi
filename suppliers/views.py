@@ -1,5 +1,6 @@
 import datetime
 
+from django.db import transaction
 from django.db.models import Sum, Count
 from django.shortcuts import render
 from django.contrib import messages
@@ -30,6 +31,7 @@ class SupplierCreateView(CustomCreateView):
     template_name = "suppliers/form.html"
     fields = ["name", "address", "cnic", "phone", "opening_balance", "created_time"]
 
+    @transaction.atomic
     def form_valid(self, form):
         form.instance.shop = self.request.shop
         form.instance.current_balance = form.instance.opening_balance
@@ -58,6 +60,7 @@ class SupplierUpdateView(CustomUpdateView):
     template_name = "suppliers/form.html"
     fields = ["name", "address", "cnic", "phone", "opening_balance", "created_time"]
 
+    @transaction.atomic
     def form_valid(self, form):
         form.instance.last_modified = datetime.datetime.now()
         super(SupplierUpdateView, self).form_valid(form)
@@ -76,6 +79,7 @@ class SupplierDeleteView(CustomDeleteView):
     model = Supplier
     success_url = "/suppliers"
 
+    @transaction.atomic
     def delete(self, request, *args, **kwargs):
         super(SupplierDeleteView, self).delete(request, *args, **kwargs)
         msg = 'Supplier: [%s] was delete succfully.' % self.object.name

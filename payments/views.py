@@ -1,6 +1,8 @@
 import datetime
+import logging
 
 from django import forms
+from django.db import transaction
 from django.shortcuts import render
 from django.contrib import messages
 from django.db.models import Max, Sum
@@ -71,7 +73,14 @@ class ClientPaymentCreateView(CustomCreateView):
         form.fields["payment_date"].initial = datetime.date.today().strftime("%Y-%m-%d")
         return context
 
+    @transaction.atomic
     def form_valid(self, form):
+        logging.info(
+            "Going to create client paymment. client_id: %d, current_balance: %d, amount: %d",
+            form.instance.client.id,
+            form.instance.client.current_balance,
+            form.instance.amount
+        )
         super(ClientPaymentCreateView, self).form_valid(form)
         create_payment_ledger(form.instance, form.instance.client.current_balance)
         form.instance.client.current_balance -= form.instance.amount
@@ -98,8 +107,15 @@ class ClientPaymentUpdateView(CustomUpdateView):
         form.initial["payment_date"] = form.initial["payment_date"].strftime("%Y-%m-%d")
         return context
 
+    @transaction.atomic
     def form_valid(self, form):
         super(ClientPaymentUpdateView, self).form_valid(form)
+        logging.info(
+		    "Going to update client paymment. client_id: %d, current_balance: %d, amount: %d",
+            form.instance.client.id,
+            form.instance.client.current_balance,
+            form.instance.amount
+        )
         date = form.cleaned_data["payment_date"]
         description = form.cleaned_data["description"]
         update_ledger_date("payment-%d" % form.instance.pk, date, description)
@@ -120,8 +136,15 @@ class ClientPaymentDeleteView(CustomDeleteView):
             raise Http404
         return context
 
+    @transaction.atomic
     def delete(self, request, *args, **kwargs):
         super(ClientPaymentDeleteView, self).delete(request, *args, **kwargs)
+        logging.info(
+            "Going to delete client paymment. client_id: %d, current_balance: %d, amount: %d",
+            self.object.client.id,
+            self.object.client.current_balance,
+            self.object.amount
+        )
         payment_tx_id = "payment-"+str(self.object.pk)
         delete_ledger(payment_tx_id)
         self.object.client.current_balance += self.object.amount
@@ -188,8 +211,16 @@ class SupplierPaymentCreateView(CustomCreateView):
         form.fields["payment_date"].initial = datetime.date.today().strftime("%Y-%m-%d")
         return context
 
+    @transaction.atomic
     def form_valid(self, form):
         super(SupplierPaymentCreateView, self).form_valid(form)
+        logging.info(
+            "Going to create supplier paymment. supplier_id: %d, current_balance: %d, amount: %d, payment_type: %s",
+            form.instance.supplier.id,
+            form.instance.supplier.current_balance,
+            form.instance.amount,
+            form.instance.payment_type
+        )
         if form.instance.payment_type == "i":
             form.instance.supplier.current_balance += form.instance.amount
         else:
@@ -215,8 +246,16 @@ class SupplierPaymentDeleteView(CustomDeleteView):
             raise Http404
         return context
 
+    @transaction.atomic
     def delete(self, request, *args, **kwargs):
         super(SupplierPaymentDeleteView, self).delete(request, *args, **kwargs)
+        logging.info(
+            "Going to delete supplier paymment. supplier_id: %d, current_balance: %d, amount: %d, payment_type: %s",
+            self.object.supplier.id,
+            self.object.supplier.current_balance,
+            self.object.amount,
+            self.object.payment_type
+        )
         payment_tx_id = "payment-"+str(self.object.pk)
         delete_supplier_ledger(payment_tx_id)
         if self.object.payment_type == "o":
@@ -245,7 +284,6 @@ def clients_payment_print(request):
             row["amount"] = obj["amount"]
             index = i % 2
             data[index].append(row)
-        print('i', data)
         context["object_list"] = data
         return render(request, 'payments/clients_payment_print.html', context)
 

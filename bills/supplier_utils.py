@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from django.db.models import Sum
 from ledger.models import SupplierLedger
@@ -47,6 +48,13 @@ def done_drafted_bill(request, bill_obj):
 
     bill_obj.created_time = now
     bill_obj.billed_amount = billed_amount
+
+    logging.info(
+        "Going to done supplier bill. supplier_id: %d, current_balance: %d, amount: %d",
+        bill_obj.supplier.id,
+        bill_obj.supplier.current_balance,
+        billed_amount
+    )
 
     if bill_obj.other_expence.get("is_cash", "") == 'n':
         create_supplier_bill_ledger(bill_obj, bill_obj.supplier.current_balance)

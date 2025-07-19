@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from django.db.models import Sum
 from clients.models import Client
@@ -18,6 +19,13 @@ def done_drafted_bill(request, bill_obj):
         else:
             billed_amount += detail_obj["rate"] * detail_obj["item_count"]
 
+    logging.info(
+        "Going to done client bill. client_id: %d, current_balance: %d, amount: %d",
+        bill_obj.client.id,
+        bill_obj.client.current_balance,
+        billed_amount
+    )
+
     bill_obj.is_draft = False
     bill_obj.billed_amount = billed_amount
 
@@ -26,6 +34,13 @@ def done_drafted_bill(request, bill_obj):
     bill_obj.client.current_balance += billed_amount
 
     if bill_obj.payment:
+        logging.info(
+            "Going to create client payment along with bill. client_id: %d, current_balance: %d, amount: %d",
+            bill_obj.client.id,
+            bill_obj.client.current_balance,
+            bill_obj.payment.amount
+        )
+
         bill_obj.payment.payment_time = now + datetime.timedelta(seconds=1)
         bill_obj.payment.is_draft = False
         description = "Payment received against bill ID bill-%d" % bill_obj.id

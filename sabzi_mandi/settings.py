@@ -14,6 +14,8 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 #https://stackoverflow.com/questions/47940607/how-to-integrate-multi-languages-support-by-creating-language-files-in-django-2
 
 import os
+import logging
+import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -153,3 +155,16 @@ LOGOUT_REDIRECT_URL = '/login'
 LOGIN_REDIRECT_URL = '/'
 
 TIME_ZONE = 'Asia/Karachi'
+
+now = datetime.datetime.now()
+logging.basicConfig(
+    filename="E:\sabzi mandi\logs\%s.log" % now.strftime("%Y-%m"),
+    encoding="utf-8",
+    filemode="a",
+    format='{"time": "%(asctime)s", "level": "%(levelname)s", "msg": "%(message)s"}',
+#    style="{",
+    datefmt="%Y-%m-%d %H:%M",
+    level=logging.DEBUG,
+)
+
+

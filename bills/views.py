@@ -1,5 +1,8 @@
 import datetime
+import logging
+
 from shops import utils as shop_utils
+from django.db import transaction
 from django.db.models import Max
 from django.shortcuts import render
 from django.contrib import messages
@@ -102,6 +105,7 @@ class ClientBillCreateView(CustomCreateView):
     success_url = "/bills/client"
     template_name = "client_bills/form.html"
 
+    @transaction.atomic
     def form_valid(self, form):
         today = datetime.date.today()
         form.instance.is_draft = True
@@ -148,6 +152,7 @@ class ClientBillUpdateView(CustomUpdateView):
     success_url = "/bills/client"
     template_name = "client_bills/form.html"
 
+    @transaction.atomic
     def form_valid(self, form):
         super(ClientBillUpdateView, self).form_valid(form)
         update_ledger_date("bill-%d" % form.instance.pk, form.cleaned_data["bill_date"])
@@ -186,9 +191,17 @@ class ClientBillDeleteView(CustomDeleteView):
             raise Http404
         return context
 
+    @transaction.atomic
     def delete(self, request, *args, **kwargs):
         super(ClientBillDeleteView, self).delete(request, *args, **kwargs)
         if not self.object.is_draft:
+            logging.info(
+                "Going to delete client bill. client_id: %d, current_balance: %d, amount: %d",
+                self.object.client.id,
+                self.object.client.current_balance,
+                self.object.billed_amount
+            )
+
             bill_tx_id = "bill-"+str(self.object.pk)
             delete_ledger(bill_tx_id)
             self.object.client.current_balance -= self.object.billed_amount
@@ -202,6 +215,7 @@ class ClientBillDetailDeleteView(CustomDeleteView):
     model = BillDetail
     success_url = "/bills/client"
 
+    @transaction.atomic
     def delete(self, request, *args, **kwargs):
         if not self.get_object().bill.is_draft:
             raise Http404
@@ -221,6 +235,7 @@ class BillDetailCreateView(CustomCreateView):
     def get_success_url(self):
         return ""
 
+    @transaction.atomic
     def form_valid(self, form):
         form.instance.bill = self.request.bill
         super(BillDetailCreateView, self).form_valid(form)
@@ -277,6 +292,7 @@ class BillDetailCreateView(CustomCreateView):
         request.bill = self.get_bill_obj(kwargs.get("bill_id", 0))
         return super(BillDetailCreateView, self).get(request)
 
+    @transaction.atomic
     def post(self, request, *args, **kwargs):
         request.bill = self.get_bill_obj(kwargs.get("bill_id", 0))
         return super(BillDetailCreateView, self).post(request)
@@ -416,6 +432,7 @@ class SupplierBillCreateView(CustomCreateView):
     form_class = SupplierBillForm
     template_name = "bills/supplier/form.html"
 
+    @transaction.atomic
     def form_valid(self, form):
         data = {}
         super(SupplierBillCreateView, self).form_valid(form)
@@ -488,11 +505,19 @@ class SupplierBillDeleteView(CustomDeleteView):
             raise Http404
         return context
 
+    @transaction.atomic
     def delete(self, request, *args, **kwargs):
         super(SupplierBillDeleteView, self).delete(request, *args, **kwargs)
         if not self.object.is_draft:
             bill_tx_id = "bill-"+str(self.object.pk)
             if self.object.other_expence.get("is_cash") == "n":
+                logging.info(
+                    "Going to delete supplier bill. supplier_id: %d, current_balance: %d, amount: %d",
+                    self.object.supplier.id,
+                    self.object.supplier.current_balance,
+                    self.object.billed_amount
+                )
+
                 delete_supplier_ledger(bill_tx_id)
                 self.object.supplier.current_balance -= self.object.billed_amount
                 self.object.supplier.save()
@@ -506,6 +531,7 @@ class SupplierBillDetailDeleteView(CustomDeleteView):
     model = SupplierBillDetail
     success_url = "/bills/supplier"
 
+    @transaction.atomic
     def delete(self, request, *args, **kwargs):
         if not self.get_object().bill.is_draft:
             raise Http404
@@ -635,6 +661,7 @@ class SupplierBillUpdateView(CustomUpdateView):
 
         return context
 
+    @transaction.atomic
     def post(self, request, *args, **kwargs):
         if request.method =='POST' and 'update_bill' in request.POST:
             return super(SupplierBillUpdateView, self).post(request, *args, **kwargs)
@@ -643,6 +670,7 @@ class SupplierBillUpdateView(CustomUpdateView):
             self.success_url = "/bills/supplier/"+str(self.object.pk)
             return HttpResponseRedirect(self.get_success_url())
 
+    @transaction.atomic
     def form_valid(self, form):
         data = {}
         super(SupplierBillUpdateView, self).form_valid(form)

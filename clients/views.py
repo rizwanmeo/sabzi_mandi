@@ -1,5 +1,6 @@
 import datetime
 
+from django.db import transaction
 from django.db.models import Sum, Count
 from django.shortcuts import render
 from django.contrib import messages
@@ -24,6 +25,7 @@ class ClientCreateView(CustomCreateView):
     template_name = "clients/form.html"
     fields = ["name", "address", "cnic", "phone", "opening_balance", "created_time"]
 
+    @transaction.atomic
     def form_valid(self, form):
         form.instance.shop = self.request.shop
         form.instance.current_balance = form.instance.opening_balance
@@ -50,6 +52,7 @@ class ClientUpdateView(CustomUpdateView):
     template_name = "clients/form.html"
     fields = ["name", "address", "cnic", "phone", "opening_balance", "created_time"]
 
+    @transaction.atomic
     def form_valid(self, form):
         super(ClientUpdateView, self).form_valid(form)
         msg = 'Client: [%s] was updated succfully.' % form.instance.name
@@ -70,6 +73,7 @@ class ClientDeleteView(CustomDeleteView):
     def get(self, request, *args, **kwargs):
         return self.post(request, *args, **kwargs)
 
+    @transaction.atomic
     def delete(self, request, *args, **kwargs):
         super(ClientDeleteView, self).delete(request, *args, **kwargs)
         msg = 'Client: [%s] was delete succfully.' % self.object.name
